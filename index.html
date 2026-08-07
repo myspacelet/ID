@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpg" href="favicon.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инструмент поиска для ИД</title>
+    <style>
+        /* Стили для плавающего блока кнопок */
+.scroll-nav {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+  opacity: 0; /* Изначально скрыты */
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Чтобы не кликались, пока скрыты */
+}
+
+/* Класс, который мы будем добавлять через JS, когда появятся результаты */
+.scroll-nav.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-nav button {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: none;
+  background-color: #007bff; /* Синий цвет под стиль ваших кнопок */
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.scroll-nav button:hover {
+  background-color: #0056b3;
+  transform: scale(1.1);
+}
+
+        /* Глобальные настройки и фон */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #bfe3f7 0%, #a1cbe7 50%, #83b3d8 100%);
+            min-height: screen;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            color: #333333;
+            transition: background 0.3s;
+        }
+
+        /* Белая центральная карточка-контейнер */
+        .app-card {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        /* Заголовок с иконкой */
+        .app-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+                /* Верхняя панель переключателей режима */
+        .top-navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            border: none;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: #64748b;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Активная кнопка синего цвета */
+        .nav-btn.active {
+            background: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Блок полей ввода списков */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .input-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #334155;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-textarea:focus {
+            border-color: #3b82f6;
+        }
+
+        /* Кнопка "Добавить список" во всю ширину */
+        .btn-add {
+            width: 100%;
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
+        }
+
+        /* Нижние основные кнопки */
+        .actions-panel {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-main {
+            flex: 1;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #94a3b8;
+            color: white;
+        }
+
+        /* Нижняя панель статуса базы */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .status-active {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #16a34a;
+            font-weight: 500;
+        }
+        /* Стили для темной темы */
+        body.dark-mode { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        body.dark-mode .app-card { background: #1e293b; color: #f8fafc; }
+        body.dark-mode .app-title { color: #3b82f6; }
+        body.dark-mode .input-label { color: #cbd5e1; }
+        body.dark-mode .input-textarea { background: #334155; border-color: #475569; color: #f8fafc; }
+        body.dark-mode .top-navbar { background: #334155; }
+        body.dark-mode .nav-btn { color: #94a3b8; }
+        
+        body.dark-mode .nav-btn.active {
+            color: #ffffff !important; 
+            background: #3b82f6;
+        }
+
+        /* Кнопка удаления для динамических списков */
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .flex-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        /* Контейнер результатов */
+        .results-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        body.dark-mode .results-card {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        /* Строка результата (Город слева — Кнопки справа) */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            gap: 16px;
+        }
+        body.dark-mode .result-row { border-bottom-color: #475569; }
+        .result-row:last-child { border-bottom: none; }
+
+        .result-city {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e293b;
+        }
+        body.dark-mode .result-city { color: #f8fafc; }
+
+        .badges-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Интерактивные кнопки-бейджи магазинов ТОП-3 */
+        .store-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .store-badge:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-1px);
+        }
+        body.dark-mode .store-badge {
+            background: #1e293b;
+            color: #60a5fa;
+            border-color: #3b82f6;
+        }
+
+        /* Блок Гео-поиска (Шаг 3) */
+        .geo-block {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        body.dark-mode .geo-block { border-top-color: #475569; }
+
+        .geo-input-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-orange {
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-orange:hover { background: #c2410c; }
+
+        /* Всплывающее окно (Модалка карточки магазина Шаг 2.1) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        body.dark-mode .modal-content { background: #1e293b; color: white; }
+
+        .modal-close {
+            position: absolute;
+            top: 12px; right: 14px;
+            background: none; border: none;
+            font-size: 20px; cursor: pointer; color: #94a3b8;
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        body.dark-mode .modal-row { background: #334155; }
+        
+        .btn-copy {
+            background: none; border: none; cursor: pointer; font-size: 14px;
+        }
+        /* Стили для нового верхнего статус-бара */
+        .status-bar-top {
+            display: flex;
+            justify-content: flex-end; 
+            align-items: center;
+            gap: 14px;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: -16px; 
+            margin-bottom: 16px; 
+            padding-right: 4px;
+        }
+
+        .status-refresh-btn {
+            color: #3b82f6;
+            cursor: pointer;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .status-refresh-btn:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+        
+        /* Поддержка темной темы для верхнего статуса */
+        body.dark-mode .status-bar-top { color: #94a3b8; }
+        body.dark-mode .status-refresh-btn { color: #60a5fa; }
+        /* Цвет заголовка результатов по умолчанию для светлой темы */
+        .results-title {
+            color: #1e3a5f !important;
+        }
+
+        /* Цвет заголовка для тёмной темы (светло-голубой, контрастный) */
+        body.dark-mode .results-title {
+            color: #60a5fa !important;
+        }
+        /* Красивое отображение точных магазинов в темной теме */
+        body.dark-mode .store-badge.exact-badge {
+            background: #064e3b !important;
+            color: #34d399 !important;
+            border-color: #059669 !important;
+        }
+        /* Класс для плавной и красивой подсветки строки */
+.highlight-city {
+  animation: pulse-highlight 2s ease-in-out;
+  border: 2px solid #ff6b35 !important; /* Оранжевая рамка под цвет кнопки */
+  background-color: rgba(255, 107, 53, 0.1) !important; /* Легкий оранжевый фон */
+}
+
+@keyframes pulse-highlight {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7);
+  }
+  50% {
+    transform: scale(1.02); /* Строка слегка увеличится, привлекая внимание */
+    box-shadow: 0 0 15px 5px rgba(255, 107, 53, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0);
+  }
+}
+    </style>
+</head>
+<body>
+
+    <!-- Главная белая карточка приложения -->
+    <div class="app-card">
+        <div class="status-bar-top">
+            <span class="status-active">🟢 База городов: активна...</span>
+            <span class="status-refresh-btn" onclick="updateDatabase()">🔄 Обновить базу сейчас</span>
+        </div>
+        <!-- Заголовок сайта -->
+        <h1 class="app-title">🚌 Добро пожаловать!</h1>
+        
+        <!-- 🎛️ Верхняя панель управления -->
+        <div class="top-navbar">
+            <button id="btn-search-city" onclick="setSearchMode('city')" class="nav-btn active">
+                🏙️ Поиск по городам
+            </button>
+            <button id="btn-search-code" onclick="setSearchMode('code')" class="nav-btn">
+                🪪 Поиск по коду магазина
+            </button>
+            <button id="theme-toggle-btn" onclick="toggleTheme()" class="nav-btn" style="flex: 0 0 auto; width: 44px; padding: 10px 0; font-size: 16px;">
+                🌙
+            </button>
+        </div>
+
+        <!-- ⏳ Блок ввода списков -->
+        <div id="lists-container">
+            
+            <!-- Список 1 -->
+            <div class="input-group">
+                <label class="input-label">Список 1</label>
+                <textarea id="list-1" class="input-textarea" placeholder="Вставьте первый список строк..."></textarea>
+            </div>
+
+            <!-- Список 2 -->
+            <div class="input-group">
+                <label class="input-label">Список 2</label>
+                <textarea id="list-2" class="input-textarea" placeholder="Вставьте второй список строк..."></textarea>
+            </div>
+
+        </div>
+
+        <!-- Зелёная кнопка добавления нового списка -->
+        <button onclick="addNewList()" class="btn-add">
+            ➕ Добавить список
+        </button>
+        <!-- 🔢 Фильтр по минимальному количеству товара -->
+<!-- 🔢 Фильтр по минимальному количеству товара -->
+<div class="input-group" style="margin-bottom: 16px;">
+    <label class="input-label" style="display: flex; align-items: center; gap: 6px;">
+        🔢 Требуемое количество товара (не обязательно)
+    </label>
+    <input type="number" id="min-stock-filter" class="input-textarea" style="height: 42px; margin-bottom: 0;" placeholder="Например: 5 или 6 (если пусто — выведет любые остатки)" min="1">
+</div>
+        <!-- Основные кнопки действий -->
+        <div class="actions-panel">
+            <button onclick="startSearch()" class="btn-main btn-primary">
+                Найти совпадения
+            </button>
+            <button onclick="resetAllForm()" class="btn-main btn-secondary">
+                Сбросить всё
+            </button>
+        </div>
+                <!-- БЛОК РЕЗУЛЬТАТОВ (Появляется после нажатия "Найти совпадения") -->
+        <div id="results-section" style="display: none;">
+            <div class="results-card">
+                <h3 class="input-label results-title">📊 Результаты анализа и пересечений (ТОП-3 остатки):</h3>
+                
+                <!-- Сюда JavaScript будет вставлять строки с городами и кнопками-бейджами -->
+                <div id="results-rows-container"></div>
+
+                <!-- 📍 НАЙТИ БЛИЖАЙШИЙ ИЗ НАЙДЕННЫХ (Шаг 3) -->
+                <div class="geo-block">
+                    <label class="input-label">📍 Найти ближайший из найденных</label>
+                    <div class="geo-input-wrapper">
+                        <input type="text" id="geo-search-input" class="input-textarea" style="height: 42px; margin-bottom: 0;" placeholder="Введите город, село, деревню или СНТ клиента...">
+                        <button onclick="findNearestStore()" class="btn-orange">Найти ближайший</button>
+                    </div>
+                    <!-- Место для вывода текста с результатом гео-поиска -->
+                    <div id="geo-result-output" style="margin-top: 12px; font-size: 13px; font-weight: 500;"></div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+
+    <!-- ВСПЛЫВАЮЩЕЕ ОКНО: КАРТОЧКА МАГАЗИНА -->
+    <div id="store-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal(null)">×</button>
+            <h4 id="modal-store-title" style="font-weight: 700; margin-bottom: 16px; color: #3b82f6;">🏪 Карточка магазина</h4>
+            
+            <div style="margin-bottom: 12px;">
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">ТОЧНЫЙ АДРЕС ОТГРУЗКИ</span>
+                <div class="modal-row">
+                    <span id="modal-address-text">Загрузка...</span>
+                    <button onclick="copyText('modal-address-text', this)" class="btn-copy">📋</button>
+                </div>
+            </div>
+
+            <div>
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">УНИКАЛЬНЫЙ КОД AXAPTA</span>
+                <div class="modal-row">
+                    <span id="modal-axapta-text">Загрузка...</span>
+                    <button onclick="copyText('modal-axapta-text', this)" class="btn-copy">📋</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <script>
+        let globalNearestCityName = "";
+
+function scrollToNearestCity() {
+    if (!globalNearestCityName) return;
+    
+    // Ищем строку с этим городом на экране
+    const cleanTarget = globalNearestCityName.trim().toLowerCase();
+    const targetRow = document.querySelector(`.result-row[data-city="${cleanTarget}"]`);
+    
+    if (targetRow) {
+        // Плавно перемещаем экран к этой строке по центру
+        targetRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+}
+        // Функция для поиска и красивой подсветки нужного города
+function highlightNearestCityRow(targetCityName) {
+    if (!targetCityName) return;
+    
+    const cleanTarget = targetCityName.trim().toLowerCase();
+    
+    // Сначала убираем старую подсветку со всех строк, если она была
+    document.querySelectorAll('.result-row').forEach(row => {
+        row.classList.remove('highlight-city');
+    });
+    
+    // Ищем строку с нужным городом
+    const targetRow = document.querySelector(`.result-row[data-city="${cleanTarget}"]`);
+    
+    if (targetRow) {
+        // Добавляем класс анимации и подсветки
+        targetRow.classList.add('highlight-city');
+        
+        // Плавно скроллим к подсвеченной строке, делая небольшой отступ по центру экрана
+        targetRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+}
+
+        // Функции для плавного скролла
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function scrollToBottom() {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+ const HFLABS_GEO_URL = "city.csv";
+// Глобальный реестр городов (группирует одноименные точки в массивы)
+let russianCitiesGeoCache = {};
+
+async function loadExternalGeoDatabase() {
+    const statusText = document.querySelector('.status-active');
+    const originalStatus = statusText.innerHTML;
+    
+    try {
+        statusText.innerHTML = "⏳ Загрузка гео-базы городов России...";
+        
+        const response = await fetch(HFLABS_GEO_URL);
+        const csvText = await response.text();
+        const lines = csvText.split('\n');
+        
+        const headers = lines[0].split(',');
+        
+        // Считываем индексы ВСЕХ нужных колонок, включая и city, и address
+        const cityIdx = headers.indexOf('city');
+        const addressIdx = headers.indexOf('address');
+        const latIdx = headers.indexOf('geo_lat');
+        const lngIdx = headers.indexOf('geo_lon');
+        const tzIdx = headers.indexOf('timezone');
+        const regionIdx = headers.indexOf('region');
+        const popIdx = headers.indexOf('population');
+
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            
+            let cityName = "";
+            
+            // 🌟 УМНАЯ ЛОГИКА ОПРЕДЕЛЕНИЯ ИМЕНИ ГОРОДА:
+            if (cityIdx !== -1 && row[cityIdx] && row[cityIdx].replace(/"/g, '').trim() !== "") {
+                cityName = row[cityIdx].replace(/"/g, '').trim().toLowerCase();
+            } 
+            // 2. Если 'city' пустой, берем данные из 'address' и вычищаем
+            else if (addressIdx !== -1 && row[addressIdx]) {
+                let rawAddress = row[addressIdx].replace(/"/g, '').trim().toLowerCase();
+                cityName = rawAddress.replace(/^г\s+/, '').trim();
+            }
+            
+            // Если имя города так и не удалось вытащить, или нет координат — пропускаем строку
+            if (!cityName) continue;
+            const lat = parseFloat(row[latIdx]);
+            const lng = parseFloat(row[lngIdx]);
+            if (isNaN(lat) || isNaN(lng)) continue; 
+
+            const regionName = row[regionIdx] ? row[regionIdx].replace(/"/g, '').trim().toLowerCase() : "";
+            const population = row[popIdx] ? parseInt(row[popIdx].replace(/"/g, ''), 10) : 0;
+            
+            // Перевод текстовой таймзоны в цифру
+            const tzText = row[tzIdx] ? row[tzIdx].replace(/"/g, '').trim() : "UTC+3";
+            let tzOffset = 3;
+            if (tzText.includes('+')) {
+                const parts = tzText.split('+');
+                tzOffset = parts.length > 1 ? parseInt(parts[1], 10) : 3;
+            } else if (tzText.includes('-')) {
+                const parts = tzText.split('-');
+                tzOffset = parts.length > 1 ? -parseInt(parts[1], 10) : 3;
+            } else if (tzText.includes('Moscow') || tzText.includes('Volgograd')) tzOffset = 3;
+            else if (tzText.includes('Samara')) tzOffset = 4;
+            else if (tzText.includes('Yekaterinburg')) tzOffset = 5;
+            else if (tzText.includes('Omsk')) tzOffset = 6;
+            else if (tzText.includes('Novosibirsk') || tzText.includes('Krasnoyarsk')) tzOffset = 7;
+            else if (tzText.includes('Irkutsk')) tzOffset = 8;
+            else if (tzText.includes('Yakutsk')) tzOffset = 9;
+            else if (tzText.includes('Vladivostok') || tzText.includes('Khabarovsk')) tzOffset = 10;
+            else if (tzText.includes('Magadan') || tzText.includes('Sakhalin')) tzOffset = 11;
+
+            const geoData = { 
+                lat: lat, 
+                lng: lng, 
+                tz: tzOffset, 
+                region: regionName.replace(/область|республика|край/g, '').trim(),
+                population: population 
+            };
+
+            if (!russianCitiesGeoCache[cityName]) {
+                russianCitiesGeoCache[cityName] = [];
+            }
+            russianCitiesGeoCache[cityName].push(geoData);
+        }
+        
+        statusText.innerHTML = originalStatus;
+        console.log(`🌍 Универсальный парсер загрузил базу: ${Object.keys(russianCitiesGeoCache).length} городов.`);
+        
+    } catch (err) {
+        statusText.innerHTML = "🔴 Ошибка загрузки глобальной гео-базы";
+        console.error(err);
+    }
+}
+
+// ========================================================
+// ГЛОБАЛЬНЫЙ АДРЕС БЭКЕНДА И НАСТРОЙКИ ПРИЛОЖЕНИЯ
+// ========================================================
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySqISokz6WKlkUhrY7kFsAgYhCkmLLTCGOQpIXLTjPoQrCcjYcB-PltRoPw2b-5San/exec";
+
+let currentSearchMode = 'city'; 
+let listCount = 2;              
+let storeDatabase = {};         
+
+// Автоматический старт при загрузке страницы
+window.addEventListener('DOMContentLoaded', () => {
+    loadDatabase(); // Скачивает магазины из Google Таблицы
+    loadExternalGeoDatabase(); // Параллельно скачивает 1000 городов России с GitHub HFLabs!
+    
+    if (localStorage.getItem('app-theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-toggle-btn').innerText = '☀️';
+    } else {
+        document.getElementById('theme-toggle-btn').innerText = '🌙';
+    }
+
+    // Слушатель нажатия Enter для поля ввода города клиента
+    const geoInput = document.getElementById('geo-search-input');
+    if (geoInput) {
+        geoInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Защита от перезагрузки страницы
+                findNearestStore();     // Запуск расчёта по Enter
+            }
+        });
+    }
+});
+
+// Загрузка справочника из Google Таблицы с добавлением города в адрес
+function loadDatabase() {
+    const statusText = document.querySelector('.status-active');
+    if (!GOOGLE_SCRIPT_URL) {
+        statusText.innerHTML = "🔴 Ошибка: Ссылка на бэкенд отсутствует";
+        return;
+    }
+    statusText.innerHTML = "⏳ Загрузка базы данных магазинов...";
+    
+    fetch(GOOGLE_SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                statusText.innerHTML = "🔴 Ошибка базы: " + data.error;
+            } else {
+                // Модифицируем базу данных: склеиваем город и адрес сразу при загрузке
+                for (let code in data) {
+                    const store = data[code];
+                    if (store.city && store.address) {
+                        // Очищаем имя города от лишних пробелов
+                        const cleanCity = store.city.trim();
+                        // Если адрес уже начинается с этого города, не дублируем его
+                        if (!store.address.toLowerCase().startsWith(cleanCity.toLowerCase())) {
+                            store.address = `${cleanCity} ${store.address}`;
+                        }
+                    }
+                }
+
+                storeDatabase = data;
+                statusText.innerHTML = `🟢 База городов: активна (${Object.keys(data).length} маг.)`;
+            }
+        })
+        .catch(err => {
+            statusText.innerHTML = "🔴 Нет связи с Google Таблицей";
+            console.error(err);
+        });
+}
+
+function updateDatabase() { loadDatabase(); }
+
+// Управление вкладками режима поиска
+function setSearchMode(mode) {
+    currentSearchMode = mode;
+    const btnCity = document.getElementById('btn-search-city');
+    const btnCode = document.getElementById('btn-search-code');
+    
+    if (mode === 'city') {
+        btnCity.classList.add('active');
+        btnCode.classList.remove('active');
+    } else {
+        btnCode.classList.add('active');
+        btnCity.classList.remove('active');
+    }
+}
+
+// Управление темной темой
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    
+    document.getElementById('theme-toggle-btn').innerText = isDark ? '☀️' : '🌙';
+    
+    localStorage.setItem('app-theme', isDark ? 'dark' : 'light');
+}
+// Добавление динамических списков
+function addNewList() {
+    listCount++;
+    const container = document.getElementById('lists-container');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'input-group';
+    newGroup.id = `group-list-${listCount}`;
+    newGroup.innerHTML = `
+        <div class="flex-header">
+            <label class="input-label">Список ${listCount}</label>
+            <button type="button" onclick="removeList(${listCount})" class="btn-delete">Удалить</button>
+        </div>
+        <textarea id="list-${listCount}" class="input-textarea" placeholder="Вставьте данные для списка ${listCount}..."></textarea>
+    `;
+    container.appendChild(newGroup);
+}
+
+function removeList(id) {
+    const el = document.getElementById(`group-list-${id}`);
+    if (el) el.remove();
+}
+
+// Геометрическая формула расчета расстояния
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; 
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+// Умный парсер грязных строк под формат "23 Братск2 3"
+function parseDirtyList(text) {
+    const lines = text.split('\n');
+    const storesMap = new Map();
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+        const strictMatch = line.match(/^\d+\s+([A-Za-zА-Яа-я0-9_#-]+)\s+(\d+)$/);
+        if (strictMatch) {
+            const code = strictMatch[1].trim();
+            const stock = parseInt(strictMatch[2], 10);
+            if (/^\d+$/.test(code) && code.length <= 3) continue; 
+            storesMap.set(code, stock);
+            continue;
+        }
+        if (line.includes(',') || line.includes('ул.') || line.includes('г.') || line.includes('обл.')) continue; 
+        const words = line.split(/\s+/);
+        if (words.length >= 3) {
+            const firstWordNum = parseInt(words[0], 10);
+            const lastWordNum = parseInt(words[words.length - 1], 10);
+            const middleWord = words[1].replace(/[,.]/g, '').trim();
+            if (!isNaN(firstWordNum) && !isNaN(lastWordNum) && middleWord.length > 2 && isNaN(parseInt(middleWord, 10))) {
+                storesMap.set(middleWord, lastWordNum);
+            }
+        }
+    }
+    return storesMap;
+}
+
+function startSearch() {
+    const activeLists = [];
+    for (let i = 1; i <= 100; i++) {
+        const textarea = document.getElementById(`list-${i}`);
+        if (textarea && textarea.value.trim()) {
+            activeLists.push(parseDirtyList(textarea.value));
+        }
+    }
+
+    if (activeLists.length === 0) {
+        alert("Пожалуйста, заполните хотя бы Список 1");
+        return;
+    }
+
+    // Считываем значение нового фильтра количества товара
+    const filterInput = document.getElementById('min-stock-filter').value.trim();
+    const requiredStock = filterInput ? parseInt(filterInput, 10) : 0;
+
+    let finalMatches = [];
+    const addedExactCodes = new Set();
+
+    // 1. НАХОДИМ ТОЧНЫЕ СОВПАДЕНИЯ ПО МАГАЗИНАМ (Строгое пересечение)
+    if (activeLists.length === 1) {
+        activeLists[0].forEach((stock, code) => {
+            // ФИЛЬТР: Проверяем, хватает ли товара под запрос
+            if (stock >= requiredStock) {
+                finalMatches.push({ code, stock, isExact: true });
+                addedExactCodes.add(code);
+            }
+        });
+    } else {
+        const firstMap = activeLists[0];
+        firstMap.forEach((stockInFirst, code) => {
+            let isInAll = true;
+            let minStock = stockInFirst;
+
+            for (let j = 1; j < activeLists.length; j++) {
+                if (!activeLists[j].has(code)) {
+                    isInAll = false;
+                    break;
+                } else {
+                    minStock = Math.min(minStock, activeLists[j].get(code));
+                }
+            }
+            
+            // ФИЛЬТР: Магазин есть везде И минимального остатка в нём хватает под запрос
+            if (isInAll && minStock >= requiredStock) {
+                finalMatches.push({ code, stock: minStock, isExact: true });
+                addedExactCodes.add(code);
+            }
+        });
+    }
+
+    // 2. НАХОДИМ МЯГКИЕ СОВПАДЕНИЯ ПО ГОРОДАМ (Если списков больше одного)
+    if (activeLists.length > 1) {
+        const listsOfCities = activeLists.map(storeMap => {
+            const citySet = new Set();
+            storeMap.forEach((stock, code) => {
+                // УЧИТЫВАЕМ ФИЛЬТР: в Сет городов добавляем только те магазины, где товара хватает
+                if (stock >= requiredStock) {
+                    const dbItem = storeDatabase[code];
+                    if (dbItem && dbItem.city) citySet.add(dbItem.city);
+                }
+            });
+            return citySet;
+        });
+
+        const matchingCities = [];
+        if (listsOfCities.length > 0) {
+            listsOfCities[0].forEach(cityName => {
+                let isCityInAll = true;
+                for (let j = 1; j < listsOfCities.length; j++) {
+                    if (!listsOfCities[j].has(cityName)) {
+                        isCityInAll = false;
+                        break;
+                    }
+                }
+                if (isCityInAll) matchingCities.push(cityName);
+            });
+        }
+
+        matchingCities.forEach(cityName => {
+            activeLists.forEach(storeMap => {
+                storeMap.forEach((stock, code) => {
+                    const dbItem = storeDatabase[code];
+                    
+                    // УЧИТЫВАЕМ ФИЛЬТР: при сборе остатков мягкого поиска проверяем лимит
+                    if (dbItem && dbItem.city === cityName && !addedExactCodes.has(code) && stock >= requiredStock) {
+                        if (!finalMatches.some(s => s.code === code)) {
+                            finalMatches.push({ code, stock, isExact: false, softCityKey: cityName });
+                        }
+                    }
+                });
+            });
+        });
+    }
+
+    // 1. Сначала отрисовываем результаты на странице
+    renderResults(finalMatches, "dynamic");
+    
+    // 2. Делаем плавающие кнопки навигации видимыми
+    const scrollNav = document.getElementById('scroll-nav');
+    if (scrollNav) {
+        scrollNav.classList.add('visible');
+    }
+    
+    // 3. Плавно скроллим страницу в самый низ к началу результатов
+    scrollToBottom();
+}
+
+// Группировка по городам, сортировка и вывод результатов
+function renderResults(storesArray, matchType) {
+    const container = document.getElementById('results-rows-container');
+    container.innerHTML = ''; 
+
+    if (storesArray.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:#64748b; font-size:13px;">Совпадений не найдено 🤷‍♂️</div>`;
+        document.getElementById('results-section').style.display = 'block';
+        return;
+    }
+
+    const groupedRows = {};
+
+    storesArray.forEach(item => {
+        const dbItem = storeDatabase[item.code];
+        let cityName = "Неизвестный код";
+        
+        if (dbItem) {
+            cityName = (currentSearchMode === 'city') ? dbItem.city : item.code;
+        } else if (item.softCityKey) {
+            cityName = item.softCityKey;
+        }
+
+        const typeLabel = item.isExact ? "exact" : "soft";
+        const groupKey = `${cityName}__${typeLabel}`;
+
+        if (!groupedRows[groupKey]) {
+            groupedRows[groupKey] = {
+                cityName: cityName,
+                isExact: item.isExact,
+                stores: []
+            };
+        }
+        groupedRows[groupKey].stores.push(item);
+    });
+
+    Object.keys(groupedRows).forEach(key => {
+        const group = groupedRows[key];
+        const row = document.createElement('div');
+        row.className = 'result-row';
+
+      // Привязываем имя города в нижнем регистре для удобного поиска
+        row.setAttribute('data-city', group.cityName.trim().toLowerCase());
+
+        const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
+        const top3Stores = sortedStores.slice(0, 3);
+
+        let badgesHtml = '';
+        top3Stores.forEach(store => {
+            // Если магазин точный, вешаем на него класс exact-badge для темной темы и базовый инлайн для светлой
+            const badgeStyle = store.isExact 
+                ? 'background: #f0fdf4; color: #16a34a; border: 2px solid #bbf7d0;' 
+                : '';
+            const exactClass = store.isExact ? 'exact-badge' : '';
+            
+            badgesHtml += `<button class="store-badge ${exactClass}" style="${badgeStyle}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
+        });
+
+        const matchLabel = group.isExact 
+            ? `<span style="font-size:10px; color:#16a34a; background:#e1f5fe; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">ТОЧНЫЙ МАГАЗИН</span>` 
+            : `<span style="font-size:10px; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
+
+        row.innerHTML = `
+            <div class="result-city" style="display:flex; align-items:center;">${group.cityName} ${matchLabel}</div>
+            <div class="badges-container">${badgesHtml}</div>
+        `;
+        container.appendChild(row);
+    });
+
+    document.getElementById('results-section').style.display = 'block';
+}
+// Карточка магазина и копирование (Шаг 2.1)
+function openStoreCard(storeCode) {
+    const modal = document.getElementById('store-modal');
+    document.getElementById('modal-store-title').innerText = `🏪 Карточка магазина: ${storeCode}`;
+    
+    const dbItem = storeDatabase[storeCode];
+    if (dbItem) {
+        document.getElementById('modal-address-text').innerText = dbItem.address || "Адрес не указан в Google таблице";
+        document.getElementById('modal-axapta-text').innerText = storeCode;
+    } else {
+        document.getElementById('modal-address-text').innerText = "Данные о магазине отсутствуют в базе";
+        document.getElementById('modal-axapta-text').innerText = storeCode;
+    }
+    modal.classList.add('open');
+}
+
+function closeModal(event) {
+    if (event === null || event.target === document.getElementById('store-modal')) {
+        document.getElementById('store-modal').classList.remove('open');
+    }
+}
+
+function copyText(elementId, buttonElement) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const oldIcon = buttonElement.innerHTML;
+        buttonElement.innerHTML = '✅';
+        buttonElement.style.pointerEvents = 'none';
+        setTimeout(() => {
+            buttonElement.innerHTML = oldIcon;
+            buttonElement.style.pointerEvents = 'auto';
+        }, 1000);
+    });
+}
+
+async function fetchCoordinates(address) {
+    // Добавляем к запросу ", Россия", чтобы OSM искал строго внутри страны
+    const queryUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address + ", Россия")}&format=json&addressdetails=1&limit=1`;
+    
+    try {
+        const res = await fetch(queryUrl, {
+            headers: {
+                // Сервис OSM требует указывать User-Agent, чтобы понимать, кто к ним обращается
+                'User-Agent': 'StoreIntersectionTool/1.0'
+            }
+        });
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+            const result = data[0];
+            const lat = parseFloat(result.lat);
+            const lng = parseFloat(result.lon);
+            
+            // Пытаемся вытащить регион из ответа OSM для определения часового пояса
+            const state = result.address ? (result.address.state || result.address.region || "") : "";
+            
+            // Простой и надежный расчет таймзоны по долготе (lng) прямо на фронтенде
+            let tzOffset = 3; // По умолчанию Москва
+            if (lng > 20 && lng <= 38.5) tzOffset = 3;
+            else if (lng > 38.5 && lng <= 46.5) tzOffset = 3; 
+            else if (lng > 46.5 && lng <= 51.5) tzOffset = 4; // Самара
+            else if (lng > 51.5 && lng <= 69.5) tzOffset = 5; // Екатеринбург
+            else if (lng > 69.5 && lng <= 79.5) tzOffset = 6; // Омск
+            else if (lng > 79.5 && lng <= 99.5) tzOffset = 7; // Красноярск
+            else if (lng > 99.5 && lng <= 114.5) tzOffset = 8; // Иркутск
+            else if (lng > 114.5 && lng <= 127.5) tzOffset = 9; // Якутск
+            else if (lng > 127.5 && lng <= 137.5) tzOffset = 10; // Владивосток
+            else if (lng > 137.5 && lng <= 145.5) tzOffset = 11; // Магадан
+            else if (lng > 145.5) tzOffset = 12; // Камчатка/Чукотка (ИСПРАВЛЕНО!)
+
+            return { lat: lat, lng: lng, tz: tzOffset };
+        }
+        return null;
+    } catch (e) {
+        console.error("Критическая ошибка сети при поиске адреса через OSM:", e);
+        return null;
+    }
+}
+
+async function findNearestStore() {
+    const userInput = document.getElementById('geo-search-input').value.trim();
+    const output = document.getElementById('geo-result-output');
+    
+    if (!userInput) { alert("Введите адрес доставки клиента"); return; }
+
+    // 1. Сканируем экран и собираем чистые города (без плашек "ТОЧНЫЙ МАГАЗИН")
+    const cityElements = document.querySelectorAll('.result-city');
+    const citiesOnScreen = [];
+    cityElements.forEach(el => {
+        let pureCity = el.textContent || el.innerText;
+        pureCity = pureCity.replace(/(ТОЧНЫЙ МАГАЗИН|СОВПАДЕНИЕ ПО ГОРОДУ)/g, '').trim();
+        pureCity = pureCity.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+        if (pureCity && !citiesOnScreen.includes(pureCity)) citiesOnScreen.push(pureCity);
+    });
+
+    if (citiesOnScreen.length === 0) {
+        output.style.color = '#ef4444';
+        output.innerHTML = "⚠️ Сначала вставьте списки и найдите совпадения магазинов.";
+        return;
+    }
+
+    output.style.color = '#64748b';
+    output.innerHTML = `⏳ Спутник ищет координаты локации "${userInput}" во всемирной базе карт...`;
+
+    try {
+        let clientCoords = null;
+        let geoNotice = "";
+
+        // Разбираем ввод оператора
+        const rawInput = userInput.trim().toLowerCase();
+        const inputWords = rawInput.split(/[\s,]+/).filter(w => w.length > 0);
+        
+        if (inputWords.length > 0) {
+            // ТЕСТ 1: Проверяем локальный кэш ( city.csv )
+            let targetCityName = inputWords[0];
+            let cityArray = russianCitiesGeoCache[targetCityName];
+
+            if (!cityArray && inputWords.length > 1) {
+                const doubleWordCity = `${inputWords[0]} ${inputWords[1]}`;
+                if (russianCitiesGeoCache[doubleWordCity]) {
+                    targetCityName = doubleWordCity;
+                    cityArray = russianCitiesGeoCache[doubleWordCity];
+                }
+            }
+
+            if (cityArray && cityArray.length > 0) {
+                const regionFilterWords = inputWords.filter(w => w !== inputWords[0] && w !== inputWords[1])
+                    .map(w => w.replace(/(область|обл|республика|край)/g, '').trim())
+                    .filter(w => w.length > 0);
+
+                if (regionFilterWords.length > 0) {
+                    const filterText = regionFilterWords.join(' ');
+                    clientCoords = cityArray.find(c => c.region.includes(filterText) || filterText.includes(c.region));
+                } else {
+                    cityArray.sort((a, b) => b.population - a.population);
+                    clientCoords = cityArray[0];
+                    if (cityArray.length > 1) {
+                        geoNotice = ` <span style="font-size:11px; color:#64748b; display:block; margin-top:4px;">ℹ️ Выбрана крупнейшая точка (${clientCoords.region.toUpperCase()}). Можно уточнить регион через пробел.</span>`;
+                    }
+                }
+            }
+        }
+
+        // ТЕСТ 2: НАДЁЖНЫЙ СПАСАТЕЛЬНЫЙ КРУГ (OpenStreetMap)
+        if (!clientCoords) {
+            output.innerHTML = `⏳ Спутник ищет "${userInput}" на подробных картах OpenStreetMap...`;
+            clientCoords = await fetchCoordinates(userInput);
+        }
+        
+        if (!clientCoords) {
+            output.style.color = '#ef4444';
+            output.innerHTML = "❌ Населенный пункт не найден. Проверьте правильность написания.";
+            return;
+        }
+
+        // 3. МГНОВЕННЫЙ ПЕРЕБОР В ПАМЯТИ РАССТОЯНИЙ ДО ГОРОДОВ НА ЭКРАНЕ
+        let minDistance = Infinity;
+        let nearestCity = "";
+
+        for (let cityName of citiesOnScreen) {
+            let cleanCityName = cityName.replace(/\(.*?\)/g, '').trim().toLowerCase();
+            cleanCityName = cleanCityName.replace(/[,.]/g, '').trim();
+            
+            let cityGeoArray = russianCitiesGeoCache[cleanCityName];
+            if (!cityGeoArray) {
+                const firstWord = cleanCityName.split(/[\s-]+/)[0];
+                cityGeoArray = russianCitiesGeoCache[firstWord];
+            }
+            
+            if (cityGeoArray && cityGeoArray.length > 0) {
+                cityGeoArray.sort((a, b) => b.population - a.population);
+                const cityGeo = cityGeoArray[0];
+
+                // Считаем чистое расстояние по прямой (в км)
+                const straightDist = calculateDistance(clientCoords.lat, clientCoords.lng, cityGeo.lat, cityGeo.lng);
+                
+                if (straightDist < minDistance) {
+                    minDistance = straightDist;
+                    nearestCity = cityName;
+                }
+            }
+        }
+
+        // 4. ВЫВОД РЕЗУЛЬТАТА С УЧЁТОМ ДОРОЖНОГО КОЭФФИЦИЕНТА И ВРЕМЕНИ КЛИЕНТА
+        if (nearestCity) {
+            // ЛОГИСТИЧЕСКИЙ КОРРЕКТИРОВОЧНЫЙ КОЭФФИЦИЕНТ:
+            // Умножаем расстояние по прямой на 1.3 для симуляции реального автомобильного маршрута
+            const roadDistance = Math.round(minDistance * 1.3);
+
+            let clientTz = parseInt(clientCoords.tz, 10);
+            if (isNaN(clientTz)) clientTz = 3; 
+
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const localTimeOfClient = new Date(utc + (3600000 * clientTz));
+            
+            const hours = String(localTimeOfClient.getHours()).padStart(2, '0');
+            const minutes = String(localTimeOfClient.getMinutes()).padStart(2, '0');
+
+            const currentHours = localTimeOfClient.getHours();
+            
+            // Формируем красивый текст результата, явно указывая, что километраж дорожный
+            if (currentHours >= 21 || currentHours < 8) {
+                output.style.color = '#ef4444'; 
+                output.innerHTML = `⚠️ Ближайшая точка: <strong>${nearestCity}</strong> (🚗 ~${roadDistance} км по трассе от ${userInput}, местное время клиента <strong>${hours}:${minutes}</strong>). ПОЗДНО ДЛЯ ЗВОНКА! ❌` + geoNotice;
+            } else {
+                output.style.color = '#ea580c'; 
+                output.innerHTML = `💡 Ближайшая точка: <strong>${nearestCity}</strong> (🚗 ~${roadDistance} км по трассе от ${userInput}, местное время клиента <strong>${hours}:${minutes}</strong>)` + geoNotice;
+            }
+            
+            // ЗАПУСКАЕМ КРАСИВУЮ ПОДСВЕТКУ СТРОКИ ГОРОДА НА ЭКРАНЕ
+            highlightNearestCityRow(nearestCity);
+          // 🔥 ФИЧА №5: Запоминаем город для домика и показываем кнопку!
+            globalNearestCityName = nearestCity;
+            const homeBtn = document.getElementById('btn-scroll-to-nearest');
+            if (homeBtn) {
+                homeBtn.style.display = 'block';
+            }
+            
+        } else {
+            output.style.color = '#ef4444';
+            output.innerHTML = "⚠️ Не удалось сопоставить города на экране с гео-базой данных.";
+        }
+
+    } catch (err) {
+        output.style.color = '#ef4444';
+        output.innerHTML = "❌ Ошибка при динамическом расчете геоданных.";
+        console.error(err);
+    }
+}
+
+function resetAllForm() {
+    // Находим динамические списки строго внутри их родного контейнера #lists-container
+    const container = document.getElementById('lists-container');
+    const dynamicLists = container.querySelectorAll('.input-group');
+    
+    // Удаляем только списки, начиная с третьего (индекс 2 и далее)
+    dynamicLists.forEach((list, index) => { 
+        if (index >= 2) list.remove(); 
+    });
+    
+    // Сбрасываем глобальный счетчик до двух стартовых списков
+    listCount = 2;
+    
+    // Очищаем текстовые поля первых двух списков
+    const list1 = document.getElementById('list-1');
+    const list2 = document.getElementById('list-2');
+    if (list1) list1.value = '';
+    if (list2) list2.value = '';
+    
+    // Безопасно обнуляем фильтр количества товара
+    const minStockInput = document.getElementById('min-stock-filter');
+    if (minStockInput) {
+        minStockInput.value = '';
+    }
+    
+    // Очищаем поля гео-поиска шага 3
+    const geoInput = document.getElementById('geo-search-input');
+    const geoOutput = document.getElementById('geo-result-output');
+    if (geoInput) geoInput.value = '';
+    if (geoOutput) geoOutput.innerHTML = '';
+    
+    // Скрываем карточку результатов
+    const resSection = document.getElementById('results-section');
+    if (resSection) resSection.style.display = 'none';
+    
+    const scrollNav = document.getElementById('scroll-nav');
+    if (scrollNav) {
+        scrollNav.classList.remove('visible');
+    }
+    // Скрываем кнопку-домик при сбросе формы
+    const homeBtn = document.getElementById('btn-scroll-to-nearest');
+    if (homeBtn) {
+        homeBtn.style.display = 'none';
+    }
+    globalNearestCityName = ""; // Обнуляем имя города
+
+    // Возвращаем фокус на первый список
+    if (list1) list1.focus();
+}
+
+    </script>
+<div id="scroll-nav" class="scroll-nav">
+  <button onclick="scrollToTop()" title="Наверх">▲</button>
+    <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
+  <button onclick="scrollToBottom()" title="Вниз">▼</button>
+</div>
+</body>
+</html>
