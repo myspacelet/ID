@@ -108,10 +108,10 @@
                             </div>
                         </div>
 
-                        <!-- 📍 БЛОК: АДРЕС (Появляется динамически, если выбран курьер) -->
-                        <div class="input-group" id="script-address-group" style="margin-bottom: 15px; display: none;">
-                            <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📍 ТОЧНЫЙ АДРЕС ДОСТАВКИ КЛИЕНТА</label>
-                            <input type="text" id="script-delivery-address" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Улица, дом, квартира..." oninput="updateLiveScriptText()">
+                        <!-- 📍 БЛОК: АДРЕС (Виден всегда, меняет лейбл на лету) -->
+                        <div class="input-group" id="script-address-group" style="margin-bottom: 15px;">
+                            <label class="input-label" id="script-address-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📍 АДРЕС ИЛИ НОМЕР ПУНКТА СДЭК</label>
+                            <input type="text" id="script-delivery-address" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Город, улица, дом или код ПВЗ..." oninput="updateLiveScriptText()">
                         </div>
 
                         <!-- 👥 БЛОК: ДАННЫЕ ПОЛУЧАТЕЛЯ -->
@@ -1533,18 +1533,25 @@ function setDeliveryMode(mode) {
     currentDeliveryMode = mode;
     const tabPvz = document.getElementById('deliv-tab-pvz');
     const tabCourier = document.getElementById('deliv-tab-courier');
-    const addressGroup = document.getElementById('script-address-group');
+    const addressLabel = document.getElementById('script-address-label');
+    const addressInput = document.getElementById('script-delivery-address');
 
     if (mode === 'pvz') {
         if (tabPvz) tabPvz.classList.add('active');
         if (tabCourier) tabCourier.classList.remove('active');
-        if (addressGroup) addressGroup.style.display = 'none';
+        
+        // Меняем текст и плейсхолдер под ПВЗ СДЭК
+        if (addressLabel) addressLabel.innerText = "📍 АДРЕС ИЛИ НОМЕР ПУНКТА СДЭК";
+        if (addressInput) addressInput.placeholder = "Город, улица, дом или код ПВЗ...";
     } else {
         if (tabCourier) tabCourier.classList.add('active');
         if (tabPvz) tabPvz.classList.remove('active');
-        if (addressGroup) addressGroup.style.display = 'block';
+        
+        // Меняем текст и плейсхолдер под Курьера
+        if (addressLabel) addressLabel.innerText = "📍 ТОЧНЫЙ АДРЕС ДОСТАВКИ КЛИЕНТА";
+        if (addressInput) addressInput.placeholder = "Улица, дом, квартира...";
     }
-    updateLiveScriptText(); // Мгновенно пересчитываем скрипт разговора
+    updateLiveScriptText(); // Мгновенно перестраиваем текст скрипта разговора
 }
 
 // Полноценный генератор скрипта разговора/текста
