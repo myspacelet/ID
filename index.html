@@ -282,9 +282,6 @@ async function handleAuthSubmit() {
                 statusMsg.innerHTML = "🔒 Доступ ограничен. Администратор ещё не одобрил вашу заявку.";
             }
         } else {
-            statusMsg.style.color = '#16a34a'; statusMsg.innerHTML = '🚀 Доступ разрешен!';
-            
-            // 🔥 ДОБАВЛЯЕМ: Вытаскиваем имя из только что загруженного профиля
         } else {
             statusMsg.style.color = '#16a34a'; 
             statusMsg.innerHTML = '🚀 Доступ разрешен!';
@@ -296,7 +293,9 @@ async function handleAuthSubmit() {
                 welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
             }
 
-            setTimeout(() => { document.getElementById('auth-overlay').style.display = 'none'; }, 800);
+            setTimeout(() => { 
+                document.getElementById('auth-overlay').style.display = 'none'; 
+            }, 800);
         }
 
     }
