@@ -282,18 +282,22 @@ async function handleAuthSubmit() {
                 statusMsg.innerHTML = "🔒 Доступ ограничен. Администратор ещё не одобрил вашу заявку.";
             }
         } else {
-            statusMsg.style.color = '#16a34a'; statusMsg.innerHTML = '🚀 Доступ разрешен!';
+            statusMsg.style.color = '#16a34a'; 
+            statusMsg.innerHTML = '🚀 Доступ разрешен!';
             
-            // 🔥 ДОБАВЛЯЕМ: Вытаскиваем имя из только что загруженного профиля
             const welcomeTitle = document.getElementById('app-welcome-title');
             if (welcomeTitle && profile && profile.full_name) {
-                welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
+                // Разделяем строку по пробелам на массив слов
+                const nameParts = profile.full_name.trim().split(/\s+/);
+                // Если слов больше одного, берем второе слово (имя), иначе берем первое
+                const firstName = nameParts.length > 1 ? nameParts[1] : nameParts[0];
+                
+                welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
             }
 
             setTimeout(() => { document.getElementById('auth-overlay').style.display = 'none'; }, 800);
         }
-    }
-}
+
         let globalNearestCityName = "";
 
 function scrollToNearestCity() {
@@ -518,28 +522,29 @@ window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         
         if (session) {
-            // Тестируем: проверяем, видит ли скрипт сессию
-            console.log("Сессия оператора найдена:", session.user.email);
-
             const { data: profile, error } = await supabaseClient
                 .from('profiles')
-                .select('approved, full_name') // ⚠️ Важно: проверь, чтобы full_name был тут указан!
+                .select('approved, full_name')
                 .eq('id', session.user.id)
                 .single();
-
-            // Тестируем: проверяем, что вернула база данных Supabase
-            console.log("Данные профиля из базы:", profile);
 
             if (!error && profile && profile.approved === true) {
                 // Если всё чётко — мгновенно убираем шторку
                 const overlay = document.getElementById('auth-overlay');
                 if (overlay) overlay.style.display = 'none';
 
-                // 🔥 ДОБАВЛЯЕМ: Подставляем имя оператора при автоматическом входе
-                const welcomeTitle = document.getElementById('app-welcome-title');
-                if (welcomeTitle && profile.full_name) {
-                    welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
-                }
+                // Выводим ТОЛЬКО ИМЯ оператора при автоматическом входе
+                setTimeout(() => {
+                    const welcomeTitle = document.getElementById('app-welcome-title');
+                    if (welcomeTitle && profile.full_name) {
+                        // Разделяем строку по пробелам на массив слов
+                        const nameParts = profile.full_name.trim().split(/\s+/);
+                        // Если слов больше одного, берем второе слово (имя), иначе берем первое
+                        const firstName = nameParts.length > 1 ? nameParts[1] : nameParts[0];
+                        
+                        welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
+                    }
+                }, 100);
             } else {
                 // Если сессия старая или админ снял одобрение — разлогиниваем
                 await supabaseClient.auth.signOut();
