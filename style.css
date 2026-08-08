@@ -599,7 +599,6 @@ body.dark-mode .btn-order-action:hover {
 }
 /* Базовый каркас для широкого окна обработки заказа */
 .floating-modal-wide {
-    /* Координаты и размеры теперь задаются через JS при открытии, чтобы окно летало! */
     min-width: 300px; 
 }
 
@@ -612,28 +611,32 @@ body.dark-mode .btn-order-action:hover {
     align-items: stretch;
 }
 
-/* Левая колонка — ввод данных */
+/* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА: Скроллится, подстраиваясь под высоту окна */
 .modal-column-left {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 580px; /* Увеличили высоту контента */
+    height: 65vh;                   /* Занимает ровно 65% от доступной высоты экрана оператора */
+    max-height: 650px;              /* Ограничение для гигантских 4К мониторов */
+    min-height: 350px;              /* Страховка для маленьких ноутбуков */
     overflow-y: auto;
     padding-right: 12px;
 }
 
-/* Правая колонка — монолитный скрипт */
+/* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА */
 .modal-column-right {
     flex: 1.5;
     display: flex;
     flex-direction: column;
-    height: 580px;
+    height: 65vh;                   /* Высота строго равна левой колонке */
+    max-height: 650px;
+    min-height: 350px;
 }
 
-/* Текстовое поле готового скрипта */
+/* Текстовое поле готового скрипта (Теперь тянется флексом!) */
 #script-live-output {
     width: 100%;
-    height: 510px !important; /* Делаем поле скрипта огромным */
+    flex: 1;                        /* Заставляет поле забрать ВСЁ доступное пространство по высоте */
     background: #f8fafc;
     font-weight: 500;
     font-size: 14.5px;
@@ -662,13 +665,4 @@ body.dark-mode .btn-order-action:hover {
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-}
-
-body.dark-mode .script-product-row {
-    background: #334155 !important;
-    border-color: #475569 !important;
-}
-body.dark-mode #script-live-output {
-    background: #0f172a !important;
-    color: #f1f5f9 !important;
 }

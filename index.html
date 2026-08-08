@@ -1270,22 +1270,22 @@ function openFloatingModal(modalId) {
     if (modal) {
         modal.style.display = 'flex';
         
-        // 🔥 Проверяем, если открывается ШИРОКОЕ окно обработки заказа
         if (modalId === 'modal-process-order') {
-            modal.style.width = '1250px'; // Задаем желаемую ширину по синей линии
+            // Рассчитываем адаптивную ширину: 1250px для больших экранов, или 95% для маленьких
+            const targetWidth = Math.min(1250, window.innerWidth - 40);
+            modal.style.width = targetWidth + 'px';
             
-            // Если оператор открывает его в первый раз и оно еще не двигалось руками
+            // Если окно открывается в первый раз
             if (!modal.style.left || modal.style.left === '35%') {
-                const startLeft = Math.max(20, (window.innerWidth - 1250) / 2);
+                const startLeft = Math.max(20, (window.innerWidth - targetWidth) / 2);
                 modal.style.left = startLeft + 'px';
-                modal.style.top = '60px'; // Красивый отступ от верхнего края экрана
+                modal.style.top = '40px'; // Аккуратный отступ сверху
             }
         }
         
         focusModal(modal);
     }
 }
-
 // Закрытие окна
 function closeFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
