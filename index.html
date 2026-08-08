@@ -76,35 +76,38 @@
     </button>
         </div>
 
-        <!-- ⏳ Блок ввода списков -->
+        <!-- ⏳ Контейнер для связанных списков товаров -->
         <div id="lists-container">
-            
-            <!-- Список 1 -->
-            <div class="input-group">
-                <label class="input-label">Список 1</label>
+            <!-- Товарный блок 1 -->
+            <div class="input-group todo-item-block" id="group-list-1">
+                <div class="flex-header">
+                    <label class="input-label">Товар 1 (Список строк)</label>
+                </div>
                 <textarea id="list-1" class="input-textarea" placeholder="Вставьте первый список строк..."></textarea>
+                <div class="stock-sub-input" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 12px; font-weight: 600; color: #64748b;">🔢 Нужно штук:</span>
+                    <input type="number" id="stock-filter-1" class="input-textarea" style="height: 36px; width: 100px; margin-bottom: 0; padding: 4px 10px;" placeholder=">= 1" min="1">
+                </div>
             </div>
 
-            <!-- Список 2 -->
-            <div class="input-group">
-                <label class="input-label">Список 2</label>
+            <!-- Товарный блок 2 -->
+            <div class="input-group todo-item-block" id="group-list-2">
+                <div class="flex-header">
+                    <label class="input-label">Товар 2 (Список строк)</label>
+                </div>
                 <textarea id="list-2" class="input-textarea" placeholder="Вставьте второй список строк..."></textarea>
+                <div class="stock-sub-input" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 12px; font-weight: 600; color: #64748b;">🔢 Нужно штук:</span>
+                    <input type="number" id="stock-filter-2" class="input-textarea" style="height: 36px; width: 100px; margin-bottom: 0; padding: 4px 10px;" placeholder=">= 1" min="1">
+                </div>
             </div>
-
         </div>
 
         <!-- Зелёная кнопка добавления нового списка -->
         <button onclick="addNewList()" class="btn-add">
-            ➕ Добавить список
+            ➕ Добавить товар в корзину
         </button>
-        <!-- 🔢 Фильтр по минимальному количеству товара -->
-<!-- 🔢 Фильтр по минимальному количеству товара -->
-<div class="input-group" style="margin-bottom: 16px;">
-    <label class="input-label" style="display: flex; align-items: center; gap: 6px;">
-        🔢 Требуемое количество товара (не обязательно)
-    </label>
-    <input type="number" id="min-stock-filter" class="input-textarea" style="height: 42px; margin-bottom: 0;" placeholder="Например: 5 или 6 (если пусто — выведет любые остатки)" min="1">
-</div>
+
         <!-- Основные кнопки действий -->
         <div class="actions-panel">
             <button onclick="startSearch()" class="btn-main btn-primary">
@@ -644,14 +647,18 @@ function addNewList() {
     listCount++;
     const container = document.getElementById('lists-container');
     const newGroup = document.createElement('div');
-    newGroup.className = 'input-group';
+    newGroup.className = 'input-group todo-item-block';
     newGroup.id = `group-list-${listCount}`;
     newGroup.innerHTML = `
-        <div class="flex-header">
-            <label class="input-label">Список ${listCount}</label>
+        <div class="flex-header" style="margin-bottom: 8px;">
+            <label class="input-label">Товар ${listCount} (Список строк)</label>
             <button type="button" onclick="removeList(${listCount})" class="btn-delete">Удалить</button>
         </div>
         <textarea id="list-${listCount}" class="input-textarea" placeholder="Вставьте данные для списка ${listCount}..."></textarea>
+        <div class="stock-sub-input" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #64748b;">🔢 Нужно штук:</span>
+            <input type="number" id="stock-filter-${listCount}" class="input-textarea" style="height: 36px; width: 100px; margin-bottom: 0; padding: 4px 10px;" placeholder=">= 1" min="1">
+        </div>
     `;
     container.appendChild(newGroup);
 }
@@ -703,64 +710,87 @@ function parseDirtyList(text) {
 
 function startSearch() {
     const activeLists = [];
+
+    // 1. Собираем данные со всех существующих полей на экране (динамически до 100)
     for (let i = 1; i <= 100; i++) {
         const textarea = document.getElementById(`list-${i}`);
         if (textarea && textarea.value.trim()) {
-            activeLists.push(parseDirtyList(textarea.value));
+            // Парсим грязный список в карту магазинов
+            const parsedMap = parseDirtyList(textarea.value);
+            
+            // Вытаскиваем индивидуальный лимит количества товара для этого списка
+            const inputFilter = document.getElementById(`stock-filter-${i}`);
+            const requiredStock = (inputFilter && inputFilter.value.trim()) ? parseInt(inputFilter.value, 10) : 1; // Если пусто — ставим от 1 шт
+            
+            // Сохраняем пачкой: карту остатков и сколько штук этого товара нужно
+            activeLists.push({
+                storesMap: parsedMap,
+                requiredStock: requiredStock
+            });
         }
     }
 
     if (activeLists.length === 0) {
-        alert("Пожалуйста, заполните хотя бы Список 1");
+        alert("Пожалуйста, заполните хотя бы Товар 1");
         return;
     }
-
-    // Считываем значение нового фильтра количества товара
-    const filterInput = document.getElementById('min-stock-filter').value.trim();
-    const requiredStock = filterInput ? parseInt(filterInput, 10) : 0;
 
     let finalMatches = [];
     const addedExactCodes = new Set();
 
-    // 1. НАХОДИМ ТОЧНЫЕ СОВПАДЕНИЯ ПО МАГАЗИНАМ (Строгое пересечение)
+    // ========================================================
+    // ЛОГИКА 1: ТОЧНЫЕ СОВПАДЕНИЯ ПО МАГАЗИНАМ (Строгое пересечение)
+    // ========================================================
     if (activeLists.length === 1) {
-        activeLists[0].forEach((stock, code) => {
-            // ФИЛЬТР: Проверяем, хватает ли товара под запрос
-            if (stock >= requiredStock) {
+        // Если товар всего один — просто фильтруем его магазины по его личному лимиту
+        const singleItem = activeLists[0];
+        singleItem.storesMap.forEach((stock, code) => {
+            if (stock >= singleItem.requiredStock) {
                 finalMatches.push({ code, stock, isExact: true });
                 addedExactCodes.add(code);
             }
         });
     } else {
-        const firstMap = activeLists[0];
-        firstMap.forEach((stockInFirst, code) => {
-            let isInAll = true;
-            let minStock = stockInFirst;
+        // Если товаров несколько — проверяем пересечение по первому списку
+        const firstItem = activeLists[0];
+        
+        firstItem.storesMap.forEach((stockInFirst, code) => {
+            // Проверяем первый список: хватает ли остатка под его требование
+            if (stockInFirst < firstItem.requiredStock) return;
 
+            let isInAll = true;
+            let totalMinStock = stockInFirst; // Будем выводить минимальный остаток для отображения в бейдже
+
+            // Пробегаем по всем остальным спискам товаров
             for (let j = 1; j < activeLists.length; j++) {
-                if (!activeLists[j].has(code)) {
+                const currentItem = activeLists[j];
+                
+                // Если у магазина нет этого кода вообще ИЛИ остаток меньше, чем требует этот конкретный список
+                if (!currentItem.storesMap.has(code) || currentItem.storesMap.get(code) < currentItem.requiredStock) {
                     isInAll = false;
                     break;
                 } else {
-                    minStock = Math.min(minStock, activeLists[j].get(code));
+                    totalMinStock = Math.min(totalMinStock, currentItem.storesMap.get(code));
                 }
             }
             
-            // ФИЛЬТР: Магазин есть везде И минимального остатка в нём хватает под запрос
-            if (isInAll && minStock >= requiredStock) {
-                finalMatches.push({ code, stock: minStock, isExact: true });
+            // Если магазин прошёл проверки по всем спискам и их личным лимитам количества
+            if (isInAll) {
+                finalMatches.push({ code, stock: totalMinStock, isExact: true });
                 addedExactCodes.add(code);
             }
         });
     }
 
-    // 2. НАХОДИМ МЯГКИЕ СОВПАДЕНИЯ ПО ГОРОДАМ (Если списков больше одного)
+    // ========================================================
+    // ЛОГИКА 2: МЯГКИЕ СОВПАДЕНИЯ ПО ГОРОДАМ (Группировка)
+    // ========================================================
     if (activeLists.length > 1) {
-        const listsOfCities = activeLists.map(storeMap => {
+        // Превращаем каждый товар в сет городов, где этот товар есть в нужном количестве
+        const listsOfCities = activeLists.map(item => {
             const citySet = new Set();
-            storeMap.forEach((stock, code) => {
-                // УЧИТЫВАЕМ ФИЛЬТР: в Сет городов добавляем только те магазины, где товара хватает
-                if (stock >= requiredStock) {
+            item.storesMap.forEach((stock, code) => {
+                if (stock >= item.requiredStock) {
                     const dbItem = storeDatabase[code];
                     if (dbItem && dbItem.city) citySet.add(dbItem.city);
                 }
@@ -768,6 +798,7 @@ function startSearch() {
             return citySet;
         });
 
+        // Находим города, которые пересекаются абсолютно во всех списках
         const matchingCities = [];
         if (listsOfCities.length > 0) {
             listsOfCities[0].forEach(cityName => {
@@ -782,13 +813,14 @@ function startSearch() {
             });
         }
 
+        // Собираем магазины из этих общих городов, проверяя лимиты штук
         matchingCities.forEach(cityName => {
-            activeLists.forEach(storeMap => {
-                storeMap.forEach((stock, code) => {
+            activeLists.forEach(item => {
+                item.storesMap.forEach((stock, code) => {
                     const dbItem = storeDatabase[code];
                     
-                    // УЧИТЫВАЕМ ФИЛЬТР: при сборе остатков мягкого поиска проверяем лимит
-                    if (dbItem && dbItem.city === cityName && !addedExactCodes.has(code) && stock >= requiredStock) {
+                    // Магазин в нужном городе, его еще нет в точных совпадениях, и остаток покрывает лимит этого списка
+                    if (dbItem && dbItem.city === cityName && !addedExactCodes.has(code) && stock >= item.requiredStock) {
                         if (!finalMatches.some(s => s.code === code)) {
                             finalMatches.push({ code, stock, isExact: false, softCityKey: cityName });
                         }
@@ -798,14 +830,12 @@ function startSearch() {
         });
     }
 
+    // Отрисовка результатов на экране и плавный скролл вниз
     renderResults(finalMatches, "dynamic");
-    
     const scrollNav = document.getElementById('scroll-nav');
     if (scrollNav) {
         scrollNav.classList.add('visible');
     }
-    
-    // Мягко опускаем экран к началу результатов
     scrollToBottom();
 }
 
@@ -1124,17 +1154,17 @@ function resetAllForm() {
     // Сбрасываем глобальный счетчик до двух стартовых списков
     listCount = 2;
     
-    // Очищаем текстовые поля первых двух списков
+    // Очищаем текстовые поля и инпуты количества первых двух базовых списков
     const list1 = document.getElementById('list-1');
     const list2 = document.getElementById('list-2');
     if (list1) list1.value = '';
     if (list2) list2.value = '';
     
-    // Безопасно обнуляем фильтр количества товара
-    const minStockInput = document.getElementById('min-stock-filter');
-    if (minStockInput) {
-        minStockInput.value = '';
-    }
+    const stock1 = document.getElementById('stock-filter-1');
+    const stock2 = document.getElementById('stock-filter-2');
+    if (stock1) stock1.value = '';
+    if (stock2) stock2.value = '';
+
     
     // Очищаем поля гео-поиска шага 3
     const geoInput = document.getElementById('geo-search-input');
