@@ -597,14 +597,16 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
-.floating-modal.floating-modal-wide {
-    width: 85vw !important;             /* Занимает ровно 85% от ширины экрана оператора */
-    max-width: 1400px !important;       /* Ограничение для огромных 4K мониторов */
-    min-width: 800px !important;        /* Минимальный порог для маленьких ноутбуков */
-    top: 5% !important;                 /* Комфортный отступ сверху */
+/* ========================================================
+   🪐 РЕЗИНОВЫЕ РАЗМЕРЫ ДЛЯ ШИРОКОГО ОКНА ОБРАБОТКИ ЗАКАЗА
+   ======================================================== */
+.floating-modal-wide {
+    width: 85vw !important;             /* Занимает ровно 85% от ширины экрана любого оператора */
+    max-width: 1400px !important;       /* Ограничение, чтобы на огромных мониторах окно не растягивалось бесконечно */
+    min-width: 800px !important;        /* Минимальный порог для мелких ноутбуков */
 }
 
-/* Сетка для разделения тела модалки */
+/* Сетка для разделения тела модалки на две колонки */
 .modal-columns-container {
     display: flex;
     gap: 32px;
@@ -613,21 +615,21 @@ body.dark-mode .btn-order-action:hover {
     align-items: stretch;
 }
 
-/* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА */
+/* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ТОВАРЫ) */
 .modal-column-left {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 62vh;                   /* 62% от высоты экрана пользователя */
+    height: 62vh;                   /* Автоматом подстраивается под высоту экрана */
     max-height: 600px;
     min-height: 380px;
-    overflow-y: auto;
+    overflow-y: auto;               /* Скролл, если товаров будет очень много */
     padding-right: 12px;
 }
 
-/* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА */
+/* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА (ГОТОВЫЙ СКРИПТ) */
 .modal-column-right {
-    flex: 1.5;                      
+    flex: 1.5;                      /* Зона скрипта немного шире левой */
     display: flex;
     flex-direction: column;
     height: 62vh;                   
@@ -638,7 +640,7 @@ body.dark-mode .btn-order-action:hover {
 /* Текстовое поле готового скрипта */
 #script-live-output {
     width: 100% !important;
-    height: 84% !important;        
+    height: 84% !important;        /* Занимает максимум полезного пространства */
     background: #f8fafc;
     font-weight: 500;
     font-size: 14.5px;
@@ -653,8 +655,8 @@ body.dark-mode .btn-order-action:hover {
 
 /* Кнопка копирования скрипта */
 .modal-column-right .btn-primary {
-    margin-top: auto !important;    
-    height: 48px !important;        
+    margin-top: auto !important;    /* Выталкивает кнопку на самый низ правой колонки */
+    height: 48px !important;        /* Фиксированная аккуратная высота */
     padding: 0 24px !important;
     font-size: 14px !important;
     font-weight: 600 !important;
@@ -670,7 +672,7 @@ body.dark-mode .btn-order-action:hover {
 }
 
 /* ========================================================
-   🥷 ПОЛНАЯ ТЕМНАЯ ТЕМА ДЛЯ КОМПОНЕНТОВ МОДАЛКИ
+   🥷 ТЕМНАЯ ТЕМА ДЛЯ КОМПОНЕНТОВ ШИРОКОЙ МОДАЛКИ
    ======================================================== */
 body.dark-mode .floating-modal-wide { 
     background: #1e293b !important; 

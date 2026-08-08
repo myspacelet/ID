@@ -1304,9 +1304,12 @@ function initModalDrag(e, modalId) {
     focusModal(modal);
     activeDraggedModal = modal;
     
-    // Считаем точные смещения относительно текущего положения окна
-    modalXOffset = e.clientX - modal.offsetLeft;
-    modalYOffset = e.clientY - modal.offsetTop;
+    // Испольуем getBoundingClientRect для идеального расчета координат position: fixed
+    const rect = modal.getBoundingClientRect();
+    
+    // Считаем точный сдвиг мыши внутри самого окна
+    modalXOffset = e.clientX - rect.left;
+    modalYOffset = e.clientY - rect.top;
     
     document.addEventListener('mousemove', handleModalDrag);
     document.addEventListener('mouseup', stopModalDrag);
@@ -1319,9 +1322,11 @@ function handleModalDrag(e) {
     let newX = e.clientX - modalXOffset;
     let newY = e.clientY - modalYOffset;
     
-    // Ограничиваем, чтобы окно не улетало за левый и верхний край экрана
+    // Мягкие ограничения, чтобы шапка окна не улетала за границы экрана браузера
     if (newX < 0) newX = 0;
     if (newY < 0) newY = 0;
+    if (newX > window.innerWidth - 100) newX = window.innerWidth - 100;
+    if (newY > window.innerHeight - 40) newY = window.innerHeight - 40;
     
     activeDraggedModal.style.left = newX + 'px';
     activeDraggedModal.style.top = newY + 'px';
