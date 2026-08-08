@@ -518,12 +518,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         
         if (session) {
-            // Если сессия в браузере есть, дёргаем базу и проверяем, одобрен ли аккаунт
+            // Тестируем: проверяем, видит ли скрипт сессию
+            console.log("Сессия оператора найдена:", session.user.email);
+
             const { data: profile, error } = await supabaseClient
                 .from('profiles')
-                .select('approved')
+                .select('approved, full_name') // ⚠️ Важно: проверь, чтобы full_name был тут указан!
                 .eq('id', session.user.id)
                 .single();
+
+            // Тестируем: проверяем, что вернула база данных Supabase
+            console.log("Данные профиля из базы:", profile);
 
             if (!error && profile && profile.approved === true) {
                 // Если всё чётко — мгновенно убираем шторку
