@@ -99,7 +99,53 @@
                             <input type="text" id="script-client-name" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Ольга, Иван..." oninput="updateLiveScriptText()">
                         </div>
 
-                        <!-- Сюда JS будет динамически рендерить товары -->
+                        <!-- 🚚 БЛОК: СПСОБ ДОСТАВКИ (ПВЗ / КУРЬЕР) -->
+                        <div class="input-group" style="margin-bottom: 15px;">
+                            <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 8px;">📦 СПОСОБ ДОСТАВКИ ДЛЯ КЛИЕНТА</label>
+                            <div style="display: flex; gap: 10px; background: #f1f5f9; padding: 4px; border-radius: 8px;" id="delivery-type-toggle">
+                                <button id="deliv-tab-pvz" onclick="setDeliveryMode('pvz')" class="nav-btn active" style="flex: 1; border: none; padding: 8px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer;">🏢 В пункт СДЭК</button>
+                                <button id="deliv-tab-courier" onclick="setDeliveryMode('courier')" class="nav-btn" style="flex: 1; border: none; padding: 8px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer;">🚗 Курьером до двери</button>
+                            </div>
+                        </div>
+
+                        <!-- 📍 БЛОК: АДРЕС (Появляется динамически, если выбран курьер) -->
+                        <div class="input-group" id="script-address-group" style="margin-bottom: 15px; display: none;">
+                            <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📍 ТОЧНЫЙ АДРЕС ДОСТАВКИ КЛИЕНТА</label>
+                            <input type="text" id="script-delivery-address" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Улица, дом, квартира..." oninput="updateLiveScriptText()">
+                        </div>
+
+                        <!-- 👥 БЛОК: ДАННЫЕ ПОЛУЧАТЕЛЯ -->
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <div style="flex: 1.3;">
+                                <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">👤 ФИО ПОЛУЧАТЕЛЯ</label>
+                                <input type="text" id="script-rec-fio" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Иванов Иван Иванович" oninput="updateLiveScriptText()">
+                            </div>
+                            <div style="flex: 1;">
+                                <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📞 НОМЕР ТЕЛЕФОНА</label>
+                                <input type="text" id="script-rec-phone" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="+7 (999) 000-00-00" oninput="updateLiveScriptText()">
+                            </div>
+                        </div>
+
+                        <!-- 💰 БЛОК: СРОКИ И СТОИМОСТЬ -->
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <div style="flex: 1;">
+                                <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">💰 СТОИМОСТЬ (РУБ)</label>
+                                <input type="number" id="script-deliv-price" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="0 (если бесплатно)" oninput="updateLiveScriptText()">
+                            </div>
+                            <div style="flex: 1;">
+                                <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">⏱️ СРОК ДОСТАВКИ (ДНЕЙ)</label>
+                                <input type="text" id="script-deliv-days" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: 2-3 дня" oninput="updateLiveScriptText()">
+                            </div>
+                        </div>
+
+                        <!-- 📅 БЛОК: ДАТА ОФОРМЛЕНИЯ -->
+                        <div class="input-group" style="margin-bottom: 20px;">
+                            <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📅 ДАТА И ВРЕМЯ ОФОРМЛЕНИЯ ЗАКАЗА</label>
+                            <input type="datetime-local" id="script-deliv-date" class="input-textarea" style="height: 40px; margin-bottom: 0;" oninput="updateLiveScriptText()">
+                        </div>
+
+                        <label class="input-label" style="font-size: 11px; color: #3b82f6; font-weight: 700; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-bottom: 10px;">📦 СПИСОК ТОВАРОВ В ЗАКАЗЕ</label>
+                        <!-- Сюда JS по-прежнему динамически рендерит товары -->
                         <div id="script-products-container"></div>
                     </div>
 
@@ -237,6 +283,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        let currentDeliveryMode = 'pvz';
         let selectedStoreCode = null;
         // Конфигурация Supabase (Адрес собран по твоему ID)
 const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
@@ -1481,7 +1528,26 @@ function buildOrderProcessingModal() {
     updateLiveScriptText();
 }
 
-// Пересчет текста скрипта разговора в реальном времени с учетом названий товаров
+// Переключение режимов доставки в модалке заказа
+function setDeliveryMode(mode) {
+    currentDeliveryMode = mode;
+    const tabPvz = document.getElementById('deliv-tab-pvz');
+    const tabCourier = document.getElementById('deliv-tab-courier');
+    const addressGroup = document.getElementById('script-address-group');
+
+    if (mode === 'pvz') {
+        if (tabPvz) tabPvz.classList.add('active');
+        if (tabCourier) tabCourier.classList.remove('active');
+        if (addressGroup) addressGroup.style.display = 'none';
+    } else {
+        if (tabCourier) tabCourier.classList.add('active');
+        if (tabPvz) tabPvz.classList.remove('active');
+        if (addressGroup) addressGroup.style.display = 'block';
+    }
+    updateLiveScriptText(); // Мгновенно пересчитываем скрипт разговора
+}
+
+// Полноценный генератор скрипта разговора/текста
 function updateLiveScriptText() {
     const clientNameInput = document.getElementById('script-client-name').value.trim();
     const liveOutput = document.getElementById('script-live-output');
@@ -1489,6 +1555,7 @@ function updateLiveScriptText() {
 
     const clientName = clientNameInput ? clientNameInput : "[Имя клиента]";
 
+    // Вытаскиваем имя оператора из приветственного блока
     let opName = "Оператор";
     const welcomeTitle = document.getElementById('app-welcome-title');
     if (welcomeTitle) {
@@ -1496,13 +1563,15 @@ function updateLiveScriptText() {
         if (match && match[1]) opName = match[1].trim();
     }
 
+    // ========================================================
+    // БЛОК 1: ПРИВЕТСТВИЕ И УТОЧНЕНИЕ ТОВАРОВ
+    // ========================================================
     let scriptText = `Добрый день, ${clientName}! Меня зовут ${opName}, компания ЛЭТУАЛЬ. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n\n`;
     scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
 
-    // Собираем данные из инпутов модалки
     const artInputs = document.querySelectorAll('.script-input-art');
     const qtyInputs = document.querySelectorAll('.script-input-qty');
-    const nameInputs = document.querySelectorAll('.script-input-name'); // Новые инпуты названий
+    const nameInputs = document.querySelectorAll('.script-input-name');
     
     let productParts = [];
     for (let i = 0; i < artInputs.length; i++) {
@@ -1510,27 +1579,73 @@ function updateLiveScriptText() {
         const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
         const prodName = nameInputs[i] ? nameInputs[i].value.trim() : "";
         
-        // Умный выбор: если есть название товара, берем его, иначе используем артикул
-        let displayItem = "";
-        if (prodName) {
-            displayItem = `товар "${prodName}"`;
-        } else if (art) {
-            displayItem = `товар (артикул: ${art})`;
-        } else {
-            displayItem = `товар №${i+1}`;
-        }
-        
+        let displayItem = prodName ? `товар "${prodName}"` : (art ? `товар (артикул: ${art})` : `товар №${i+1}`);
         productParts.push(`${displayItem} в количестве ${qty} шт.`);
     }
 
     if (productParts.length === 1) {
         scriptText += productParts[0];
-    } else {
+    } else if (productParts.length > 1) {
         const lastPart = productParts.pop();
         scriptText += productParts.join(', ') + ' и ' + lastPart;
+    } else {
+        scriptText += `[Товары не заполнены]`;
+    }
+    scriptText += `, верно?\n\n`;
+
+    // ========================================================
+    // БЛОК 3: ИНФОРМИРОВАНИЕ О ДОСТУПНОСТИ И ОТГРУЗКЕ
+    // ========================================================
+    scriptText += `Смотрите, эти позиции сейчас находятся в наличии на нашем складе отгрузки `;
+    
+    // Проверяем, зафиксировал ли оператор магазин кнопкой "Выбрать"
+    if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
+        const storeInfo = storeDatabase[selectedStoreCode];
+        scriptText += `в городе ${storeInfo.city || "[Город]"} по адресу: ${storeInfo.address || "[Адрес складов]"}.\n\n`;
+    } else {
+        scriptText += `[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ].\n\n`;
     }
 
-    scriptText += `, верно?`;
+    // ========================================================
+    // БЛОК 4: СОГЛАСОВАНИЕ ЛОГИСТИКИ И ДАННЫХ
+    // ========================================================
+    const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
+    const priceText = delivPriceInput ? (parseInt(delivPriceInput, 10) === 0 ? "бесплатно" : `${delivPriceInput} рублей`) : "[Цена] рублей";
+    
+    const delivDaysInput = document.getElementById('script-deliv-days').value.trim();
+    const daysText = delivDaysInput ? delivDaysInput : "[Срок]";
+
+    if (currentDeliveryMode === 'pvz') {
+        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК. По срокам это займет примерно ${daysText}, стоимость доставки составит ${priceText}.\n\n`;
+    } else {
+        const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
+        const clientAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес курьера]";
+        scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, стоимость доставки составит ${priceText}.\n\n`;
+    }
+
+    // Собираем ФИО и телефон
+    const recFioInput = document.getElementById('script-rec-fio').value.trim();
+    const recFio = recFioInput ? recFioInput : "[ФИО получателя]";
+    
+    const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
+    const recPhone = recPhoneInput ? recPhoneInput : "[Телефон получателя]";
+
+    scriptText += `Для отправки мне потребуется зафиксировать данные получателя. Получать будете вы? Записываю: ${recFio}, контактный номер телефона для связи с курьером или ПВЗ: ${recPhone}.\n\n`;
+
+    // ========================================================
+    // БЛОК 5: ДАТА ОФОРМЛЕНИЯ И ФИНАЛ
+    // ========================================================
+    const delivDateInput = document.getElementById('script-deliv-date').value;
+    let dateText = "[Дата и время]";
+    if (delivDateInput) {
+        const d = new Date(delivDateInput);
+        // Красиво форматируем дату на русском языке: "12 августа 2026 г. в 17:00"
+        dateText = d.toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(' г.', ' года в');
+    }
+
+    scriptText += `Отлично! Я зафиксировал все данные и отправляю заказ в обработку логистам. Дата и время оформления в системе: ${dateText}. Как только заказ поступит в службу отправки, вам придет SMS-уведомление с трек-номером. Спасибо за заказ, хорошего дня!`;
+
+    // Выводим готовый монолитный скрипт разговора на экран оператора
     liveOutput.value = scriptText;
 }
 
