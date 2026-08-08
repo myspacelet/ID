@@ -1229,6 +1229,76 @@ function resetAllForm() {
     // Возвращаем фокус на первый список
     if (list1) list1.focus();
 }
+let activeDraggedModal = null;
+let modalXOffset = 0;
+let modalYOffset = 0;
+let topModalZIndex = 2000; // Счетчик слоев, чтобы активное окно было выше остальных
+
+// Открытие окна
+function openFloatingModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        focusModal(modal);
+    }
+}
+
+// Закрытие окна
+function closeFloatingModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'none';
+}
+
+// Вывод окна на передний план при клике
+function focusModal(modalElement) {
+    topModalZIndex++;
+    modalElement.style.zIndex = topModalZIndex;
+}
+
+// Запуск перетаскивания (срабатывает при зажатии мыши на шапке)
+function initModalDrag(e, modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    focusModal(modal);
+    activeDraggedModal = modal;
+    
+    // Считаем разницу между позицией мыши и левым/верхним краем окна
+    modalXOffset = e.clientX - modal.getBoundingClientRect().left;
+    modalYOffset = e.clientY - modal.getBoundingClientRect().top;
+    
+    // Подключаем слушатели на все движение экрана
+    document.addEventListener('mousemove', handleModalDrag);
+    document.addEventListener('mouseup', stopModalDrag);
+}
+
+// Просчет координат при движении мыши
+function handleModalDrag(e) {
+    if (!activeDraggedModal) return;
+    
+    // Рассчитываем новые координаты для окна
+    let newX = e.clientX - modalXOffset;
+    let newY = e.clientY - modalYOffset;
+    
+    // Задаем ограничения, чтобы окно не улетало за пределы экрана
+    if (newX < 0) newX = 0;
+    if (newY < 0) newY = 0;
+    
+    activeDraggedModal.style.left = newX + 'px';
+    activeDraggedModal.style.top = newY + 'px';
+}
+
+// Отпускаем окно
+function stopModalDrag() {
+    activeDraggedModal = null;
+    document.removeEventListener('mousemove', handleModalDrag);
+    document.removeEventListener('mouseup', stopModalDrag);
+}
+
+// Добавим фокус на окна при обычном клике по телу модалки
+document.querySelectorAll('.floating-modal').forEach(m => {
+    m.addEventListener('mousedown', () => focusModal(m));
+});
 
     </script>
 <div id="scroll-nav" class="scroll-nav">
