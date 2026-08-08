@@ -597,9 +597,11 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
-/* Базовый каркас для широкого окна обработки заказа */
-.floating-modal-wide {
-    min-width: 300px; 
+.floating-modal.floating-modal-wide {
+    width: 85vw !important;             /* Занимает ровно 85% от ширины экрана оператора */
+    max-width: 1400px !important;       /* Ограничение для огромных 4K мониторов */
+    min-width: 800px !important;        /* Минимальный порог для маленьких ноутбуков */
+    top: 5% !important;                 /* Комфортный отступ сверху */
 }
 
 /* Сетка для разделения тела модалки */
@@ -616,7 +618,7 @@ body.dark-mode .btn-order-action:hover {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 62vh;                   /* Строго фиксируем по высоте вьюпорта */
+    height: 62vh;                   /* 62% от высоты экрана пользователя */
     max-height: 600px;
     min-height: 380px;
     overflow-y: auto;
@@ -625,18 +627,18 @@ body.dark-mode .btn-order-action:hover {
 
 /* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА */
 .modal-column-right {
-    flex: 1.5;
+    flex: 1.5;                      
     display: flex;
     flex-direction: column;
-    height: 62vh;                   /* Высота идеально совпадает с левой */
+    height: 62vh;                   
     max-height: 600px;
     min-height: 380px;
 }
 
-/* Текстовое поле готового скрипта (Занимает максимум!) */
+/* Текстовое поле готового скрипта */
 #script-live-output {
     width: 100% !important;
-    height: 84% !important;        /* Теперь поле гарантированно заберет 84% высоты */
+    height: 84% !important;        
     background: #f8fafc;
     font-weight: 500;
     font-size: 14.5px;
@@ -651,8 +653,8 @@ body.dark-mode .btn-order-action:hover {
 
 /* Кнопка копирования скрипта */
 .modal-column-right .btn-primary {
-    margin-top: auto !important;    /* Ровно выталкивает кнопку на дно колонки */
-    height: 48px !important;        /* Фиксированная эстетичная высота */
+    margin-top: auto !important;    
+    height: 48px !important;        
     padding: 0 24px !important;
     font-size: 14px !important;
     font-weight: 600 !important;
@@ -670,33 +672,26 @@ body.dark-mode .btn-order-action:hover {
 /* ========================================================
    🥷 ПОЛНАЯ ТЕМНАЯ ТЕМА ДЛЯ КОМПОНЕНТОВ МОДАЛКИ
    ======================================================== */
-body.dark-mode .floating-modal-wide {
-    background: #1e293b !important;
+body.dark-mode .floating-modal-wide { 
+    background: #1e293b !important; 
 }
-
-body.dark-mode #script-live-output {
-    background: #0f172a !important;
-    color: #f1f5f9 !important;
-    border-color: #475569 !important;
+body.dark-mode #script-live-output { 
+    background: #0f172a !important; 
+    color: #f1f5f9 !important; 
+    border-color: #475569 !important; 
 }
-
-/* Темный фон для карточек товаров слева */
-body.dark-mode .script-product-row {
-    background: #334155 !important;
-    border-color: #475569 !important;
+body.dark-mode .script-product-row { 
+    background: #334155 !important; 
+    border-color: #475569 !important; 
 }
-
-/* Делаем инпуты внутри карточек товаров темными */
-body.dark-mode .script-product-row input {
-    background: #1e293b !important;
-    border-color: #475569 !important;
-    color: #f8fafc !important;
+body.dark-mode .script-product-row input { 
+    background: #1e293b !important; 
+    border-color: #475569 !important; 
+    color: #f8fafc !important; 
 }
-
-/* Подсветка текста и лейблов в темной теме */
-body.dark-mode .script-product-row span {
-    color: #94a3b8 !important;
+body.dark-mode .script-product-row span { 
+    color: #94a3b8 !important; 
 }
-body.dark-mode .modal-column-right label {
-    color: #818cf8 !important; /* Приятный неоново-синий цвет для шапки скрипта */
+body.dark-mode .modal-column-right label { 
+    color: #818cf8 !important; 
 }
