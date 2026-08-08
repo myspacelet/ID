@@ -162,13 +162,53 @@ function highlightNearestCityRow(targetCityName) {
     }
 }
 
-        // Функции для плавного скролла
+// Функции для плавного скролла по страницам
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function scrollToBottom() {
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+// Плавный переход к ближайшему городу по кнопке-домику
+function scrollToNearestCity() {
+    if (!globalNearestCityName) return;
+    
+    const cleanTarget = globalNearestCityName.trim().toLowerCase();
+    const targetRow = document.querySelector(`.result-row[data-city="${cleanTarget}"]`);
+    
+    if (targetRow) {
+        targetRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center' // Центрирует строку на экране без резкого падения вниз
+        });
+    }
+}
+
+// Функция для поиска и красивой розовой подсветки нужного города с плавным наведением
+function highlightNearestCityRow(targetCityName) {
+    if (!targetCityName) return;
+    
+    const cleanTarget = targetCityName.trim().toLowerCase();
+    
+    // Сначала убираем старую подсветку
+    document.querySelectorAll('.result-row').forEach(row => {
+        row.classList.remove('highlight-city');
+    });
+    
+    // Ищем строку с нужным городом
+    const targetRow = document.querySelector(`.result-row[data-city="${cleanTarget}"]`);
+    
+    if (targetRow) {
+        targetRow.classList.add('highlight-city');
+        
+        // Перемещаем экран плавно и точно по центру оператора
+        targetRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
 }
  const HFLABS_GEO_URL = "city.csv";
 // Глобальный реестр городов (группирует одноименные точки в массивы)
@@ -519,16 +559,14 @@ function startSearch() {
         });
     }
 
-    // 1. Сначала отрисовываем результаты на странице
     renderResults(finalMatches, "dynamic");
     
-    // 2. Делаем плавающие кнопки навигации видимыми
     const scrollNav = document.getElementById('scroll-nav');
     if (scrollNav) {
         scrollNav.classList.add('visible');
     }
     
-    // 3. Плавно скроллим страницу в самый низ к началу результатов
+    // Мягко опускаем экран к началу результатов
     scrollToBottom();
 }
 
