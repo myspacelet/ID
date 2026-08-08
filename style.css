@@ -477,59 +477,58 @@ body.dark-mode .btn-logout:hover {
     background: #ef4444;
     color: #ffffff;
 }
-/* Новая панель управления сложной логикой заказа */
-.order-management-panel {
-    display: flex;
-    gap: 10px;
-    background: #f8fafc;
-    padding: 8px;
-    border-radius: 12px;
-    margin-bottom: 24px;
-    border: 1px solid #e2e8f0;
-}
-
-/* Кнопки управления заказом */
-.btn-order-action {
-    flex: 1;
-    border: none;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
+/* Базовый стиль для всех плавающих окон */
+.floating-modal {
+    position: fixed;
+    top: 25%;
+    left: 35%;
+    width: 380px;
     background: #ffffff;
-    color: #0f172a;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     border: 1px solid #cbd5e1;
+    z-index: 2000;
+    display: none; /* По умолчанию скрыты */
+    flex-direction: column;
 }
 
-/* Эффект наведения (фиолетово-синий оттенок технологичности) */
-.btn-order-action:hover {
-    background: #6366f1;
-    color: #ffffff;
-    border-color: #6366f1;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-    transform: translateY(-1px);
+/* Шапка окна (зона для перетаскивания) */
+.floating-modal-header {
+    background: #f1f5f9;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    border-top-left-radius: 11px;
+    border-top-right-radius: 11px;
+    cursor: move; /* Курсор в виде крестика перемещения */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none; /* Защита от выделения текста при таскании */
+    border-bottom: 1px solid #e2e8f0;
 }
 
-/* Поддержка тёмной темы для новой панели */
-body.dark-mode .order-management-panel {
-    background: #334155;
-    border-color: #475569;
+/* Кнопка закрытия модалки */
+.floating-modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #94a3b8;
+    line-height: 1;
+}
+.floating-modal-close:hover { color: #ef4444; }
+
+/* Тело модалки */
+.floating-modal-body {
+    padding: 20px;
+    background: #ffffff;
+    border-bottom-left-radius: 11px;
+    border-bottom-right-radius: 11px;
 }
 
-body.dark-mode .btn-order-action {
-    background: #1e293b;
-    color: #f8fafc;
-    border-color: #475569;
-}
-
-body.dark-mode .btn-order-action:hover {
-    background: #6366f1;
-    border-color: #6366f1;
-}
+/* Поддержка темной темы */
+body.dark-mode .floating-modal { background: #1e293b; border-color: #475569; }
+body.dark-mode .floating-modal-header { background: #334155; color: #f8fafc; border-bottom-color: #475569; }
+body.dark-mode .floating-modal-body { background: #1e293b; }

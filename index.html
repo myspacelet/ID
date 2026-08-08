@@ -74,6 +74,45 @@
                 <button onclick="handleLogout()" class="btn-logout" title="Выйти из системы">
         🚪 Выйти
     </button>
+            <!-- 🛠️ ПАНЕЛЬ УПРАВЛЕНИЯ ЗАКАЗОМ -->
+        <div class="order-management-panel">
+            <button onclick="openFloatingModal('modal-process-order')" class="btn-order-action">⚙️ Обработать заказ</button>
+            <button onclick="openFloatingModal('modal-waiting-list')" class="btn-order-action">⏳ Лист ожидания</button>
+            <button onclick="openFloatingModal('modal-send-form')" class="btn-order-action">✉️ Форма отправки</button>
+        </div>
+
+        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 1: ОБРАБОТАТЬ ЗАКАЗ -->
+        <div id="modal-process-order" class="floating-modal">
+            <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-process-order')">
+                <span>⚙️ Обработать заказ</span>
+                <button class="floating-modal-close" onclick="closeFloatingModal('modal-process-order')">×</button>
+            </div>
+            <div class="floating-modal-body">
+                <p style="color: #64748b; font-size: 13px;">Здесь будет логика обработки... (Заглушка)</p>
+            </div>
+        </div>
+
+        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ЛИСТ ОЖИДАНИЯ -->
+        <div id="modal-waiting-list" class="floating-modal">
+            <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-waiting-list')">
+                <span>⏳ Лист ожидания</span>
+                <button class="floating-modal-close" onclick="closeFloatingModal('modal-waiting-list')">×</button>
+            </div>
+            <div class="floating-modal-body">
+                <p style="color: #64748b; font-size: 13px;">Здесь будет лист ожидания... (Заглушка)</p>
+            </div>
+        </div>
+
+        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 3: ФОРМА ОТПРАВКИ -->
+        <div id="modal-send-form" class="floating-modal">
+            <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-send-form')">
+                <span>✉️ Форма отправки</span>
+                <button class="floating-modal-close" onclick="closeFloatingModal('modal-send-form')">×</button>
+            </div>
+            <div class="floating-modal-body">
+                <p style="color: #64748b; font-size: 13px;">Здесь будет форма отправки... (Заглушка)</p>
+            </div>
+        </div>
         </div>
 
         <!-- ⏳ Контейнер для связанных списков товаров -->
