@@ -1318,7 +1318,7 @@ function stopModalDrag() {
 document.querySelectorAll('.floating-modal').forEach(m => {
     m.addEventListener('mousedown', () => focusModal(m));
 });
-// Функция сборщика данных при открытии модалки обработки заказа
+// Функция сборщика данных при открытии модалки обработки заказа (С защитой от мусора Telegram)
 function buildOrderProcessingModal() {
     const container = document.getElementById('script-products-container');
     if (!container) return;
@@ -1334,10 +1334,18 @@ function buildOrderProcessingModal() {
         if (textarea && textarea.value.trim()) {
             activeItemsCount++;
 
-            // 🎯 МАГИЯ №1: Достаем артикул строго из ПЕРВОЙ строки списка
+            // Разбиваем текст по строкам и берём самую первую строку товара
             const lines = textarea.value.split('\n');
-            const firstLine = lines[0].trim();
-            const firstWord = firstLine.split(/\s+/)[0]; // Берем первое слово до пробела
+            let firstLine = lines[0].trim();
+
+            // 🎯 УМНАЯ ОЧИСТКА TELEGRAM: Если строка начинается с таймстампа [дд.мм.гггг чч:мм]
+            if (firstLine.startsWith('[')) {
+                // Регулярка удаляет всё от начала строки до закрывающей скобки ']' и слова 'Остатки:' (если оно есть)
+                firstLine = firstLine.replace(/^\[.*?\]\s*(Остатки:\s*)?/i, '').trim();
+            }
+
+            // Теперь берём первое слово из уже ОЧИЩЕННОЙ строки
+            const firstWord = firstLine.split(/\s+/)[0]; 
             
             // Проверяем регуляркой, что это английский артикул (буквы и цифры)
             let detectedArticle = "";
@@ -1345,9 +1353,9 @@ function buildOrderProcessingModal() {
                 detectedArticle = firstWord;
             }
 
-            // 🎯 МАГИЯ №2: Достаем количество штук из инпута
+            // Достаем количество штук из инпута на главном экране
             const inputFilter = document.getElementById(`stock-filter-${i}`);
-            const requiredStock = (inputFilter && inputFilter.value.trim()) ? parseInt(inputFilter.value, 10) : 1; // Если пусто — 1 шт по умолчанию
+            const requiredStock = (inputFilter && inputFilter.value.trim()) ? parseInt(inputFilter.value, 10) : 1; 
 
             // Генерируем мини-поля для этого товара в модалке
             const prodRow = document.createElement('div');
@@ -1372,9 +1380,8 @@ function buildOrderProcessingModal() {
         return;
     }
 
-    // Открываем плавающее окно
+    // Открываем плавающее окно и обновляем текст
     openFloatingModal('modal-process-order');
-    // Генерируем базовый текст скрипта
     updateLiveScriptText();
 }
 
