@@ -1318,7 +1318,7 @@ function stopModalDrag() {
 document.querySelectorAll('.floating-modal').forEach(m => {
     m.addEventListener('mousedown', () => focusModal(m));
 });
-// Функция сборщика данных при открытии модалки обработки заказа (С защитой от мусора Telegram)
+// Функция сборщика данных при открытии модалки (Вытаскивает Артикул + Название товара)
 function buildOrderProcessingModal() {
     const container = document.getElementById('script-products-container');
     if (!container) return;
@@ -1328,47 +1328,60 @@ function buildOrderProcessingModal() {
 
     let activeItemsCount = 0;
 
-    // Пробегаемся по всем возможным спискам на экране (динамически до 100)
     for (let i = 1; i <= 100; i++) {
         const textarea = document.getElementById(`list-${i}`);
         if (textarea && textarea.value.trim()) {
             activeItemsCount++;
 
-            // Разбиваем текст по строкам и берём самую первую строку товара
             const lines = textarea.value.split('\n');
             let firstLine = lines[0].trim();
 
-            // 🎯 УМНАЯ ОЧИСТКА TELEGRAM: Если строка начинается с таймстампа [дд.мм.гггг чч:мм]
+            // Очистка от мусора Telegram
             if (firstLine.startsWith('[')) {
-                // Регулярка удаляет всё от начала строки до закрывающей скобки ']' и слова 'Остатки:' (если оно есть)
                 firstLine = firstLine.replace(/^\[.*?\]\s*(Остатки:\s*)?/i, '').trim();
             }
 
-            // Теперь берём первое слово из уже ОЧИЩЕННОЙ строки
-            const firstWord = firstLine.split(/\s+/)[0]; 
+            // Достаем первое слово (артикул)
+            const words = firstLine.split(/\s+/);
+            const firstWord = words[0]; 
             
-            // Проверяем регуляркой, что это английский артикул (буквы и цифры)
             let detectedArticle = "";
+            let detectedName = "";
+
             if (/^[A-Z0-9_-]+$/.test(firstWord)) {
                 detectedArticle = firstWord;
+                
+                // 🎯 МАГИЯ: Забираем всё, что идет ПОСЛЕ артикула
+                let remainingText = firstLine.substring(firstWord.length).trim();
+                
+                // Если в строке есть ссылка в круглых скобках (https://...), отрезаем её, чтобы не спамить в название
+                remainingText = remainingText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
+                
+                detectedName = remainingText;
             }
 
             // Достаем количество штук из инпута на главном экране
             const inputFilter = document.getElementById(`stock-filter-${i}`);
             const requiredStock = (inputFilter && inputFilter.value.trim()) ? parseInt(inputFilter.value, 10) : 1; 
 
-            // Генерируем мини-поля для этого товара в модалке
+            // Генерируем расширенные поля для этого товара в модалке (включая Наименование)
             const prodRow = document.createElement('div');
             prodRow.className = 'script-product-row';
-            prodRow.style = 'display: flex; gap: 10px; margin-bottom: 10px;';
+            prodRow.style = 'border-bottom: 1px dashed #e2e8f0; padding-bottom: 12px; margin-bottom: 12px;';
             prodRow.innerHTML = `
-                <div style="flex: 2;">
-                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА ${activeItemsCount}</span>
-                    <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()">
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <div style="flex: 2;">
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА ${activeItemsCount}</span>
+                        <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()">
+                    </div>
+                    <div style="flex: 1; max-width: 100px;">
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
+                        <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()">
+                    </div>
                 </div>
-                <div style="flex: 1; max-width: 100px;">
-                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
-                    <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()">
+                <div style="width: 100%;">
+                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
+                    <input type="text" class="input-textarea script-input-name" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()">
                 </div>
             `;
             container.appendChild(prodRow);
@@ -1380,47 +1393,52 @@ function buildOrderProcessingModal() {
         return;
     }
 
-    // Открываем плавающее окно и обновляем текст
     openFloatingModal('modal-process-order');
     updateLiveScriptText();
 }
 
-// Пересчет текста скрипта разговора в реальном времени (Генератор)
+// Пересчет текста скрипта разговора в реальном времени с учетом названий товаров
 function updateLiveScriptText() {
     const clientNameInput = document.getElementById('script-client-name').value.trim();
     const liveOutput = document.getElementById('script-live-output');
     if (!liveOutput) return;
 
-    // 1. Собираем имя клиента (если пусто — ставим красивую заглушку)
     const clientName = clientNameInput ? clientNameInput : "[Имя клиента]";
 
-    // 2. Собираем имя оператора, которое мы ранее вычистили от фамилии
     let opName = "Оператор";
     const welcomeTitle = document.getElementById('app-welcome-title');
     if (welcomeTitle) {
-        // Выдергиваем имя из заголовка приветствия: "Добро пожаловать, Александр!" -> "Александр"
         const match = welcomeTitle.innerText.match(/Добро пожаловать,\s+([^!]+)/);
         if (match && match[1]) opName = match[1].trim();
     }
 
-    // 3. Формируем БЛОК 1: Приветствие
     let scriptText = `Добрый день, ${clientName}! Меня зовут ${opName}, компания ЛЭТУАЛЬ. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n\n`;
-
-    // 4. Формируем БЛОК 2: Уточнение товаров и количества
     scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
 
-    // Собираем все артикулы и количества из динамических полей модалки
+    // Собираем данные из инпутов модалки
     const artInputs = document.querySelectorAll('.script-input-art');
     const qtyInputs = document.querySelectorAll('.script-input-qty');
+    const nameInputs = document.querySelectorAll('.script-input-name'); // Новые инпуты названий
     
     let productParts = [];
     for (let i = 0; i < artInputs.length; i++) {
-        const art = artInputs[i].value.trim() ? artInputs[i].value.trim() : `[Артикул ${i+1}]`;
+        const art = artInputs[i].value.trim();
         const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
-        productParts.push(`товар (артикул: ${art}) в количестве ${qty} шт.`);
+        const prodName = nameInputs[i] ? nameInputs[i].value.trim() : "";
+        
+        // Умный выбор: если есть название товара, берем его, иначе используем артикул
+        let displayItem = "";
+        if (prodName) {
+            displayItem = `товар "${prodName}"`;
+        } else if (art) {
+            displayItem = `товар (артикул: ${art})`;
+        } else {
+            displayItem = `товар №${i+1}`;
+        }
+        
+        productParts.push(`${displayItem} в количестве ${qty} шт.`);
     }
 
-    // Красиво соединяем товары через союз "и", если их несколько
     if (productParts.length === 1) {
         scriptText += productParts[0];
     } else {
@@ -1429,8 +1447,6 @@ function updateLiveScriptText() {
     }
 
     scriptText += `, верно?`;
-
-    // Выводим готовый текст на экран оператора
     liveOutput.value = scriptText;
 }
 
