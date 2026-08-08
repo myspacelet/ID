@@ -282,22 +282,18 @@ async function handleAuthSubmit() {
                 statusMsg.innerHTML = "🔒 Доступ ограничен. Администратор ещё не одобрил вашу заявку.";
             }
         } else {
-            statusMsg.style.color = '#16a34a'; 
-            statusMsg.innerHTML = '🚀 Доступ разрешен!';
+            statusMsg.style.color = '#16a34a'; statusMsg.innerHTML = '🚀 Доступ разрешен!';
             
+            // 🔥 ДОБАВЛЯЕМ: Вытаскиваем имя из только что загруженного профиля
             const welcomeTitle = document.getElementById('app-welcome-title');
             if (welcomeTitle && profile && profile.full_name) {
-                // Разделяем строку по пробелам на массив слов
-                const nameParts = profile.full_name.trim().split(/\s+/);
-                // Если слов больше одного, берем второе слово (имя), иначе берем первое
-                const firstName = nameParts.length > 1 ? nameParts[1] : nameParts[0];
-                
-                welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
+                welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
             }
 
             setTimeout(() => { document.getElementById('auth-overlay').style.display = 'none'; }, 800);
         }
-
+    }
+}
         let globalNearestCityName = "";
 
 function scrollToNearestCity() {
@@ -535,17 +531,10 @@ window.addEventListener('DOMContentLoaded', async () => {
                 if (overlay) overlay.style.display = 'none';
 
                 // 🔥 ДОБАВЛЯЕМ: Подставляем имя оператора при автоматическом входе
-                setTimeout(() => {
-                    const welcomeTitle = document.getElementById('app-welcome-title');
-                    if (welcomeTitle && profile.full_name) {
-                        // Разделяем строку по пробелам на массив слов
-                        const nameParts = profile.full_name.trim().split(/\s+/);
-                        // Если слов больше одного, берем второе слово (имя), иначе берем первое
-                        const firstName = nameParts.length > 1 ? nameParts[1] : nameParts[0];
-                        
-                        welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
-                    }
-                }, 100);
+                const welcomeTitle = document.getElementById('app-welcome-title');
+                if (welcomeTitle && profile.full_name) {
+                    welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
+                }
             } else {
                 // Если сессия старая или админ снял одобрение — разлогиниваем
                 await supabaseClient.auth.signOut();
