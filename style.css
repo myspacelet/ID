@@ -480,9 +480,7 @@ body.dark-mode .btn-logout:hover {
 /* Базовый стиль для всех плавающих окон */
 .floating-modal {
     position: fixed;
-    top: 25%;
-    left: 35%;
-    width: 380px;
+    /* Убрали жесткие top и left, чтобы они не мешали летать вверх-вниз */
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
@@ -490,6 +488,7 @@ body.dark-mode .btn-logout:hover {
     z-index: 2000;
     display: none; /* По умолчанию скрыты */
     flex-direction: column;
+    width: 380px; /* Оставляем как дефолт для маленьких окон, но БЕЗ !important */
 }
 
 /* Шапка окна (зона для перетаскивания) */
