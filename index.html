@@ -1625,10 +1625,14 @@ function updateLiveScriptText() {
     // Текст-подсказка, который мы красим в красный и делаем жирным
     const redNotice = `<span style="color: #ef4444; font-weight: 700;">(если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже)</span>`;
 
+    // Выносим получение адреса наверх, чтобы оно работало и для ПВЗ, и для курьера
+    const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
+
     if (currentDeliveryMode === 'pvz') {
-        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
+        // Подставляем введенный адрес/город ПВЗ прямо в текст
+        const pvzAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес или номер ПВЗ]";
+        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     } else {
-        const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
         const clientAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес курьера]";
         scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     }
