@@ -597,18 +597,16 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
-/* Максимальное расширение модалки обработки заказа по синей линии */
-.floating-modal.floating-modal-wide {
-    width: 1250px !important;           /* Сильно увеличили ширину до краев экрана */
-    min-width: 1250px !important;       /* Жесткая страховка от сжатия браузером */
-    left: calc(50% - 625px) !important; /* Пересчитали идеальное центрирование */
-    top: 5% !important;                 /* Поджали чуть выше к верхнему краю экрана */
+/* Базовый каркас для широкого окна обработки заказа */
+.floating-modal-wide {
+    /* Координаты и размеры теперь задаются через JS при открытии, чтобы окно летало! */
+    min-width: 300px; 
 }
 
 /* Сетка для разделения тела модалки */
 .modal-columns-container {
     display: flex;
-    gap: 32px;                          /* Больше воздуха между левой и правой частью */
+    gap: 32px;
     width: 100%;
     box-sizing: border-box;
     align-items: stretch;
@@ -619,26 +617,26 @@ body.dark-mode .btn-order-action:hover {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 580px !important;           /* Сделали левую часть еще выше */
+    height: 580px; /* Увеличили высоту контента */
     overflow-y: auto;
     padding-right: 12px;
 }
 
 /* Правая колонка — монолитный скрипт */
 .modal-column-right {
-    flex: 1.5;                          /* Сделали зону скрипта еще просторнее */
+    flex: 1.5;
     display: flex;
     flex-direction: column;
-    height: 580px !important;           /* Высота строго совпадает с левой */
+    height: 580px;
 }
 
-/* Фикс текстового поля скрипта под новые максимальные размеры */
+/* Текстовое поле готового скрипта */
 #script-live-output {
-    width: 100% !important;
-    height: 510px !important;           /* Поле скрипта теперь по-настоящему гигантское и глубокое */
+    width: 100%;
+    height: 510px !important; /* Делаем поле скрипта огромным */
     background: #f8fafc;
     font-weight: 500;
-    font-size: 14.5px !important;       /* Слегка увеличили шрифт текста, чтобы оператор не напрягал глаза */
+    font-size: 14.5px;
     line-height: 1.6;
     color: #0f172a;
     resize: none;
@@ -651,7 +649,7 @@ body.dark-mode .btn-order-action:hover {
 /* Кнопка копирования скрипта */
 .modal-column-right .btn-primary {
     margin-top: 16px;
-    height: 50px !important;            /* Удобная широкая кнопка */
+    height: 50px !important;
     padding: 0 24px !important;
     font-size: 14px !important;
     font-weight: 600 !important;

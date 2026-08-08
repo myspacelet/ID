@@ -1269,6 +1269,19 @@ function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
+        
+        // 🔥 Проверяем, если открывается ШИРОКОЕ окно обработки заказа
+        if (modalId === 'modal-process-order') {
+            modal.style.width = '1250px'; // Задаем желаемую ширину по синей линии
+            
+            // Если оператор открывает его в первый раз и оно еще не двигалось руками
+            if (!modal.style.left || modal.style.left === '35%') {
+                const startLeft = Math.max(20, (window.innerWidth - 1250) / 2);
+                modal.style.left = startLeft + 'px';
+                modal.style.top = '60px'; // Красивый отступ от верхнего края экрана
+            }
+        }
+        
         focusModal(modal);
     }
 }
@@ -1287,17 +1300,19 @@ function focusModal(modalElement) {
 
 // Запуск перетаскивания (срабатывает при зажатии мыши на шапке)
 function initModalDrag(e, modalId) {
+    // Предотвращаем выделение текста и закрытие, если кликнули по крестику
+    if (e.target.classList.contains('floating-modal-close')) return;
+    
     const modal = document.getElementById(modalId);
     if (!modal) return;
     
     focusModal(modal);
     activeDraggedModal = modal;
     
-    // Считаем разницу между позицией мыши и левым/верхним краем окна
-    modalXOffset = e.clientX - modal.getBoundingClientRect().left;
-    modalYOffset = e.clientY - modal.getBoundingClientRect().top;
+    // Считаем точную разницу координат мыши и краев летящего окна
+    modalXOffset = e.clientX - modal.offsetLeft;
+    modalYOffset = e.clientY - modal.offsetTop;
     
-    // Подключаем слушатели на все движение экрана
     document.addEventListener('mousemove', handleModalDrag);
     document.addEventListener('mouseup', stopModalDrag);
 }
