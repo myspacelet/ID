@@ -1631,7 +1631,7 @@ function updateLiveScriptText() {
     if (currentDeliveryMode === 'pvz') {
         // Подставляем введенный адрес/город ПВЗ прямо в текст
         const pvzAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес или номер ПВЗ]";
-        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
+        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК: ${pvzAddress}, а также курьером на домашний/рабочий адрес. Уточните, пожалуйста, как вам удобнее получить доставку?. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     } else {
         const clientAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес курьера]";
         scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
