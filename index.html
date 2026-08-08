@@ -1616,7 +1616,7 @@ function updateLiveScriptText() {
     const daysText = delivDaysInput ? delivDaysInput : "[Срок]";
 
     if (currentDeliveryMode === 'pvz') {
-        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК. По срокам это займет примерно ${daysText}, стоимость доставки составит ${priceText}.\n\n`;
+        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, стоимость доставки составит ${priceText}.\n\n`;
     } else {
         const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
         const clientAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес курьера]";
