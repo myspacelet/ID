@@ -597,49 +597,74 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
-/* Расширенная двухколоночная модалка обработки заказа */
-.floating-modal-wide {
-    width: 850px !important; /* Увеличили ширину, чтобы комфортно встали две колонки */
-    left: 20% !important;    /* Сдвинули чуть левее, чтобы окно центрировалось */
+/* Переопределяем базовый класс для широкого окна обработки заказа */
+.floating-modal.floating-modal-wide {
+    width: 1000px !important;       /* Сильно расширяем окно по твоей синей линии */
+    left: calc(50% - 500px) !important; /* Идеально центрируем по экрану */
+    top: 10% !important;            /* Приподнимаем чуть выше, чтобы влезло больше контента */
 }
 
-/* Сетка для разделения тела модалки на лево и право */
+/* Сетка для разделения тела модалки */
 .modal-columns-container {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     width: 100%;
     box-sizing: border-box;
+    align-items: stretch;           /* Колонки будут одинаковой высоты */
 }
 
-/* Левая колонка — управление данными */
+/* Левая колонка — ввод данных (добавляем фиксированную высоту) */
 .modal-column-left {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-height: 480px;
-    overflow-y: auto; /* Если товаров будет 5-10 штук, они будут аккуратно скроллиться внутри своей колонки */
-    padding-right: 5px;
+    height: 480px;                  /* Фиксированная высота левой части */
+    overflow-y: auto;               /* Скролл для карточек товаров */
+    padding-right: 8px;
 }
 
 /* Правая колонка — монолитный скрипт */
 .modal-column-right {
-    flex: 1.2; /* Делаем правую колонку со скриптом чуть шире левой */
+    flex: 1.3;                      /* Делаем зону текста еще шире */
     display: flex;
     flex-direction: column;
-    justify-content: transform;
+    height: 480px;                  /* Высота совпадает с левой колонкой */
 }
 
-/* Красивый тонкий разделитель между колонками */
-.modal-column-divider {
-    width: 1px;
-    background: #e2e8f0;
-    align-self: stretch;
+/* Фикс текстового поля (чтобы оно не сжимало кнопку) */
+#script-live-output {
+    width: 100%;
+    height: 400px !important;       /* Текстовое поле теперь ОГРОМНОЕ и занимает почти всю высоту */
+    background: #f8fafc;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #0f172a;
+    resize: none;
+    padding: 16px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
 }
 
-/* Адаптация разделителя под тёмную тему */
-body.dark-mode .modal-column-divider {
-    background: #475569;
+/* Стилизуем кнопку копирования (делаем её аккуратной и фиксированной по высоте) */
+.modal-column-right .btn-primary {
+    margin-top: 14px;
+    height: 46px !important;        /* Жестко фиксируем высоту кнопки, она больше не раздуется! */
+    padding: 0 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    background: #4338ca;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;                 /* Запрещаем кнопке растягиваться или сжиматься */
 }
+
 body.dark-mode .script-product-row {
     background: #334155 !important;
     border-color: #475569 !important;
