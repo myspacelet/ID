@@ -58,7 +58,7 @@
             <span class="status-refresh-btn" onclick="updateDatabase()">🔄 Обновить базу сейчас</span>
         </div>
         <!-- Заголовок сайта -->
-        <h1 class="app-title">🚌 Добро пожаловать!</h1>
+        <h1 class="app-title" id="app-welcome-title">🚌 Добро пожаловать!</h1>
         
         <!-- 🎛️ Верхняя панель управления -->
         <div class="top-navbar">
@@ -282,13 +282,15 @@ async function handleAuthSubmit() {
                 statusMsg.innerHTML = "🔒 Доступ ограничен. Администратор ещё не одобрил вашу заявку.";
             }
         } else {
-            if (statusMsg) {
-                statusMsg.style.color = '#16a34a';
-                statusMsg.innerHTML = '🚀 Доступ разрешен!';
+            statusMsg.style.color = '#16a34a'; statusMsg.innerHTML = '🚀 Доступ разрешен!';
+            
+            // 🔥 ДОБАВЛЯЕМ: Вытаскиваем имя из только что загруженного профиля
+            const welcomeTitle = document.getElementById('app-welcome-title');
+            if (welcomeTitle && profile && profile.full_name) {
+                welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
             }
-            setTimeout(() => {
-                document.getElementById('auth-overlay').style.display = 'none';
-            }, 800);
+
+            setTimeout(() => { document.getElementById('auth-overlay').style.display = 'none'; }, 800);
         }
     }
 }
@@ -524,9 +526,15 @@ window.addEventListener('DOMContentLoaded', async () => {
                 .single();
 
             if (!error && profile && profile.approved === true) {
-                // Если всё чётко — мгновенно убираем шторку, оператор может работать
+                // Если всё чётко — мгновенно убираем шторку
                 const overlay = document.getElementById('auth-overlay');
                 if (overlay) overlay.style.display = 'none';
+
+                // 🔥 ДОБАВЛЯЕМ: Подставляем имя оператора при автоматическом входе
+                const welcomeTitle = document.getElementById('app-welcome-title');
+                if (welcomeTitle && profile.full_name) {
+                    welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
+                }
             } else {
                 // Если сессия старая или админ снял одобрение — разлогиниваем
                 await supabaseClient.auth.signOut();
