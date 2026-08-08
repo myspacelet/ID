@@ -422,21 +422,22 @@ body.dark-mode .store-badge.exact-badge {
 /* Класс для плавной и красивой подсветки строки */
 .highlight-city {
   animation: pulse-highlight 2s ease-in-out;
-  border: 2px solid #ff6b35 !important; /* Оранжевая рамка под цвет кнопки */
-  background-color: rgba(255, 107, 53, 0.1) !important; /* Легкий оранжевый фон */
+  border: 2px solid #ff4b91 !important; /* Приятный розовый цвет */
+  background-color: rgba(255, 75, 145, 0.08) !important; /* Легкий розовый фон */
+  border-radius: 12px !important; /* Закругленные углы */
 }
 
 @keyframes pulse-highlight {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7);
+    box-shadow: 0 0 0 0 rgba(255, 75, 145, 0.7);
   }
   50% {
-    transform: scale(1.02); /* Строка слегка увеличится, привлекая внимание */
-    box-shadow: 0 0 15px 5px rgba(255, 107, 53, 0.5);
+    transform: scale(1.015); /* Мягкое увеличение, чтобы строка не перекрывала соседние элементы */
+    box-shadow: 0 0 15px 5px rgba(255, 75, 145, 0.4);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0);
+    box-shadow: 0 0 0 0 rgba(255, 75, 145, 0);
   }
 }
