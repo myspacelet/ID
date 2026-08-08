@@ -1259,43 +1259,43 @@ function resetAllForm() {
 let activeDraggedModal = null;
 let modalXOffset = 0;
 let modalYOffset = 0;
-let topModalZIndex = 2000; // Счетчик слоев, чтобы активное окно было выше остальных
+let topModalZIndex = 2000;
 
-// Открытие окна
+// Открытие окна с автоматическим расчетом геометрии под экран пользователя
 function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
         
-        // Если окно открывается в самый первый раз и ещё не двигалось оператором руками
-        if (!modal.style.left || modal.style.left === '35%') {
-            // Получаем реальную ширину окна, которую ему задал адаптивный CSS (85vw)
-            const modalWidth = modal.offsetWidth;
+        // Если открывается наше широкое окно обработки заказа
+        if (modalId === 'modal-process-order') {
+            // Разрешаем адаптивному CSS (85vw) самому задать ширину без жестких JS-перезаписей!
+            modal.style.width = ''; 
             
-            // Вычисляем идеальные координаты для центрирования
-            const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
-            modal.style.left = startLeft + 'px';
-            modal.style.top = '50px'; // Комфортный отступ сверху
+            // Если окно открывается впервые и оператор еще не таскал его мышкой
+            if (!modal.style.left || modal.style.left === '35%') {
+                const modalWidth = modal.offsetWidth;
+                const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
+                modal.style.left = startLeft + 'px';
+                modal.style.top = '40px'; // Комфортный стартовый отступ сверху
+            }
         }
-        
         focusModal(modal);
     }
 }
-// Закрытие окна
+
 function closeFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = 'none';
 }
 
-// Вывод окна на передний план при клике
 function focusModal(modalElement) {
     topModalZIndex++;
     modalElement.style.zIndex = topModalZIndex;
 }
 
-// Запуск перетаскивания (срабатывает при зажатии мыши на шапке)
+// Запуск перетаскивания (с полной поддержкой осей X и Y)
 function initModalDrag(e, modalId) {
-    // Предотвращаем выделение текста и закрытие, если кликнули по крестику
     if (e.target.classList.contains('floating-modal-close')) return;
     
     const modal = document.getElementById(modalId);
@@ -1304,7 +1304,7 @@ function initModalDrag(e, modalId) {
     focusModal(modal);
     activeDraggedModal = modal;
     
-    // Считаем точную разницу координат мыши и краев летящего окна
+    // Считаем точные смещения относительно текущего положения окна
     modalXOffset = e.clientX - modal.offsetLeft;
     modalYOffset = e.clientY - modal.offsetTop;
     
@@ -1312,15 +1312,14 @@ function initModalDrag(e, modalId) {
     document.addEventListener('mouseup', stopModalDrag);
 }
 
-// Просчет координат при движении мыши
+// Движение мыши (Окно свободно летит во все 4 стороны!)
 function handleModalDrag(e) {
     if (!activeDraggedModal) return;
     
-    // Рассчитываем новые координаты для окна
     let newX = e.clientX - modalXOffset;
     let newY = e.clientY - modalYOffset;
     
-    // Задаем ограничения, чтобы окно не улетало за пределы экрана
+    // Ограничиваем, чтобы окно не улетало за левый и верхний край экрана
     if (newX < 0) newX = 0;
     if (newY < 0) newY = 0;
     
@@ -1328,12 +1327,16 @@ function handleModalDrag(e) {
     activeDraggedModal.style.top = newY + 'px';
 }
 
-// Отпускаем окно
 function stopModalDrag() {
     activeDraggedModal = null;
     document.removeEventListener('mousemove', handleModalDrag);
     document.removeEventListener('mouseup', stopModalDrag);
 }
+
+// Вешаем фокус при клике на любое плавающее окно
+document.querySelectorAll('.floating-modal').forEach(m => {
+    m.addEventListener('mousedown', () => focusModal(m));
+});
 
 // Добавим фокус на окна при обычном клике по телу модалки
 document.querySelectorAll('.floating-modal').forEach(m => {
