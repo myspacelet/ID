@@ -206,12 +206,11 @@
 
     </div> 
 
-    <!-- ВСПЛЫВАЮЩЕЕ ОКНО: КАРТОЧКА МАГАЗИНА -->
+    <!-- МОДАЛКА МАГАЗИНА (Добавлена кнопка выбора для логистики) -->
     <div id="store-modal" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal(null)">×</button>
             <h4 id="modal-store-title" style="font-weight: 700; margin-bottom: 16px; color: #3b82f6;">🏪 Карточка магазина</h4>
-            
             <div style="margin-bottom: 12px;">
                 <span style="font-size: 11px; color: #64748b; font-weight: 600;">ТОЧНЫЙ АДРЕС ОТГРУЗКИ</span>
                 <div class="modal-row">
@@ -219,19 +218,26 @@
                     <button onclick="copyText('modal-address-text', this)" class="btn-copy">📋</button>
                 </div>
             </div>
-
-            <div>
+            <div style="margin-bottom: 12px;">
                 <span style="font-size: 11px; color: #64748b; font-weight: 600;">УНИКАЛЬНЫЙ КОД AXAPTA</span>
                 <div class="modal-row">
                     <span id="modal-axapta-text">Загрузка...</span>
                     <button onclick="copyText('modal-axapta-text', this)" class="btn-copy">📋</button>
                 </div>
             </div>
+            
+            <!-- 🔥 ФИЧА: Кнопка выбора магазина для подтягивания в скрипт -->
+            <button id="modal-btn-select-store" onclick="toggleStoreSelectionFromModal()" class="btn-select-store-modal not-selected">
+                🛒 Выбрать этот магазин для заказа
+            </button>
+        </div>
+    </div>
         </div>
     </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        let selectedStoreCode = null;
         // Конфигурация Supabase (Адрес собран по твоему ID)
 const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_JinHB8pKvvmIkIkIFRjF4A_BXnnC0rD";
@@ -976,20 +982,69 @@ function renderResults(storesArray, matchType) {
 
     document.getElementById('results-section').style.display = 'block';
 }
-// Карточка магазина и копирование (Шаг 2.1)
 function openStoreCard(storeCode) {
-    const modal = document.getElementById('store-modal');
+    const modal = document.getElementById('store-modal'); 
     document.getElementById('modal-store-title').innerText = `🏪 Карточка магазина: ${storeCode}`;
     
     const dbItem = storeDatabase[storeCode];
-    if (dbItem) {
-        document.getElementById('modal-address-text').innerText = dbItem.address || "Адрес не указан в Google таблице";
-        document.getElementById('modal-axapta-text').innerText = storeCode;
-    } else {
-        document.getElementById('modal-address-text').innerText = "Данные о магазине отсутствуют в базе";
-        document.getElementById('modal-axapta-text').innerText = storeCode;
+    if (dbItem) { 
+        document.getElementById('modal-address-text').innerText = dbItem.address || "Адрес не указан"; 
+    } else { 
+        document.getElementById('modal-address-text').innerText = "Данные отсутствуют"; 
     }
+    document.getElementById('modal-axapta-text').innerText = storeCode; 
+    
+    // Передаем текущий код в кнопку, чтобы JS знал, с каким магазином идет работа
+    const selectBtn = document.getElementById('modal-btn-select-store');
+    selectBtn.setAttribute('data-current-code', storeCode);
+    
+    // Проверяем: если этот магазин УЖЕ был выбран оператором ранее
+    if (selectedStoreCode === storeCode) {
+        selectBtn.className = "btn-select-store-modal is-selected";
+        selectBtn.innerText = "✅ Магазин выбран (Нажмите, чтобы отменить)";
+    } else {
+        selectBtn.className = "btn-select-store-modal not-selected";
+        selectBtn.innerText = "🛒 Выбрать этот магазин для заказа";
+    }
+    
     modal.classList.add('open');
+}
+// Функция переключения выбора магазина внутри карточки
+function toggleStoreSelectionFromModal() {
+    const selectBtn = document.getElementById('modal-btn-select-store');
+    const storeCode = selectBtn.getAttribute('data-current-code');
+    if (!storeCode) return;
+
+    // Снимаем подсветку со ВСЕХ старых бейджей на главном экране на всякий случай
+    document.querySelectorAll('.store-badge').forEach(badge => {
+        badge.classList.remove('selected-active');
+    });
+
+    if (selectedStoreCode === storeCode) {
+        // ЕСЛИ КЛИКНУЛИ ПОВТОРНО — ОТМЕНЯЕМ ВЫБОР
+        selectedStoreCode = null;
+        selectBtn.className = "btn-select-store-modal not-selected";
+        selectBtn.innerText = "🛒 Выбрать этот магазин для заказа";
+    } else {
+        // ЕСЛИ ВЫБРАЛИ НОВЫЙ МАГАЗИН
+        selectedStoreCode = storeCode;
+        selectBtn.className = "btn-select-store-modal is-selected";
+        selectBtn.innerText = "✅ Магазин выбран (Нажмите, чтобы отменить)";
+        
+        // Находим бейдж этого магазина на главной странице по тексту и подсвечиваем его ярким индиго
+        document.querySelectorAll('.store-badge').forEach(badge => {
+            // Очищаем текст бейджа от остатков штук, чтобы сравнить чистый код (например "Борисгл5 (3 шт)" -> "Борисгл5")
+            const badgeText = badge.innerText.split('(')[0].trim();
+            if (badgeText === storeCode) {
+                badge.classList.add('selected-active');
+            }
+        });
+    }
+    
+    // Закрываем карточку магазина через 300мс для плавности, чтобы оператор увидел смену статуса
+    setTimeout(() => {
+        document.getElementById('store-modal').classList.remove('open');
+    }, 300);
 }
 
 function closeModal(event) {

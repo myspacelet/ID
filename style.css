@@ -697,3 +697,44 @@ body.dark-mode .script-product-row span {
 body.dark-mode .modal-column-right label { 
     color: #818cf8 !important; 
 }
+/* Стиль для выбранного и активного бейджа магазина */
+.store-badge.selected-active {
+    background: #4338ca !important; /* Яркий индиго цвет */
+    color: #ffffff !important;
+    border-color: #4338ca !important;
+    box-shadow: 0 0 12px rgba(67, 56, 202, 0.5);
+    font-weight: 700;
+}
+
+/* Стилизация новой кнопки выбора внутри карточки магазина */
+.btn-select-store-modal {
+    width: 100%;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+}
+.btn-select-store-modal.not-selected {
+    background: #e2e8f0;
+    color: #334155;
+}
+.btn-select-store-modal.not-selected:hover {
+    background: #cbd5e1;
+}
+.btn-select-store-modal.is-selected {
+    background: #16a34a;
+    color: white;
+}
+
+/* Поддержка тёмной темы для кнопки выбора */
+body.dark-mode .btn-select-store-modal.not-selected {
+    background: #334155;
+    color: #f1f5f9;
+}
+body.dark-mode .btn-select-store-modal.not-selected:hover {
+    background: #475569;
+}
