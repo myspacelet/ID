@@ -522,9 +522,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         
         if (session) {
+
             const { data: profile, error } = await supabaseClient
                 .from('profiles')
-                .select('approved, full_name')
+                .select('approved, full_name') // ⚠️ Важно: проверь, чтобы full_name был тут указан!
                 .eq('id', session.user.id)
                 .single();
 
@@ -533,7 +534,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 const overlay = document.getElementById('auth-overlay');
                 if (overlay) overlay.style.display = 'none';
 
-                // Выводим ТОЛЬКО ИМЯ оператора при автоматическом входе
+                // 🔥 ДОБАВЛЯЕМ: Подставляем имя оператора при автоматическом входе
                 setTimeout(() => {
                     const welcomeTitle = document.getElementById('app-welcome-title');
                     if (welcomeTitle && profile.full_name) {
