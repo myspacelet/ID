@@ -77,19 +77,38 @@
         </div>
                     <!-- 🛠️ ПАНЕЛЬ УПРАВЛЕНИЯ ЗАКАЗОМ -->
         <div class="order-management-panel">
-            <button onclick="openFloatingModal('modal-process-order')" class="btn-order-action">⚙️ Обработать заказ</button>
+            <button onclick="buildOrderProcessingModal()" class="btn-order-action">⚙️ Обработать заказ</button>
             <button onclick="openFloatingModal('modal-waiting-list')" class="btn-order-action">⏳ Лист ожидания</button>
             <button onclick="openFloatingModal('modal-send-form')" class="btn-order-action">✉️ Форма отправки</button>
         </div>
 
         <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 1: ОБРАБОТАТЬ ЗАКАЗ -->
-        <div id="modal-process-order" class="floating-modal">
+        <div id="modal-process-order" class="floating-modal" style="width: 480px;"> <!-- Слегка расширили для удобства -->
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-process-order')">
                 <span>⚙️ Обработать заказ</span>
                 <button class="floating-modal-close" onclick="closeFloatingModal('modal-process-order')">×</button>
             </div>
-            <div class="floating-modal-body">
-                <p style="color: #64748b; font-size: 13px;">Здесь будет логика обработки... (Заглушка)</p>
+            <div class="floating-modal-body" style="max-height: 500px; overflow-y: auto;">
+                
+                <!-- Блок ввода данных клиента -->
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label class="input-label" style="font-size: 12px; color: #64748b;">👤 ИМЯ КЛИЕНТА (ВВЕДИТЕ ВРУЧНУЮ)</label>
+                    <input type="text" id="script-client-name" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Ольга, Иван..." oninput="updateLiveScriptText()">
+                </div>
+
+                <!-- Контейнер, куда JS сам добавит все артикулы и количества штук -->
+                <div id="script-products-container" style="border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-bottom: 15px;"></div>
+
+                <!-- Блок готового скрипта для чтения -->
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label class="input-label" style="font-size: 12px; color: #4338ca; font-weight: 700;">🗣️ ГОТОВЫЙ СКРИПТ РАЗГОВОРА / ЧАТА</label>
+                    <textarea id="script-live-output" class="input-textarea" style="height: 140px; background: #f8fafc; font-weight: 500; font-size: 13px; line-height: 1.5; color: #0f172a; resize: none;" readonly></textarea>
+                </div>
+
+                <!-- Кнопка быстрого копирования текста -->
+                <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary" style="width: 100%; padding: 12px; font-size: 13px; background: #4338ca;">
+                    📋 Скопировать весь скрипт
+                </button>
             </div>
         </div>
 
@@ -1299,6 +1318,128 @@ function stopModalDrag() {
 document.querySelectorAll('.floating-modal').forEach(m => {
     m.addEventListener('mousedown', () => focusModal(m));
 });
+// Функция сборщика данных при открытии модалки обработки заказа
+function buildOrderProcessingModal() {
+    const container = document.getElementById('script-products-container');
+    if (!container) return;
+    
+    container.innerHTML = ''; // Очищаем старые поля товаров
+    document.getElementById('script-client-name').value = ''; // Сбрасываем имя клиента
+
+    let activeItemsCount = 0;
+
+    // Пробегаемся по всем возможным спискам на экране (динамически до 100)
+    for (let i = 1; i <= 100; i++) {
+        const textarea = document.getElementById(`list-${i}`);
+        if (textarea && textarea.value.trim()) {
+            activeItemsCount++;
+
+            // 🎯 МАГИЯ №1: Достаем артикул строго из ПЕРВОЙ строки списка
+            const lines = textarea.value.split('\n');
+            const firstLine = lines[0].trim();
+            const firstWord = firstLine.split(/\s+/)[0]; // Берем первое слово до пробела
+            
+            // Проверяем регуляркой, что это английский артикул (буквы и цифры)
+            let detectedArticle = "";
+            if (/^[A-Z0-9_-]+$/.test(firstWord)) {
+                detectedArticle = firstWord;
+            }
+
+            // 🎯 МАГИЯ №2: Достаем количество штук из инпута
+            const inputFilter = document.getElementById(`stock-filter-${i}`);
+            const requiredStock = (inputFilter && inputFilter.value.trim()) ? parseInt(inputFilter.value, 10) : 1; // Если пусто — 1 шт по умолчанию
+
+            // Генерируем мини-поля для этого товара в модалке
+            const prodRow = document.createElement('div');
+            prodRow.className = 'script-product-row';
+            prodRow.style = 'display: flex; gap: 10px; margin-bottom: 10px;';
+            prodRow.innerHTML = `
+                <div style="flex: 2;">
+                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА ${activeItemsCount}</span>
+                    <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()">
+                </div>
+                <div style="flex: 1; max-width: 100px;">
+                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
+                    <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()">
+                </div>
+            `;
+            container.appendChild(prodRow);
+        }
+    }
+
+    if (activeItemsCount === 0) {
+        alert("❌ Заполните хотя бы один список товаров на экране, чтобы обработать заказ!");
+        return;
+    }
+
+    // Открываем плавающее окно
+    openFloatingModal('modal-process-order');
+    // Генерируем базовый текст скрипта
+    updateLiveScriptText();
+}
+
+// Пересчет текста скрипта разговора в реальном времени (Генератор)
+function updateLiveScriptText() {
+    const clientNameInput = document.getElementById('script-client-name').value.trim();
+    const liveOutput = document.getElementById('script-live-output');
+    if (!liveOutput) return;
+
+    // 1. Собираем имя клиента (если пусто — ставим красивую заглушку)
+    const clientName = clientNameInput ? clientNameInput : "[Имя клиента]";
+
+    // 2. Собираем имя оператора, которое мы ранее вычистили от фамилии
+    let opName = "Оператор";
+    const welcomeTitle = document.getElementById('app-welcome-title');
+    if (welcomeTitle) {
+        // Выдергиваем имя из заголовка приветствия: "Добро пожаловать, Александр!" -> "Александр"
+        const match = welcomeTitle.innerText.match(/Добро пожаловать,\s+([^!]+)/);
+        if (match && match[1]) opName = match[1].trim();
+    }
+
+    // 3. Формируем БЛОК 1: Приветствие
+    let scriptText = `Добрый день, ${clientName}! Меня зовут ${opName}, компания ЛЭТУАЛЬ. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n\n`;
+
+    // 4. Формируем БЛОК 2: Уточнение товаров и количества
+    scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
+
+    // Собираем все артикулы и количества из динамических полей модалки
+    const artInputs = document.querySelectorAll('.script-input-art');
+    const qtyInputs = document.querySelectorAll('.script-input-qty');
+    
+    let productParts = [];
+    for (let i = 0; i < artInputs.length; i++) {
+        const art = artInputs[i].value.trim() ? artInputs[i].value.trim() : `[Артикул ${i+1}]`;
+        const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
+        productParts.push(`товар (артикул: ${art}) в количестве ${qty} шт.`);
+    }
+
+    // Красиво соединяем товары через союз "и", если их несколько
+    if (productParts.length === 1) {
+        scriptText += productParts[0];
+    } else {
+        const lastPart = productParts.pop();
+        scriptText += productParts.join(', ') + ' и ' + lastPart;
+    }
+
+    scriptText += `, верно?`;
+
+    // Выводим готовый текст на экран оператора
+    liveOutput.value = scriptText;
+}
+
+// Функция копирования готового скрипта в буфер обмена
+function copyGeneratedScript(btnElement) {
+    const text = document.getElementById('script-live-output').value;
+    navigator.clipboard.writeText(text).then(() => {
+        const oldText = btnElement.innerHTML;
+        btnElement.innerHTML = '✅ Скрипт скопирован!';
+        btnElement.style.background = '#16a34a';
+        setTimeout(() => {
+            btnElement.innerHTML = oldText;
+            btnElement.style.background = '#4338ca';
+        }, 1500);
+    });
+}
 
     </script>
 <div id="scroll-nav" class="scroll-nav">
