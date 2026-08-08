@@ -108,11 +108,8 @@
 
                     <!-- ➡️ ПРАВАЯ КОЛОНКА: ОГРОМНЫЙ СКРИПТ И КНОПКА КОПИРОВАНИЯ -->
                     <div class="modal-column-right">
-                        <div class="input-group" style="margin-bottom: 0; display: flex; flex-direction: column; width: 100%;">
-                            <label class="input-label" style="font-size: 11px; color: #4338ca; font-weight: 700; margin-bottom: 8px;">🗣️ ГОТОВЫЙ СКРИПТ РАЗГОВОРА / ЧАТА</label>
-                            <textarea id="script-live-output" readonly></textarea>
-                        </div>
-
+                        <label class="input-label" style="font-size: 11px; color: #4338ca; font-weight: 700; margin-bottom: 8px; flex-shrink: 0;">🗣️ ГОТОВЫЙ СКРИПТ РАЗГОВОРА / ЧАТА</label>
+                        <textarea id="script-live-output" readonly></textarea>
                         <!-- Кнопка копирования под скриптом -->
                         <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary">
                             📋 Скопировать весь скрипт
