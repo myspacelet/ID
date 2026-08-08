@@ -285,13 +285,20 @@ async function handleAuthSubmit() {
             statusMsg.style.color = '#16a34a'; statusMsg.innerHTML = '🚀 Доступ разрешен!';
             
             // 🔥 ДОБАВЛЯЕМ: Вытаскиваем имя из только что загруженного профиля
+        } else {
+            statusMsg.style.color = '#16a34a'; 
+            statusMsg.innerHTML = '🚀 Доступ разрешен!';
+            
             const welcomeTitle = document.getElementById('app-welcome-title');
             if (welcomeTitle && profile && profile.full_name) {
-                welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
+                // Отрезаем фамилию, оставляем только имя оператора
+                const firstName = profile.full_name.trim().replace(/^[^\s]+\s+/, '');
+                welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
             }
 
             setTimeout(() => { document.getElementById('auth-overlay').style.display = 'none'; }, 800);
         }
+
     }
 }
         let globalNearestCityName = "";
@@ -531,10 +538,13 @@ window.addEventListener('DOMContentLoaded', async () => {
                 if (overlay) overlay.style.display = 'none';
 
                 // 🔥 ДОБАВЛЯЕМ: Подставляем имя оператора при автоматическом входе
-                const welcomeTitle = document.getElementById('app-welcome-title');
-                if (welcomeTitle && profile.full_name) {
-                    welcomeTitle.innerText = `🚌 Добро пожаловать, ${profile.full_name}!`;
-                }
+// Подставляем ТОЛЬКО ИМЯ оператора при автоматическом входе
+const welcomeTitle = document.getElementById('app-welcome-title');
+if (welcomeTitle && profile && profile.full_name) {
+    // Регулярное выражение удаляет первое слово и пробел за ним
+    const firstName = profile.full_name.trim().replace(/^[^\s]+\s+/, '');
+    welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
+}
             } else {
                 // Если сессия старая или админ снял одобрение — разлогиниваем
                 await supabaseClient.auth.signOut();
