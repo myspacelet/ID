@@ -166,7 +166,129 @@ const SUPABASE_ANON_KEY = "sb_publishable_JinHB8pKvvmIkIkIFRjF4A_BXnnC0rD";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentAuthMode = 'login';
+// Функция переключения вкладок Вход / Регистрация
+function toggleAuthTab(mode) {
+    currentAuthMode = mode;
+    const tabLogin = document.getElementById('auth-tab-login');
+    const tabRegister = document.getElementById('auth-tab-register');
+    const regFields = document.getElementById('register-fields');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const title = document.getElementById('auth-title');
+    const statusMsg = document.getElementById('auth-status-message');
+    
+    if (statusMsg) statusMsg.innerHTML = '';
 
+    if (mode === 'login') {
+        if (tabLogin) tabLogin.classList.add('active');
+        if (tabRegister) tabRegister.classList.remove('active');
+        if (regFields) regFields.style.display = 'none';
+        if (submitBtn) submitBtn.innerText = 'Войти в систему';
+        if (title) title.innerText = 'Авторизация оператора';
+    } else {
+        if (tabRegister) tabRegister.classList.add('active');
+        if (tabLogin) tabLogin.classList.remove('active');
+        if (regFields) regFields.style.display = 'block';
+        if (submitBtn) submitBtn.innerText = 'Запросить доступ';
+        if (title) title.innerText = 'Подача заявки на доступ';
+    }
+}
+
+// Главный обработчик отправки формы в Supabase
+async function handleAuthSubmit() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+    const statusMsg = document.getElementById('auth-status-message');
+    
+    if (!email || !password) {
+        if (statusMsg) {
+            statusMsg.style.color = '#ef4444';
+            statusMsg.innerHTML = "Заполните Email и Пароль";
+        }
+        return;
+    }
+
+    if (statusMsg) {
+        statusMsg.style.color = '#64748b';
+        statusMsg.innerHTML = '⏳ Обработка запроса спутником...';
+    }
+
+    if (currentAuthMode === 'register') {
+        // ЛОГИКА ПОДАЧИ ЗАЯВКИ (РЕГИСТРАЦИЯ)
+        const fullName = document.getElementById('auth-fullname').value.trim();
+        const operatorId = document.getElementById('auth-operatorid').value.trim();
+
+        if (!fullName || !operatorId) {
+            if (statusMsg) {
+                statusMsg.style.color = '#ef4444';
+                statusMsg.innerHTML = "Укажите ваши Имя, Фамилию и ID";
+            }
+            return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    operator_id: operatorId
+                }
+            }
+        });
+
+        if (error) {
+            if (statusMsg) {
+                statusMsg.style.color = '#ef4444';
+                statusMsg.innerHTML = "Ошибка: " + error.message;
+            }
+        } else {
+            if (statusMsg) {
+                statusMsg.style.color = '#16a34a';
+                statusMsg.innerHTML = '✅ Заявка создана! Перейдите по ссылке в письме на почте для верификации, затем дождитесь одобрения админа.';
+            }
+            document.getElementById('auth-fullname').value = '';
+            document.getElementById('auth-operatorid').value = '';
+        }
+    } else {
+        // ЛОГИКА ВХОДА С УМНОЙ ПРОВЕРКОЙ
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            if (statusMsg) {
+                statusMsg.style.color = '#ef4444';
+                statusMsg.innerHTML = "Неверный логин или пароль";
+            }
+            return;
+        }
+
+        const user = data.user;
+        // Запрашиваем флаг одобрения из таблицы public.profiles
+        const { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('approved')
+            .eq('id', user.id)
+            .single();
+
+        if (profileError || !profile || profile.approved !== true) {
+            await supabaseClient.auth.signOut();
+            if (statusMsg) {
+                statusMsg.style.color = '#ef4444';
+                statusMsg.innerHTML = "🔒 Доступ ограничен. Администратор ещё не одобрил вашу заявку.";
+            }
+        } else {
+            if (statusMsg) {
+                statusMsg.style.color = '#16a34a';
+                statusMsg.innerHTML = '🚀 Доступ разрешен!';
+            }
+            setTimeout(() => {
+                document.getElementById('auth-overlay').style.display = 'none';
+            }, 800);
+        }
+    }
+}
         let globalNearestCityName = "";
 
 function scrollToNearestCity() {
@@ -360,27 +482,55 @@ let currentSearchMode = 'city';
 let listCount = 2;              
 let storeDatabase = {};         
 
-// Автоматический старт при загрузке страницы
-window.addEventListener('DOMContentLoaded', () => {
-    loadDatabase(); // Скачивает магазины из Google Таблицы
-    loadExternalGeoDatabase(); // Параллельно скачивает 1000 городов России с GitHub HFLabs!
+window.addEventListener('DOMContentLoaded', async () => {
+    // 1. Запускаем твои стандартные функции загрузки баз
+    if (typeof loadDatabase === 'function') loadDatabase();
+    if (typeof loadExternalGeoDatabase === 'function') loadExternalGeoDatabase();
     
+    // 2. Восстанавливаем тему (светлая/тёмная)
     if (localStorage.getItem('app-theme') === 'dark') {
         document.body.classList.add('dark-mode');
-        document.getElementById('theme-toggle-btn').innerText = '☀️';
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        if (themeBtn) themeBtn.innerText = '☀️';
     } else {
-        document.getElementById('theme-toggle-btn').innerText = '🌙';
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        if (themeBtn) themeBtn.innerText = '🌙';
     }
 
-    // Слушатель нажатия Enter для поля ввода города клиента
+    // 3. Навешиваем Enter на гео-поиск
     const geoInput = document.getElementById('geo-search-input');
     if (geoInput) {
         geoInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
-                event.preventDefault(); // Защита от перезагрузки страницы
-                findNearestStore();     // Запуск расчёта по Enter
+                event.preventDefault();
+                if (typeof findNearestStore === 'function') findNearestStore();
             }
         });
+    }
+
+    // 4. УМНАЯ ПРОВЕРКА АВТОРИЗАЦИИ ИЗ SUPABASE
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+            // Если сессия в браузере есть, дёргаем базу и проверяем, одобрен ли аккаунт
+            const { data: profile, error } = await supabaseClient
+                .from('profiles')
+                .select('approved')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!error && profile && profile.approved === true) {
+                // Если всё чётко — мгновенно убираем шторку, оператор может работать
+                const overlay = document.getElementById('auth-overlay');
+                if (overlay) overlay.style.display = 'none';
+            } else {
+                // Если сессия старая или админ снял одобрение — разлогиниваем
+                await supabaseClient.auth.signOut();
+            }
+        }
+    } catch (err) {
+        console.error("Ошибка проверки сессии авторизации:", err);
     }
 });
 
