@@ -741,3 +741,8 @@ body.dark-mode .btn-select-store-modal.not-selected:hover {
 body.dark-mode #delivery-type-toggle {
     background: #334155 !important;
 }
+body.dark-mode #script-live-output {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}

@@ -155,7 +155,7 @@
                     <!-- ➡️ ПРАВАЯ КОЛОНКА: ОГРОМНЫЙ СКРИПТ И КНОПКА КОПИРОВАНИЯ -->
                     <div class="modal-column-right">
                         <label class="input-label" style="font-size: 11px; color: #4338ca; font-weight: 700; margin-bottom: 8px; flex-shrink: 0;">🗣️ ГОТОВЫЙ СКРИПТ РАЗГОВОРА / ЧАТА</label>
-                        <textarea id="script-live-output" readonly></textarea>
+                        <div id="script-live-output" style="width: 100%; height: 510px; background: #f8fafc; font-weight: 500; font-size: 14.5px; line-height: 1.6; color: #0f172a; overflow-y: auto; padding: 20px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 10px; white-space: pre-wrap;"></div>
                         <!-- Кнопка копирования под скриптом -->
                         <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary">
                             📋 Скопировать весь скрипт
@@ -1609,18 +1609,21 @@ function updateLiveScriptText() {
     // ========================================================
     // БЛОК 4: СОГЛАСОВАНИЕ ЛОГИСТИКИ И ДАННЫХ
     // ========================================================
-    const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
+     const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
     const priceText = delivPriceInput ? (parseInt(delivPriceInput, 10) === 0 ? "бесплатно" : `${delivPriceInput} рублей`) : "[Цена] рублей";
     
     const delivDaysInput = document.getElementById('script-deliv-days').value.trim();
     const daysText = delivDaysInput ? delivDaysInput : "[Срок]";
 
+    // Текст-подсказка, который мы красим в красный и делаем жирным
+    const redNotice = `<span style="color: #ef4444; font-weight: 700;">(если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже)</span>`;
+
     if (currentDeliveryMode === 'pvz') {
-        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит (если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже) ${priceText}.\n\n`;
+        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     } else {
         const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
         const clientAddress = deliveryAddressInput ? deliveryAddressInput : "[Точный адрес курьера]";
-        scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, стоимость доставки составит ${priceText}.\n\n`;
+        scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     }
 
     // Собираем ФИО и телефон
@@ -1646,12 +1649,13 @@ function updateLiveScriptText() {
     scriptText += `Отлично! Я зафиксировал-(ла) все данные и отправляю заказ в обработку. Дата и время оформления (ориентировочно): ${dateText}. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
 
     // Выводим готовый монолитный скрипт разговора на экран оператора
-    liveOutput.value = scriptText;
+    liveOutput.innerHTML = scriptText;
 }
 
 // Функция копирования готового скрипта в буфер обмена
 function copyGeneratedScript(btnElement) {
-    const text = document.getElementById('script-live-output').value;
+    // Берём чистый текст без HTML-тегов, чтобы в чат клиенту не улетел лишний код!
+    const text = document.getElementById('script-live-output').innerText;
     navigator.clipboard.writeText(text).then(() => {
         const oldText = btnElement.innerHTML;
         btnElement.innerHTML = '✅ Скрипт скопирован!';
