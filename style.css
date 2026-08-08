@@ -1,4 +1,7 @@
 /* Стили для плавающей панели кнопок */
+html {
+  scroll-behavior: smooth;
+}
 .scroll-nav {
   position: fixed;
   bottom: 20px;
