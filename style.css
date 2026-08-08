@@ -597,3 +597,54 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
+/* Расширенная двухколоночная модалка обработки заказа */
+.floating-modal-wide {
+    width: 850px !important; /* Увеличили ширину, чтобы комфортно встали две колонки */
+    left: 20% !important;    /* Сдвинули чуть левее, чтобы окно центрировалось */
+}
+
+/* Сетка для разделения тела модалки на лево и право */
+.modal-columns-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Левая колонка — управление данными */
+.modal-column-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: 480px;
+    overflow-y: auto; /* Если товаров будет 5-10 штук, они будут аккуратно скроллиться внутри своей колонки */
+    padding-right: 5px;
+}
+
+/* Правая колонка — монолитный скрипт */
+.modal-column-right {
+    flex: 1.2; /* Делаем правую колонку со скриптом чуть шире левой */
+    display: flex;
+    flex-direction: column;
+    justify-content: transform;
+}
+
+/* Красивый тонкий разделитель между колонками */
+.modal-column-divider {
+    width: 1px;
+    background: #e2e8f0;
+    align-self: stretch;
+}
+
+/* Адаптация разделителя под тёмную тему */
+body.dark-mode .modal-column-divider {
+    background: #475569;
+}
+body.dark-mode .script-product-row {
+    background: #334155 !important;
+    border-color: #475569 !important;
+}
+body.dark-mode #script-live-output {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+}

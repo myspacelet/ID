@@ -82,33 +82,45 @@
             <button onclick="openFloatingModal('modal-send-form')" class="btn-order-action">✉️ Форма отправки</button>
         </div>
 
-        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 1: ОБРАБОТАТЬ ЗАКАЗ -->
-        <div id="modal-process-order" class="floating-modal" style="width: 480px;"> <!-- Слегка расширили для удобства -->
+        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 1: ОБРАБОТАТЬ ЗАКАЗ (ДВУХКОЛОНОЧНЫЙ МАКЕТ) -->
+        <div id="modal-process-order" class="floating-modal floating-modal-wide">
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-process-order')">
                 <span>⚙️ Обработать заказ</span>
                 <button class="floating-modal-close" onclick="closeFloatingModal('modal-process-order')">×</button>
             </div>
-            <div class="floating-modal-body" style="max-height: 500px; overflow-y: auto;">
-                
-                <!-- Блок ввода данных клиента -->
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label class="input-label" style="font-size: 12px; color: #64748b;">👤 ИМЯ КЛИЕНТА (ВВЕДИТЕ ВРУЧНУЮ)</label>
-                    <input type="text" id="script-client-name" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Ольга, Иван..." oninput="updateLiveScriptText()">
+            <div class="floating-modal-body">
+                <div class="modal-columns-container">
+                    
+                    <!-- ⬅️ ЛЕВАЯ КОЛОНКА: ВВОД ДАННЫХ КЛИЕНТА И ТОВАРОВ -->
+                    <div class="modal-column-left">
+                        <!-- Блок ввода данных клиента -->
+                        <div class="input-group" style="margin-bottom: 15px;">
+                            <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">👤 ИМЯ КЛИЕНТА (ВВЕДИТЕ ВРУЧНУЮ)</label>
+                            <input type="text" id="script-client-name" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Ольга, Иван..." oninput="updateLiveScriptText()">
+                        </div>
+
+                        <!-- Сюда JS будет динамически рендерить товары -->
+                        <div id="script-products-container"></div>
+                    </div>
+
+                    <!-- 🛠️ ВЕРТИКАЛЬНЫЙ РАЗДЕЛИТЕЛЬ -->
+                    <div class="modal-column-divider"></div>
+
+                    <!-- ➡️ ПРАВАЯ КОЛОНКА: ОГРОМНЫЙ СКРИПТ И КНОПКА КОПИРОВАНИЯ -->
+                    <div class="modal-column-right">
+                        <div class="input-group" style="margin-bottom: 12px; flex: 1; display: flex; flex-direction: column;">
+                            <label class="input-label" style="font-size: 11px; color: #4338ca; font-weight: 700; margin-bottom: 8px;">🗣️ ГОТОВЫЙ СКРИПТ РАЗГОВОРА / ЧАТА</label>
+                            <!-- Увеличили высоту до 320px для максимальной читаемости -->
+                            <textarea id="script-live-output" class="input-textarea" style="width: 100%; flex: 1; height: 320px; background: #f8fafc; font-weight: 500; font-size: 13.5px; line-height: 1.6; color: #0f172a; resize: none; padding: 14px; box-sizing: border-box;" readonly></textarea>
+                        </div>
+
+                        <!-- Кнопка копирования под скриптом -->
+                        <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary" style="width: 100%; padding: 14px; font-size: 14px; font-weight: 600; background: #4338ca; border-radius: 10px;">
+                            📋 Скопировать весь скрипт
+                        </button>
+                    </div>
+
                 </div>
-
-                <!-- Контейнер, куда JS сам добавит все артикулы и количества штук -->
-                <div id="script-products-container" style="border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-bottom: 15px;"></div>
-
-                <!-- Блок готового скрипта для чтения -->
-                <div class="input-group" style="margin-bottom: 10px;">
-                    <label class="input-label" style="font-size: 12px; color: #4338ca; font-weight: 700;">🗣️ ГОТОВЫЙ СКРИПТ РАЗГОВОРА / ЧАТА</label>
-                    <textarea id="script-live-output" class="input-textarea" style="height: 140px; background: #f8fafc; font-weight: 500; font-size: 13px; line-height: 1.5; color: #0f172a; resize: none;" readonly></textarea>
-                </div>
-
-                <!-- Кнопка быстрого копирования текста -->
-                <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary" style="width: 100%; padding: 12px; font-size: 13px; background: #4338ca;">
-                    📋 Скопировать весь скрипт
-                </button>
             </div>
         </div>
 
@@ -1367,7 +1379,7 @@ function buildOrderProcessingModal() {
             // Генерируем расширенные поля для этого товара в модалке (включая Наименование)
             const prodRow = document.createElement('div');
             prodRow.className = 'script-product-row';
-            prodRow.style = 'border-bottom: 1px dashed #e2e8f0; padding-bottom: 12px; margin-bottom: 12px;';
+            prodRow.style = 'background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 12px;';
             prodRow.innerHTML = `
                 <div style="display: flex; gap: 10px; margin-bottom: 8px;">
                     <div style="flex: 2;">
