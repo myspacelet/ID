@@ -532,3 +532,68 @@ body.dark-mode .btn-logout:hover {
 body.dark-mode .floating-modal { background: #1e293b; border-color: #475569; }
 body.dark-mode .floating-modal-header { background: #334155; color: #f8fafc; border-bottom-color: #475569; }
 body.dark-mode .floating-modal-body { background: #1e293b; }
+/* Новая панель управления сложной логикой заказа */
+.order-management-panel {
+    display: flex;
+    gap: 12px;                      /* Увеличили зазор между кнопками */
+    background: #f8fafc;            /* Светлый пастельный фон */
+    padding: 10px;                  /* Внутренние отступы панели */
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    width: 100%;                    /* Жестко растягиваем на всю ширину карточки */
+    box-sizing: border-box;         /* Чтобы паддинги не ломали ширину */
+}
+
+/* Кнопки управления заказом */
+.btn-order-action {
+    flex: 1;                        /* Заставляем кнопки делиться поровну и занимать все место */
+    border: none;
+    padding: 12px 16px;             /* Сделали кнопки повыше и просторнее для клика */
+    font-size: 13px;
+    font-weight: 600;               /* Сделали текст более плотным и читаемым */
+    border-radius: 8px;
+    cursor: pointer;
+    background: #ffffff;
+    color: #334155;                 /* Приятный графитовый цвет текста */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;                       /* Отступ между эмодзи и текстом */
+    border: 1px solid #cbd5e1;
+    white-space: nowrap;            /* Запрещаем тексту переноситься на новую строку */
+}
+
+/* Эффект наведения (стильный индиго-эффект) */
+.btn-order-action:hover {
+    background: #6366f1;
+    color: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    transform: translateY(-1px);    /* Кнопка слегка приподнимается */
+}
+
+/* Активное зажатие кнопки */
+.btn-order-action:active {
+    transform: translateY(1px);
+}
+
+/* ПОДДЕРЖКА ТЁМНОЙ ТЕМЫ */
+body.dark-mode .order-management-panel {
+    background: #334155;
+    border-color: #475569;
+}
+
+body.dark-mode .btn-order-action {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #475569;
+}
+
+body.dark-mode .btn-order-action:hover {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #ffffff;
+}
