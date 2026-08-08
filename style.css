@@ -597,62 +597,62 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
-/* Переопределяем базовый класс для широкого окна обработки заказа */
+/* Максимальное расширение модалки обработки заказа по синей линии */
 .floating-modal.floating-modal-wide {
-    width: 1000px !important;       /* Сильно расширяем окно по твоей синей линии */
-    left: calc(50% - 500px) !important; /* Идеально центрируем по экрану */
-    top: 10% !important;            /* Приподнимаем чуть выше, чтобы влезло больше контента */
+    width: 1150px !important;       /* Растянули ширину до идеала */
+    left: calc(50% - 575px) !important; /* Центрируем по новой ширине */
+    top: 6% !important;             /* Приподняли повыше к верхней границе */
 }
 
 /* Сетка для разделения тела модалки */
 .modal-columns-container {
     display: flex;
-    gap: 24px;
+    gap: 28px;                      /* Чуть увеличили воздух между колонками */
     width: 100%;
     box-sizing: border-box;
-    align-items: stretch;           /* Колонки будут одинаковой высоты */
+    align-items: stretch;
 }
 
-/* Левая колонка — ввод данных (добавляем фиксированную высоту) */
+/* Левая колонка — ввод данных */
 .modal-column-left {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 480px;                  /* Фиксированная высота левой части */
-    overflow-y: auto;               /* Скролл для карточек товаров */
+    height: 550px;                  /* Увеличили высоту для большего числа товаров */
+    overflow-y: auto;
     padding-right: 8px;
 }
 
 /* Правая колонка — монолитный скрипт */
 .modal-column-right {
-    flex: 1.3;                      /* Делаем зону текста еще шире */
+    flex: 1.4;                      /* Сделали колонку текстового скрипта еще шире */
     display: flex;
     flex-direction: column;
-    height: 480px;                  /* Высота совпадает с левой колонкой */
+    height: 550px;                  /* Высота строго совпадает с левой */
 }
 
-/* Фикс текстового поля (чтобы оно не сжимало кнопку) */
+/* Фикс текстового поля скрипта под новые размеры */
 #script-live-output {
     width: 100%;
-    height: 400px !important;       /* Текстовое поле теперь ОГРОМНОЕ и занимает почти всю высоту */
+    height: 480px !important;       /* Поле скрипта теперь по-настоящему гигантское */
     background: #f8fafc;
     font-weight: 500;
     font-size: 14px;
     line-height: 1.6;
     color: #0f172a;
     resize: none;
-    padding: 16px;
+    padding: 18px;
     box-sizing: border-box;
     border: 1px solid #cbd5e1;
     border-radius: 10px;
 }
 
-/* Стилизуем кнопку копирования (делаем её аккуратной и фиксированной по высоте) */
+/* Кнопка копирования скрипта */
 .modal-column-right .btn-primary {
     margin-top: 14px;
-    height: 46px !important;        /* Жестко фиксируем высоту кнопки, она больше не раздуется! */
-    padding: 0 20px !important;
-    font-size: 13px !important;
+    height: 48px !important;
+    padding: 0 24px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     background: #4338ca;
     border-radius: 8px;
@@ -662,7 +662,7 @@ body.dark-mode .btn-order-action:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0;                 /* Запрещаем кнопке растягиваться или сжиматься */
+    flex-shrink: 0;
 }
 
 body.dark-mode .script-product-row {
