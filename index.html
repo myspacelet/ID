@@ -71,6 +71,9 @@
             <button id="theme-toggle-btn" onclick="toggleTheme()" class="nav-btn" style="flex: 0 0 auto; width: 44px; padding: 10px 0; font-size: 16px;">
                 🌙
             </button>
+                <button onclick="handleLogout()" class="btn-logout" title="Выйти из системы">
+        🚪 Выйти
+    </button>
         </div>
 
         <!-- ⏳ Блок ввода списков -->
@@ -598,6 +601,28 @@ function toggleTheme() {
     
     localStorage.setItem('app-theme', isDark ? 'dark' : 'light');
 }
+// Функция выхода из аккаунта оператора
+async function handleLogout() {
+    try {
+        // Принудительно сбрасываем сессию на сервере Supabase
+        await supabaseClient.auth.signOut();
+        
+        // Возвращаем видимость шторки авторизации
+        const authOverlay = document.getElementById('auth-overlay');
+        if (authOverlay) {
+            authOverlay.style.display = 'flex';
+        }
+        
+        // Очищаем статусное сообщение в форме входа, чтобы там было пусто
+        const statusMsg = document.getElementById('auth-status-message');
+        if (statusMsg) statusMsg.innerHTML = '';
+        
+    } catch (err) {
+        console.error("Ошибка при выходе из системы:", err);
+        alert("Не удалось безопасно выйти из системы");
+    }
+}
+
 // Добавление динамических списков
 function addNewList() {
     listCount++;
