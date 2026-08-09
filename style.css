@@ -787,3 +787,12 @@ body.dark-mode #script-live-output {
 .modal-btn-close:hover {
     background-color: #dc2626; /* Темнеет при наведении */
 }
+/* 🔵 КНОПКА РЕФРЕША: Синяя */
+.modal-btn-refresh {
+    background-color: #3b82f6;
+    color: #ffffff !important;
+}
+.modal-btn-refresh:hover {
+    background-color: #2563eb;
+    transform: rotate(180deg); /* Красивый эффект вращения при наведении */
+}

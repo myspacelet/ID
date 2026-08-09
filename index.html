@@ -82,12 +82,13 @@
             <button onclick="openFloatingModal('modal-send-form')" class="btn-order-action">✉️ Форма отправки</button>
         </div>
 
-        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 1: ОБРАБОТАТЬ ЗАКАЗ (ДВУХКОЛОНОЧНЫЙ МАКЕТ) -->
+<!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 1: ОБРАБОТАТЬ ЗАКАЗ (ДВУХКОЛОНОЧНЫЙ МАКЕТ) -->
         <div id="modal-process-order" class="floating-modal floating-modal-wide">
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-process-order')">
                 <span>⚙️ Обработать заказ</span>
-                <!-- 🔥 ОБНОВЛЕННЫЙ БЛОК ОДИНАКОВЫХ КНОПОК УПРАВЛЕНИЯ -->
+                <!-- 🔥 ОБНОВЛЕННЫЙ БЛОК: Добавили кнопку синхронизации товаров 🔄 -->
                 <div style="display: flex; gap: 8px; align-items: center; margin-left: auto;">
+                    <button class="modal-control-btn modal-btn-refresh" onclick="refreshProductContainerOnly()" title="Синхронизировать товары с главного экрана" style="background-color: #3b82f6; color: #ffffff !important; font-size: 11px; margin-right: 4px;">🔄</button>
                     <button class="modal-control-btn modal-btn-minimize" onclick="minimizeOrderModal()" title="Свернуть">🗕</button>
                     <button class="modal-control-btn modal-btn-close" onclick="closeFloatingModal('modal-process-order')" title="Закрыть">🗙</button>
                 </div>
@@ -1995,7 +1996,86 @@ function copyGeneratedScript(btnElement) {
         alert('❌ Ошибка доступа к буферу.');
     });
 }
+// 🔥 ФУНКЦИЯ КНОПКИ 🔄: Обновляет ТОЛЬКО товары, сохраняя ФИО и телефон клиента
+function refreshProductContainerOnly() {
+    const container = document.getElementById('script-products-container');
+    if (!container) return;
 
+    // Полностью очищаем только контейнер с товарами в модалке
+    container.innerHTML = '';
+
+    let activeItemsCount = 0;
+
+    // Пробегаемся по всем 100 спискам на главном экране и пересобираем их начисто
+    for (let i = 1; i <= 100; i++) {
+        const textarea = document.getElementById(`list-${i}`);
+        if (textarea && textarea.value.trim()) {
+            activeItemsCount++;
+
+            const lines = textarea.value.split('\n');
+            let firstLine = lines[0].trim();
+
+            if (firstLine.startsWith('[')) {
+                firstLine = firstLine.replace(/^\[.*?\]\s*(Остатки:\s*)?/i, '').trim();
+            }
+
+            const words = firstLine.split(/\s+/);
+            const firstWord = words[0]; 
+            
+            let detectedArticle = "";
+            let detectedName = "";
+            let detectedLink = "";
+            let requiredStock = 1; 
+
+            if (/^[A-Z0-9_-]+$/.test(firstWord)) {
+                detectedArticle = firstWord;
+                let remainingText = firstLine.substring(firstWord.length).trim();
+                
+                const linkMatch = remainingText.match(/\((https?:\/\/[^\)]+)\)/i);
+                if (linkMatch && linkMatch[1]) {
+                    detectedLink = linkMatch[1].trim();
+                }
+                
+                remainingText = remainingText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
+                detectedName = remainingText;
+            }
+
+            if (lines[1] && lines[1].trim()) {
+                const stockMatch = lines[1].match(/\d+/);
+                if (stockMatch) {
+                    requiredStock = parseInt(stockMatch[0], 10);
+                }
+            }
+
+            // Генерируем новую актуальную строку товара (с уже вшитым autocomplete="off")
+            const prodRow = document.createElement('div');
+            prodRow.className = 'script-product-row';
+            prodRow.style = 'background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 12px;';
+            prodRow.innerHTML = `
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <div style="flex: 2;">
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">¼РТИКУЛ ТОВРРР ${activeItemsCount}</span>
+                        <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()" autocomplete="off">
+                    </div>
+                    <div style="flex: 1; max-width: 100px;">
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (РТ)</span>
+                        <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()" autocomplete="off">
+                    </div>
+                </div>
+                <div style="width: 100%;">
+                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">НРИМЕНОВРНИЕ ТОВРРР (ДЛЯ КЛИЕНТР)</span>
+                    <input type="text" class="input-textarea script-input-name" data-link="${detectedLink}" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
+                </div>
+            `;
+            container.appendChild(prodRow);
+        }
+    }
+
+    // Принудительно пересчитываем живой текст скрипта разговора справа
+    if (typeof updateLiveScriptText === 'function') {
+        updateLiveScriptText();
+    }
+}
     </script>
 <div id="scroll-nav" class="scroll-nav">
   <!-- 🔥 НОВАЯ ПЛАШКА: Свернутый заказ (скрыта по умолчанию) -->
