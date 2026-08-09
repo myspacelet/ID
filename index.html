@@ -1816,18 +1816,108 @@ function updateLiveScriptText() {
     liveOutput.innerHTML = scriptText;
 }
 
-// Функция копирования готового скрипта в буфер обмена
+// Функция умного копирования данных в формате одной строки Excel/Google Таблиц
 function copyGeneratedScript(btnElement) {
-    // Берём чистый текст без HTML-тегов, чтобы в чат клиенту не улетел лишний код!
-    const text = document.getElementById('script-live-output').innerText;
-    navigator.clipboard.writeText(text).then(() => {
+    // 1. Очистка и парсинг номера телефона получателя (Строго 11 цифр, формат 79XXXXXXXXX)
+    const rawPhone = document.getElementById('script-rec-phone').value.trim();
+    let cleanPhone = rawPhone.replace(/\D/g, ''); // Оставляем только голые цифры
+    
+    if (cleanPhone.length > 0) {
+        if (cleanPhone.startsWith('8') && cleanPhone.length === 11) {
+            cleanPhone = '7' + cleanPhone.substring(1); // Меняем 8 на 7
+        } else if (cleanPhone.length === 10) {
+            cleanPhone = '7' + cleanPhone; // Если ввели без кода страны (900...), дописываем 7
+        }
+    }
+    // Если поле пустое, оставляем пустую ячейку, а не ошибку
+    if (!cleanPhone) cleanPhone = '';
+
+    // 2. Получение базовых текстовых данных получателя и логистики
+    const recFio = document.getElementById('script-rec-fio').value.trim();
+    const deliveryAddress = document.getElementById('script-delivery-address').value.trim();
+    const delivPrice = document.getElementById('script-deliv-price').value.trim() || '0';
+    const delivDays = document.getElementById('script-deliv-days').value.trim();
+    const delivDate = document.getElementById('script-deliv-date').value;
+
+    // 3. 🎯 УМНЫЙ СБОР КОРЗИНЫ ТОВАРОВ (Склейка артикулов и сумма штук)
+    const artInputs = document.querySelectorAll('.script-input-art');
+    const qtyInputs = document.querySelectorAll('.script-input-qty');
+    
+    let articlesArray = [];
+    let totalQty = 0;
+
+    for (let i = 0; i < artInputs.length; i++) {
+        const art = artInputs[i].value.trim();
+        const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 0;
+        
+        if (art) articlesArray.push(art);
+        if (!isNaN(qty)) totalQty += qty;
+    }
+
+    const finalArticlesString = articlesArray.join(', '); // Склеиваем артикулы через запятую
+    const finalQtyString = totalQty > 0 ? totalQty.toString() : ''; // Итоговое суммированное кол-во
+
+    // 4. Автоматическое вычисление города клиента из строки адреса (Столбец F)
+    let clientCity = '';
+    if (deliveryAddress) {
+        // Убираем популярные префиксы, чтобы достать чистое название города
+        const cleanAddr = deliveryAddress.replace(/^(г\.|город\s+|обл\.|область\s+)/i, '').trim();
+        clientCity = cleanAddr.split(/[, ]/)[0]; // Забираем первое слово до запятой или пробела
+    }
+
+    // 5. Данные о складе ЛЭТУАЛЬ, откуда оформлен заказ (Столбец G)
+    let storeInfoString = '';
+    if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
+        const store = storeDatabase[selectedStoreCode];
+        storeInfoString = `${store.city || ''}, ${store.address || ''}`.trim().replace(/^,|,$/g, '');
+    }
+
+    // 6. Распределение цен в зависимости от способа доставки (Столбцы H и I)
+    let pricePvz = '';
+    let priceCourier = '';
+    if (currentDeliveryMode === 'pvz') {
+        pricePvz = delivPrice;
+    } else {
+        priceCourier = delivPrice;
+    }
+
+    // 7. Сборка способа доставки текстом (Столбец K)
+    const methodText = currentDeliveryMode === 'pvz' ? 'СДЭК ПВЗ' : 'Курьер';
+
+    // 8. Сборка финальной строки по правилам буфера Excel (Разделитель — \t)
+    const excelRowParts = [
+        '',                     // Столбец A: ID (Пустая заглушка-пробел)
+        cleanPhone,             // Столбец B: ТЕЛЕФОН КЛИЕНТА (Строго 11 цифр 79...)
+        recFio,                 // Столбец C: ФИО ПОЛУЧАТЕЛЯ
+        finalArticlesString,    // Столбец D: АРТИКУЛ ТОВАРА (Склеены через запятую)
+        finalQtyString,         // Столбец E: КОЛ-ВО ТОВАРА (Математическая сумма)
+        clientCity,             // Столбец F: ГОРОД КЛИЕНТА (Вырезан из адреса)
+        storeInfoString,        // Столбец G: ГОРОД И МАГАЗИН, ОТКУДА ОФОРМИТЬ ЗАКАЗ
+        pricePvz,               // Столбец H: ПВЗ - ЦЕНА ДОСТАВКИ
+        priceCourier,           // Столбец I: КК - ЦЕНА ДОСТАВКИ
+        delivDays,              // Столбец J: СРОК
+        methodText,             // Столбец K: Способ:
+        deliveryAddress,        // Столбец L: Адрес доставки:
+        delivDate ? delivDate.replace('T', ' ') : '', // Столбец M: Когда клиент планирует оформить заказ
+        ''                      // Столбец N: НОМЕР ЗАКАЗА (Пока игнорируем/пропускаем)
+    ];
+
+    // Объединяем массив в одну монолитную Excel-строку через символы табуляции
+    const finalExcelString = excelRowParts.join('\t');
+
+    // Отправляем чистую строку в буфер обмена оператора
+    navigator.clipboard.writeText(finalExcelString).then(() => {
         const oldText = btnElement.innerHTML;
-        btnElement.innerHTML = '✅ Скрипт скопирован!';
+        btnElement.innerHTML = '✅ Строка Excel скопирована!';
         btnElement.style.background = '#16a34a';
+        
         setTimeout(() => {
             btnElement.innerHTML = oldText;
-            btnElement.style.background = '#4338ca';
+            btnElement.style.background = '#4338ca'; // Возвращаем родной индиго-стиль кнопке
         }, 1500);
+    }).catch(err => {
+        console.error('Ошибка при копировании строки в буфер Excel:', err);
+        alert('❌ Не удалось скопировать строку. Предоставьте браузеру доступ к буферу обмена.');
     });
 }
 
