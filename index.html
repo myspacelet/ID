@@ -1996,7 +1996,7 @@ function copyGeneratedScript(btnElement) {
         alert('❌ Ошибка доступа к буферу.');
     });
 }
-// 🔥 ФУНКЦИЯ КНОПКИ 🔄: Обновляет ТОЛЬКО товары, сохраняя ФИО и телефон клиента
+// 🔥 ФУНКЦИЯ КНОПКИ 🔄: Синхронизирует товары И их количество, сохраняя данные клиента
 function refreshProductContainerOnly() {
     const container = document.getElementById('script-products-container');
     if (!container) return;
@@ -2025,7 +2025,13 @@ function refreshProductContainerOnly() {
             let detectedArticle = "";
             let detectedName = "";
             let detectedLink = "";
+            
+            // 🎯 ИСПРАВЛЕНО: Тянем актуальное количество штук прямо из инпута фильтра на главном экране!
             let requiredStock = 1; 
+            const stockFilterInput = document.getElementById(`stock-filter-${i}`);
+            if (stockFilterInput && stockFilterInput.value.trim()) {
+                requiredStock = parseInt(stockFilterInput.value.trim(), 10) || 1;
+            }
 
             if (/^[A-Z0-9_-]+$/.test(firstWord)) {
                 detectedArticle = firstWord;
@@ -2040,30 +2046,23 @@ function refreshProductContainerOnly() {
                 detectedName = remainingText;
             }
 
-            if (lines[1] && lines[1].trim()) {
-                const stockMatch = lines[1].match(/\d+/);
-                if (stockMatch) {
-                    requiredStock = parseInt(stockMatch[0], 10);
-                }
-            }
-
-            // Генерируем новую актуальную строку товара (с уже вшитым autocomplete="off")
+            // Генерируем новую актуальную строку товара
             const prodRow = document.createElement('div');
             prodRow.className = 'script-product-row';
             prodRow.style = 'background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 12px;';
             prodRow.innerHTML = `
                 <div style="display: flex; gap: 10px; margin-bottom: 8px;">
                     <div style="flex: 2;">
-                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">¼РТИКУЛ ТОВРРР ${activeItemsCount}</span>
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА ${activeItemsCount}</span>
                         <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()" autocomplete="off">
                     </div>
                     <div style="flex: 1; max-width: 100px;">
-                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (РТ)</span>
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
                         <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()" autocomplete="off">
                     </div>
                 </div>
                 <div style="width: 100%;">
-                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">НРИМЕНОВРНИЕ ТОВРРР (ДЛЯ КЛИЕНТР)</span>
+                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
                     <input type="text" class="input-textarea script-input-name" data-link="${detectedLink}" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
                 </div>
             `;
