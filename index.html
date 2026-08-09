@@ -1611,28 +1611,22 @@ function buildOrderProcessingModal() {
 
             if (/^[A-Z0-9_-]+$/.test(firstWord)) {
                 detectedArticle = firstWord;
-                
-                // Забираем всё, что идет ПОСЛЕ артикула
                 let remainingText = firstLine.substring(firstWord.length).trim();
                 
-                // Находим ссылку и сохраняем её перед удалением
                 const linkMatch = remainingText.match(/\((https?:\/\/[^\)]+)\)/i);
                 if (linkMatch && linkMatch[1]) {
                     detectedLink = linkMatch[1].trim();
                 }
                 
-                // Отрезаем ссылку из круглых скобок
                 remainingText = remainingText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
-                
                 detectedName = remainingText;
             }
 
-            // Ищем количество во второй строке списка (если оно там указано оператором)
-            if (lines[1] && lines[1].trim()) {
-                const stockMatch = lines[1].match(/\d+/);
-                if (stockMatch) {
-                    requiredStock = parseInt(stockMatch[0], 10);
-                }
+            // 🎯 ТОЧНЫЙ СБОР КОЛИЧЕСТВА ДЛЯ ПЕРВОГО ОТКРЫТИЯ ОКНА
+            requiredStock = 1;
+            const stockFilterInput = document.getElementById(`stock-filter-${i}`);
+            if (stockFilterInput && stockFilterInput.value.trim()) {
+                requiredStock = parseInt(stockFilterInput.value.trim(), 10) || 1;
             }
 
             // Генерируем расширенные поля для этого товара в модалке
