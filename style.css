@@ -746,3 +746,8 @@ body.dark-mode #script-live-output {
     color: #f1f5f9 !important;
     border-color: #475569 !important;
 }
+@keyframes pulse-indigo {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 56, 202, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(67, 56, 202, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 56, 202, 0); }
+}

@@ -86,7 +86,11 @@
         <div id="modal-process-order" class="floating-modal floating-modal-wide">
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-process-order')">
                 <span>⚙️ Обработать заказ</span>
-                <button class="floating-modal-close" onclick="closeFloatingModal('modal-process-order')">×</button>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <!-- 🔥 НОВАЯ КНОПКА СВЕРНУТЬ -->
+                    <button class="floating-modal-minimize" onclick="minimizeOrderModal()" style="background: none; border: none; color: #64748b; font-size: 16px; font-weight: 700; cursor: pointer; padding: 0 4px; transition: color 0.2s;" onmouseover="this.style.color='#4338ca'" onmouseout="this.style.color='#64748b'">➖</button>
+                    <button class="floating-modal-close" onclick="closeFloatingModal('modal-process-order')">×</button>
+                </div>
             </div>
             <div class="floating-modal-body">
                 <div class="modal-columns-container">
@@ -1312,6 +1316,15 @@ async function findNearestStore() {
 }
 
 function resetAllForm() {
+    // 🎯 ПОЛНЫЙ РУБИЛЬНИК: Уничтожаем свернутую плашку-блокнот и сбрасываем кэш магазина при очистке формы
+    const minBtn = document.getElementById('btn-minimized-order');
+    if (minBtn) minBtn.style.display = 'none';
+    
+    selectedStoreCode = null; // Полностью обнуляем выбранный магазин
+    document.querySelectorAll('.store-badge').forEach(badge => {
+        badge.classList.remove('selected-active'); // Снимаем индиго-подсветку с кнопок
+    });
+
     // Находим динамические списки строго внутри их родного контейнера #lists-container
     const container = document.getElementById('lists-container');
     const dynamicLists = container.querySelectorAll('.input-group');
@@ -1390,7 +1403,47 @@ function openFloatingModal(modalId) {
 
 function closeFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // 🎯 ГИГИЕНА ИНТЕРФЕЙСА: Если окно закрыли на крестик, окончательно уничтожаем свернутую плашку
+        if (modalId === 'modal-process-order') {
+            const minBtn = document.getElementById('btn-minimized-order');
+            if (minBtn) minBtn.style.display = 'none';
+        }
+    }
+}
+
+// 🔥 ФУНКЦИЯ СВЕРНУТЬ ОКНО В ПЛАШКУ 📋
+function minimizeOrderModal() {
+    const modal = document.getElementById('modal-process-order');
+    const minBtn = document.getElementById('btn-minimized-order');
+    
+    if (modal) {
+        modal.style.display = 'none'; // Прячем большое окно, но НЕ очищаем инпуты в DOM
+    }
+    if (minBtn) {
+        minBtn.style.display = 'block'; // Зажигаем пульсирующий блокнот в панели scroll-nav
+    }
+}
+
+// 🔥 ФУНКЦИЯ РАЗВЕРНУТЬ ОКНО ИЗ ПЛАШКИ 📋
+function restoreOrderModal() {
+    const modal = document.getElementById('modal-process-order');
+    const minBtn = document.getElementById('btn-minimized-order');
+    
+    if (minBtn) {
+        minBtn.style.display = 'none'; // Убираем плашку из панели навигации
+    }
+    if (modal) {
+        modal.style.display = 'flex'; // Возвращаем окно на экран
+        focusModal(modal); // Выводим его на передний план z-index
+        
+        // Принудительно запускаем обновление текста, чтобы подгрузить всё в исходном виде
+        if (typeof updateLiveScriptText === 'function') {
+            updateLiveScriptText();
+        }
+    }
 }
 
 function focusModal(modalElement) {
@@ -1453,6 +1506,13 @@ document.querySelectorAll('.floating-modal').forEach(m => {
 });
 // Функция сборщика данных при открытии модалки (Вытаскивает Артикул + Название товара)
 function buildOrderProcessingModal() {
+    // 🎯 ИНТЕЛЛЕКТУАЛЬНЫЙ КЭШ: Если окно просто свернуто, разворачиваем его БЕЗ очистки введенных данных
+    const minBtn = document.getElementById('btn-minimized-order');
+    if (minBtn && minBtn.style.display === 'block') {
+        restoreOrderModal();
+        return;
+    }
+
     const container = document.getElementById('script-products-container');
     if (!container) return;
     
@@ -1743,8 +1803,11 @@ function copyGeneratedScript(btnElement) {
 
     </script>
 <div id="scroll-nav" class="scroll-nav">
+  <!-- 🔥 НОВАЯ ПЛАШКА: Свернутый заказ (скрыта по умолчанию) -->
+  <button id="btn-minimized-order" onclick="restoreOrderModal()" title="Развернуть обрабатываемый заказ" style="display: none; background-color: #4338ca; font-size: 16px; position: relative; animation: pulse-indigo 2s infinite;">📋</button>
+  
   <button onclick="scrollToTop()" title="Наверх">▲</button>
-    <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
+  <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
   <button onclick="scrollToBottom()" title="Вниз">▼</button>
 </div>
 </body>
