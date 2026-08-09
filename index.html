@@ -198,9 +198,11 @@
         <!-- ⏳ Контейнер для связанных списков товаров -->
         <div id="lists-container">
             <!-- Товарный блок 1 -->
-            <div class="input-group todo-item-block" id="group-list-1">
-                <div class="flex-header">
-                    <label class="input-label">Товар 1 (Список строк)</label>
+            <div class="input-group todo-item-block product-list-wrapper" id="group-list-1">
+                <div class="flex-header input-group-header">
+                    <label class="input-label" style="margin-bottom: 0;">Товар 1 (Список строк)</label>
+                    <!-- 🔥 КРАСНАЯ МАК-ТОЧКА БЫСТРОЙ ОЧИСТКИ -->
+                    <button class="mac-clear-btn" onclick="clearSpecificProductList(1)" title="Очистить список и количество">×</button>
                 </div>
                 <textarea id="list-1" class="input-textarea" placeholder="Вставьте первый список строк..."></textarea>
                 <div class="stock-sub-input" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
@@ -209,10 +211,12 @@
                 </div>
             </div>
 
-            <!-- Товарный блок 2 -->
-            <div class="input-group todo-item-block" id="group-list-2">
-                <div class="flex-header">
-                    <label class="input-label">Товар 2 (Список строк)</label>
+<!-- Товарный блок 2 -->
+            <div class="input-group todo-item-block product-list-wrapper" id="group-list-2">
+                <div class="flex-header input-group-header">
+                    <label class="input-label" style="margin-bottom: 0;">Товар 2 (Список строк)</label>
+                    <!-- 🔥 КРАСНАЯ МАК-ТОЧКА БЫСТРОЙ ОЧИСТКИ -->
+                    <button class="mac-clear-btn" onclick="clearSpecificProductList(2)" title="Очистить список и количество">×</button>
                 </div>
                 <textarea id="list-2" class="input-textarea" placeholder="Вставьте второй список строк..."></textarea>
                 <div class="stock-sub-input" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
@@ -773,12 +777,17 @@ function addNewList() {
     listCount++;
     const container = document.getElementById('lists-container');
     const newGroup = document.createElement('div');
-    newGroup.className = 'input-group todo-item-block';
+    // 🔥 ДОБАВИЛИ КЛАСС ДЛЯ УМНОГО СКРЫТИЯ ТОЧКИ ЧЕРЕЗ CSS
+    newGroup.className = 'input-group todo-item-block product-list-wrapper';
     newGroup.id = `group-list-${listCount}`;
     newGroup.innerHTML = `
-        <div class="flex-header" style="margin-bottom: 8px;">
-            <label class="input-label">Товар ${listCount} (Список строк)</label>
-            <button type="button" onclick="removeList(${listCount})" class="btn-delete">Удалить</button>
+        <div class="flex-header input-group-header" style="margin-bottom: 8px;">
+            <label class="input-label" style="margin-bottom: 0;">Товар ${listCount} (Список строк)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <!-- 🔥 КРАСНАЯ МАК-ТОЧКА БЫСТРОЙ ОЧИСТКИ ДЛЯ ДИНАМИЧЕСКИХ СПИСКОВ -->
+                <button type="button" class="mac-clear-btn" onclick="clearSpecificProductList(${listCount})" title="Очистить список и количество">×</button>
+                <button type="button" onclick="removeList(${listCount})" class="btn-delete">Удалить</button>
+            </div>
         </div>
         <textarea id="list-${listCount}" class="input-textarea" placeholder="Вставьте данные для списка ${listCount}..."></textarea>
         <div class="stock-sub-input" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
@@ -2069,6 +2078,27 @@ function refreshProductContainerOnly() {
         updateLiveScriptText();
     }
 }
+// 🔥 ФУНКЦИЯ МАК-ТОЧКИ: Очищает конкретный текстовый список и его количество штук
+function clearSpecificProductList(index) {
+    const textarea = document.getElementById(`list-${index}`);
+    const stockInput = document.getElementById(`stock-filter-${index}`);
+
+    if (textarea) textarea.value = ''; // Полностью стираем 500 строк текста
+    if (stockInput) stockInput.value = ''; // Сбрасываем инпут "Нужно штук" к дефолту (>=1)
+
+    // Если у оператора в данный момент открыто или свернуто окно заказа, 
+    // принудительно обновляем корзину товаров прямо внутри модалки на лету!
+    if (typeof refreshProductContainerOnly === 'function') {
+        const minBtn = document.getElementById('btn-minimized-order');
+        const modal = document.getElementById('modal-process-order');
+        
+        // Обновляем только если окно активно на экране или висит в прилипшей плашке
+        if ((modal && modal.style.display === 'flex') || (minBtn && minBtn.style.display === 'block')) {
+            refreshProductContainerOnly();
+        }
+    }
+}
+
     </script>
 <div id="scroll-nav" class="scroll-nav">
   <!-- 🔥 НОВАЯ ПЛАШКА: Свернутый заказ (скрыта по умолчанию) -->

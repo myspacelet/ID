@@ -796,3 +796,55 @@ body.dark-mode #script-live-output {
     background-color: #2563eb;
     transform: rotate(180deg); /* Красивый эффект вращения при наведении */
 }
+/* Контейнер для каждого товара, чтобы CSS видел связь между textarea и точкой */
+.product-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+/* Шапка группы ввода */
+.input-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Красная точка быстрой очистки в стиле macOS */
+.mac-clear-btn {
+    width: 12px;
+    height: 12px;
+    background-color: #ff5f56;
+    border: 1px solid #e0443e;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: bold;
+    color: transparent;
+    
+    /* 🔥 ЭФФЕКТ СВЕТОФОРА: по умолчанию точка полностью прозрачна и скрыта от кликов */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+/* При наведении на саму точку проявляется крестик */
+.mac-clear-btn:hover {
+    background-color: #ff4a3d;
+    color: #4c0000;
+    box-shadow: 0 0 4px rgba(255, 95, 86, 0.5);
+}
+
+/* 🎯 МАГИЯ CSS: Если textarea НЕ пустая (плейсхолдер скрыт), плавно зажигаем точку в её шапке! */
+.product-list-wrapper:not(:has(textarea:placeholder-shown)) .mac-clear-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
