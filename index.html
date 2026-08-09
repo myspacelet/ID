@@ -1325,6 +1325,21 @@ function resetAllForm() {
         badge.classList.remove('selected-active'); // Снимаем индиго-подсветку с кнопок
     });
 
+    // 🔥 УНИЧТОЖАЕМ КЭШ ЗНАЧЕНИЙ В ИНПУТАХ ЛЕВОЙ КОЛОНКИ МОДАЛКИ:
+    const inputsToClear = [
+        'script-client-name',
+        'script-delivery-address',
+        'script-rec-fio',
+        'script-rec-phone',
+        'script-deliv-price',
+        'script-deliv-days',
+        'script-deliv-date'
+    ];
+    inputsToClear.forEach(id => {
+        const inputElement = document.getElementById(id);
+        if (inputElement) inputElement.value = '';
+    });
+
     // Находим динамические списки строго внутри их родного контейнера #lists-container
     const container = document.getElementById('lists-container');
     const dynamicLists = container.querySelectorAll('.input-group');
@@ -1348,7 +1363,6 @@ function resetAllForm() {
     if (stock1) stock1.value = '';
     if (stock2) stock2.value = '';
 
-    
     // Очищаем поля гео-поиска шага 3
     const geoInput = document.getElementById('geo-search-input');
     const geoOutput = document.getElementById('geo-result-output');
@@ -1410,6 +1424,22 @@ function closeFloatingModal(modalId) {
         if (modalId === 'modal-process-order') {
             const minBtn = document.getElementById('btn-minimized-order');
             if (minBtn) minBtn.style.display = 'none';
+
+            // 🔥 ПРИНУДИТЕЛЬНО СТИРАЕМ ВСЕ ДАННЫЕ ИЗ ПОЛЕЙ, ЧТОБЫ НИЧЕГО НЕ КЭШИРОВАЛОСЬ:
+            const inputsToClear = [
+                'script-client-name',
+                'script-delivery-address',
+                'script-rec-fio',
+                'script-rec-phone',
+                'script-deliv-price',
+                'script-deliv-days',
+                'script-deliv-date'
+            ];
+            
+            inputsToClear.forEach(id => {
+                const inputElement = document.getElementById(id);
+                if (inputElement) inputElement.value = ''; // Зануляем текст в DOM
+            });
         }
     }
 }
