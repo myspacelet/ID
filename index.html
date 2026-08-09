@@ -1536,18 +1536,39 @@ document.querySelectorAll('.floating-modal').forEach(m => {
 });
 // Функция сборщика данных при открытии модалки (Вытаскивает Артикул + Название товара)
 function buildOrderProcessingModal() {
-    // 🎯 ИНТЕЛЛЕКТУАЛЬНЫЙ КЭШ: Если окно просто свернуто, разворачиваем его БЕЗ очистки введенных данных
+    const container = document.getElementById('script-products-container');
+    if (!container) return;
+
+    // Подсчитываем, сколько реально заполненных списков товаров сейчас на главном экране
+    let currentActiveLists = 0;
+    for (let i = 1; i <= 100; i++) {
+        const textarea = document.getElementById(`list-${i}`);
+        if (textarea && textarea.value.trim()) {
+            currentActiveLists++;
+        }
+    }
+
+    // Подсчитываем, сколько полей товаров уже отрендерено внутри модалки
+    const existingProductRows = container.querySelectorAll('.script-product-row').length;
+
     const minBtn = document.getElementById('btn-minimized-order');
-    if (minBtn && minBtn.style.display === 'block') {
+    
+    // 🎯 УМНЫЙ РАЗВОРОТ: Если окно свернуто и количество товаров СОВПАДАЕТ, просто разворачиваем его
+    if (minBtn && minBtn.style.display === 'block' && currentActiveLists === existingProductRows) {
         restoreOrderModal();
         return;
     }
 
-    const container = document.getElementById('script-products-container');
-    if (!container) return;
-    
-    container.innerHTML = ''; // Очищаем старые поля товаров
-    document.getElementById('script-client-name').value = ''; // Сбрасываем имя клиента
+    // 🎯 УМНЫЙ ДОБОР: Если окно свернуто, но на главном экране ПОЯВИЛИСЬ НОВЫЕ ТОВАРЫ
+    if (minBtn && minBtn.style.display === 'block' && currentActiveLists > existingProductRows) {
+        // Мы НЕ очищаем container.innerHTML и НЕ сбрасываем имя клиента!
+        // Мы запускаем цикл for ниже, но пропишем в нём логику добавления только НОВЫХ строк
+        restoreOrderModal(); 
+    } else {
+        // Если это абсолютно новое открытие окна (не из свернутого состояния), то чистим всё как обычно
+        container.innerHTML = ''; 
+        document.getElementById('script-client-name').value = ''; 
+    }
 
     let activeItemsCount = 0;
 
@@ -1555,6 +1576,12 @@ function buildOrderProcessingModal() {
         const textarea = document.getElementById(`list-${i}`);
         if (textarea && textarea.value.trim()) {
             activeItemsCount++;
+
+            // 🎯 УМНЫЙ ПРОПУСК СТАРОГО КЭША: 
+            // Если этот товар уже отрендерен в модалке, просто идём дальше по циклу и ничего не пересоздаём
+            if (activeItemsCount <= existingProductRows) {
+                continue;
+            }
 
             const lines = textarea.value.split('\n');
             let firstLine = lines[0].trim();
