@@ -1549,6 +1549,37 @@ function buildOrderProcessingModal() {
     }
 
     // Подсчитываем, сколько полей товаров уже отрендерено внутри модалки
+    let existingProductRows = container.querySelectorAll('.script-product-row');
+    const minBtn = document.getElementById('btn-minimized-order');
+
+    // 🎯 УМНОЕ УДАЛЕНИЕ ЛИШНИХ ТОВАРОВ ПРИ РАЗВОРУЧИВАНИИ
+    if (minBtn && minBtn.style.display === 'block' && existingProductRows.length > currentActiveLists) {
+        // Пробегаемся с конца массива строк и удаляем лишние из DOM
+        for (let i = existingProductRows.length - 1; i >= currentActiveLists; i--) {
+            existingProductRows[i].remove();
+        }
+        // Пересчитываем актуальное количество строк после удаления
+        existingProductRows = container.querySelectorAll('.script-product-row');
+    }
+
+    // 🎯 УМНЫЙ РАЗВОРОТ: Если количество товаров теперь совпадает, просто открываем окно
+    if (minBtn && minBtn.style.display === 'block' && currentActiveLists === existingProductRows.length) {
+        restoreOrderModal();
+        return;
+    }
+
+    // 🎯 УМНЫЙ ДОБОР: Если товаров на главном экране больше, разворачиваем и готовимся дописать новые
+    if (minBtn && minBtn.style.display === 'block' && currentActiveLists > existingProductRows.length) {
+        restoreOrderModal(); 
+    } else if (!minBtn || minBtn.style.display !== 'block') {
+        // Если это абсолютно новое открытие окна (не из свернутого состояния), то чистим всё как обычно
+        container.innerHTML = ''; 
+        document.getElementById('script-client-name').value = ''; 
+    }
+
+    let activeItemsCount = 0;
+
+    // Подсчитываем, сколько полей товаров уже отрендерено внутри модалки
     const existingProductRows = container.querySelectorAll('.script-product-row').length;
 
     const minBtn = document.getElementById('btn-minimized-order');
@@ -1572,14 +1603,14 @@ function buildOrderProcessingModal() {
 
     let activeItemsCount = 0;
 
-    for (let i = 1; i <= 100; i++) {
+   for (let i = 1; i <= 100; i++) {
         const textarea = document.getElementById(`list-${i}`);
         if (textarea && textarea.value.trim()) {
             activeItemsCount++;
 
             // 🎯 УМНЫЙ ПРОПУСК СТАРОГО КЭША: 
-            // Если этот товар уже отрендерен в модалке, просто идём дальше по циклу и ничего не пересоздаём
-            if (activeItemsCount <= existingProductRows) {
+            // Сверяем порядковый номер с длиной массива строк .length
+            if (activeItemsCount <= existingProductRows.length) {
                 continue;
             }
 
