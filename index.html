@@ -93,10 +93,11 @@
                     
                     <!-- ⬅️ ЛЕВАЯ КОЛОНКА: ВВОД ДАННЫХ КЛИЕНТА И ТОВАРОВ -->
                     <div class="modal-column-left">
+                      <form autocomplete="new-password" onsubmit="event.preventDefault();" style="margin:0; padding:0;">
                         <!-- Блок ввода данных клиента -->
                         <div class="input-group" style="margin-bottom: 15px;">
                             <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">👤 ИМЯ КЛИЕНТА (ВВЕДИТЕ ВРУЧНУЮ)</label>
-                            <input type="text" id="script-client-name" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Ольга, Иван..." oninput="updateLiveScriptText()">
+                            <input type="text" id="script-client-name" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Ольга, Иван..." oninput="updateLiveScriptText()" autocomplete="off">
                         </div>
 
                         <!-- 🚚 БЛОК: СПСОБ ДОСТАВКИ (ПВЗ / КУРЬЕР) -->
@@ -111,43 +112,44 @@
                         <!-- 📍 БЛОК: АДРЕС (Виден всегда, меняет лейбл на лету) -->
                         <div class="input-group" id="script-address-group" style="margin-bottom: 15px;">
                             <label class="input-label" id="script-address-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📍 АДРЕС ИЛИ НОМЕР ПУНКТА СДЭК</label>
-                            <input type="text" id="script-delivery-address" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Город, улица, дом или код ПВЗ..." oninput="updateLiveScriptText()">
+                            <input type="text" id="script-delivery-address" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Город, улица, дом или код ПВЗ..." oninput="updateLiveScriptText()" autocomplete="off">
                         </div>
 
-                        <!-- 👥 БЛОК: ДАННЫЕ ПОЛУЧАТЕЛЯ -->
+<!-- 👥 БЛОК: ДАННЫЕ ПОЛУЧАТЕЛЯ -->
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                             <div style="flex: 1.3;">
                                 <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">👤 ФИО ПОЛУЧАТЕЛЯ</label>
-                                <input type="text" id="script-rec-fio" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Иванов Иван Иванович" oninput="updateLiveScriptText()">
+                                <input type="text" id="script-rec-fio" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Иванов Иван Иванович" oninput="updateLiveScriptText()" autocomplete="off">
                             </div>
                             <div style="flex: 1;">
                                 <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📞 НОМЕР ТЕЛЕФОНА</label>
-                                <input type="text" id="script-rec-phone" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="+7 (999) 000-00-00" oninput="updateLiveScriptText()">
+                                <input type="text" id="script-rec-phone" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="+7 (999) 000-00-00" oninput="updateLiveScriptText()" autocomplete="off">
                             </div>
                         </div>
 
-                        <!-- 💰 БЛОК: СРОКИ И СТОИМОСТЬ -->
+<!-- 💰 БЛОК: СРОКИ И СТОИМОСТЬ -->
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                             <div style="flex: 1;">
                                 <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">💰 СТОИМОСТЬ (РУБ)</label>
-                                <input type="number" id="script-deliv-price" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="0 (если бесплатно)" oninput="updateLiveScriptText()">
+                                <input type="number" id="script-deliv-price" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="0 (если бесплатно)" oninput="updateLiveScriptText()" autocomplete="off">
                             </div>
                             <div style="flex: 1;">
                                 <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">⏱️ СРОК ДОСТАВКИ (ДНЕЙ)</label>
-                                <input type="text" id="script-deliv-days" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: 2-3 дня" oninput="updateLiveScriptText()">
+                                <input type="text" id="script-deliv-days" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: 2-3 дня" oninput="updateLiveScriptText()" autocomplete="off">
                             </div>
                         </div>
 
-                        <!-- 📅 БЛОК: ДАТА ОФОРМЛЕНИЯ -->
+<!-- 📅 БЛОК: ДАТА ОФОРМЛЕНИЯ -->
                         <div class="input-group" style="margin-bottom: 20px;">
                             <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📅 ДАТА И ВРЕМЯ ОФОРМЛЕНИЯ ЗАКАЗА</label>
-                            <input type="datetime-local" id="script-deliv-date" class="input-textarea" style="height: 40px; margin-bottom: 0;" oninput="updateLiveScriptText()">
+                            <input type="datetime-local" id="script-deliv-date" class="input-textarea" style="height: 40px; margin-bottom: 0;" oninput="updateLiveScriptText()" autocomplete="off">
                         </div>
 
                         <label class="input-label" style="font-size: 11px; color: #3b82f6; font-weight: 700; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-bottom: 10px;">📦 СПИСОК ТОВАРОВ В ЗАКАЗЕ</label>
                         <!-- Сюда JS по-прежнему динамически рендерит товары -->
                         <div id="script-products-container"></div>
-                    </div>
+    </form>
+</div>
 
                     <!-- 🛠️ ВЕРТИКАЛЬНЫЙ РАЗДЕЛИТЕЛЬ -->
                     <div class="modal-column-divider"></div>
@@ -1503,16 +1505,16 @@ function buildOrderProcessingModal() {
                 <div style="display: flex; gap: 10px; margin-bottom: 8px;">
                     <div style="flex: 2;">
                         <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА ${activeItemsCount}</span>
-                        <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()">
+                        <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()" autocomplete="off">
                     </div>
                     <div style="flex: 1; max-width: 100px;">
                         <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
-                        <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()">
+                        <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()" autocomplete="off">
                     </div>
                 </div>
                 <div style="width: 100%;">
                     <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
-                    <input type="text" class="input-textarea script-input-name" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()">
+                    <input type="text" class="input-textarea script-input-name" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
                 </div>
             `;
             container.appendChild(prodRow);
@@ -1520,7 +1522,7 @@ function buildOrderProcessingModal() {
     }
 
     if (activeItemsCount === 0) {
-        alert("❌ Заполните хотя бы один список товаров на экране, чтобы обработать заказ!");
+        alert("❌ Заполните хотя бы один список товаров, чтобы обработать заказ!");
         return;
     }
 
