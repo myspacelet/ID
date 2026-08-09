@@ -86,10 +86,10 @@
         <div id="modal-process-order" class="floating-modal floating-modal-wide">
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-process-order')">
                 <span>⚙️ Обработать заказ</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <!-- 🔥 НОВАЯ КНОПКА СВЕРНУТЬ -->
-                    <button class="floating-modal-minimize" onclick="minimizeOrderModal()" style="background: none; border: none; color: #64748b; font-size: 16px; font-weight: 700; cursor: pointer; padding: 0 4px; transition: color 0.2s;" onmouseover="this.style.color='#4338ca'" onmouseout="this.style.color='#64748b'">➖</button>
-                    <button class="floating-modal-close" onclick="closeFloatingModal('modal-process-order')">×</button>
+                <!-- 🔥 ОБНОВЛЕННЫЙ БЛОК ОДИНАКОВЫХ КНОПОК УПРАВЛЕНИЯ -->
+                <div style="display: flex; gap: 8px; align-items: center; margin-left: auto;">
+                    <button class="modal-control-btn modal-btn-minimize" onclick="minimizeOrderModal()" title="Свернуть">🗕</button>
+                    <button class="modal-control-btn modal-btn-close" onclick="closeFloatingModal('modal-process-order')" title="Закрыть">🗙</button>
                 </div>
             </div>
             <div class="floating-modal-body">
