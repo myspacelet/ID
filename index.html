@@ -1539,7 +1539,7 @@ function buildOrderProcessingModal() {
     const container = document.getElementById('script-products-container');
     if (!container) return;
 
-    // Подсчитываем, сколько реально заполненных списков товаров сейчас на главном экране
+    // 1. Подсчитываем, сколько реально заполненных списков товаров сейчас на главном экране
     let currentActiveLists = 0;
     for (let i = 1; i <= 100; i++) {
         const textarea = document.getElementById(`list-${i}`);
@@ -1548,21 +1548,20 @@ function buildOrderProcessingModal() {
         }
     }
 
-    // Подсчитываем, сколько полей товаров уже отрендерено внутри модалки
+    // 2. Подсчитываем, сколько полей товаров уже отрендерено внутри модалки
     let existingProductRows = container.querySelectorAll('.script-product-row');
     const minBtn = document.getElementById('btn-minimized-order');
 
     // 🎯 УМНОЕ УДАЛЕНИЕ ЛИШНИХ ТОВАРОВ ПРИ РАЗВОРУЧИВАНИИ
     if (minBtn && minBtn.style.display === 'block' && existingProductRows.length > currentActiveLists) {
-        // Пробегаемся с конца массива строк и удаляем лишние из DOM
         for (let i = existingProductRows.length - 1; i >= currentActiveLists; i--) {
             existingProductRows[i].remove();
         }
-        // Пересчитываем актуальное количество строк после удаления
+        // Обновляем массив строк после удаления лишних
         existingProductRows = container.querySelectorAll('.script-product-row');
     }
 
-    // 🎯 УМНЫЙ РАЗВОРОТ: Если количество товаров теперь совпадает, просто открываем окно
+    // 🎯 УМНЫЙ РАЗВОРОТ: Если количество товаров совпадает, просто открываем окно
     if (minBtn && minBtn.style.display === 'block' && currentActiveLists === existingProductRows.length) {
         restoreOrderModal();
         return;
@@ -1579,37 +1578,13 @@ function buildOrderProcessingModal() {
 
     let activeItemsCount = 0;
 
-    // Подсчитываем, сколько полей товаров уже отрендерено внутри модалки
-    const existingProductRows = container.querySelectorAll('.script-product-row').length;
-
-    const minBtn = document.getElementById('btn-minimized-order');
-    
-    // 🎯 УМНЫЙ РАЗВОРОТ: Если окно свернуто и количество товаров СОВПАДАЕТ, просто разворачиваем его
-    if (minBtn && minBtn.style.display === 'block' && currentActiveLists === existingProductRows) {
-        restoreOrderModal();
-        return;
-    }
-
-    // 🎯 УМНЫЙ ДОБОР: Если окно свернуто, но на главном экране ПОЯВИЛИСЬ НОВЫЕ ТОВАРЫ
-    if (minBtn && minBtn.style.display === 'block' && currentActiveLists > existingProductRows) {
-        // Мы НЕ очищаем container.innerHTML и НЕ сбрасываем имя клиента!
-        // Мы запускаем цикл for ниже, но пропишем в нём логику добавления только НОВЫХ строк
-        restoreOrderModal(); 
-    } else {
-        // Если это абсолютно новое открытие окна (не из свернутого состояния), то чистим всё как обычно
-        container.innerHTML = ''; 
-        document.getElementById('script-client-name').value = ''; 
-    }
-
-    let activeItemsCount = 0;
-
-   for (let i = 1; i <= 100; i++) {
+    // 3. Запускаем цикл парсинга и генерации строк товаров
+    for (let i = 1; i <= 100; i++) {
         const textarea = document.getElementById(`list-${i}`);
         if (textarea && textarea.value.trim()) {
             activeItemsCount++;
 
-            // 🎯 УМНЫЙ ПРОПУСК СТАРОГО КЭША: 
-            // Сверяем порядковый номер с длиной массива строк .length
+            // 🎯 УМНЫЙ ПРОПУСК СТАРОГО КЭША:
             if (activeItemsCount <= existingProductRows.length) {
                 continue;
             }
@@ -1617,7 +1592,7 @@ function buildOrderProcessingModal() {
             const lines = textarea.value.split('\n');
             let firstLine = lines[0].trim();
 
-          // Очистка от мусора Telegram
+            // Очистка от мусора Telegram
             if (firstLine.startsWith('[')) {
                 firstLine = firstLine.replace(/^\[.*?\]\s*(Остатки:\s*)?/i, '').trim();
             }
@@ -1628,32 +1603,38 @@ function buildOrderProcessingModal() {
             
             let detectedArticle = "";
             let detectedName = "";
-            // 🔥 НОВАЯ ПЕРЕМЕННАЯ ДЛЯ СКРЫТОГО ХРАНЕНИЯ ССЫЛКИ
             let detectedLink = "";
+
+            // Заглушка для количества по умолчанию
+            let requiredStock = 1; 
 
             if (/^[A-Z0-9_-]+$/.test(firstWord)) {
                 detectedArticle = firstWord;
                 
-                // 🎯 МАГИЯ: Забираем всё, что идет ПОСЛЕ артикула
+                // Забираем всё, что идет ПОСЛЕ артикула
                 let remainingText = firstLine.substring(firstWord.length).trim();
                 
-                // 🔥 НАХОДИМ ССЫЛКУ И СОХРАНЯЕМ ЕЁ ПЕРЕД УДАЛЕНИЕМ
+                // Находим ссылку и сохраняем её перед удалением
                 const linkMatch = remainingText.match(/\((https?:\/\/[^\)]+)\)/i);
                 if (linkMatch && linkMatch[1]) {
                     detectedLink = linkMatch[1].trim();
                 }
                 
-                // Если в строке есть ссылка в круглых скобках (https://...), отрезаем её, чтобы не спамить в название
+                // Отрезаем ссылку из круглых скобок
                 remainingText = remainingText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
                 
                 detectedName = remainingText;
             }
 
-            // Достаем количество штук из инпута на главном экране
-            const inputFilter = document.getElementById(`stock-filter-${i}`);
-            const requiredStock = (inputFilter && inputFilter.value.trim()) ? parseInt(inputFilter.value, 10) : 1; 
+            // Ищем количество во второй строке списка (если оно там указано оператором)
+            if (lines[1] && lines[1].trim()) {
+                const stockMatch = lines[1].match(/\d+/);
+                if (stockMatch) {
+                    requiredStock = parseInt(stockMatch[0], 10);
+                }
+            }
 
-            // Генерируем расширенные поля для этого товара в модалке (включая Наименование)
+            // Генерируем расширенные поля для этого товара в модалке
             const prodRow = document.createElement('div');
             prodRow.className = 'script-product-row';
             prodRow.style = 'background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 12px;';
@@ -1670,7 +1651,6 @@ function buildOrderProcessingModal() {
                 </div>
                 <div style="width: 100%;">
                     <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
-                    <!-- 🔥 ДОБАВИЛИ СКРЫТЫЙ DATA-АТРИБУТ ДЛЯ ХРАНЕНИЯ ССЫЛКИ НА ТОВАР -->
                     <input type="text" class="input-textarea script-input-name" data-link="${detectedLink}" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
                 </div>
             `;
