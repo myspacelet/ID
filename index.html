@@ -1559,7 +1559,7 @@ function buildOrderProcessingModal() {
             const lines = textarea.value.split('\n');
             let firstLine = lines[0].trim();
 
-            // Очистка от мусора Telegram
+          // Очистка от мусора Telegram
             if (firstLine.startsWith('[')) {
                 firstLine = firstLine.replace(/^\[.*?\]\s*(Остатки:\s*)?/i, '').trim();
             }
@@ -1570,12 +1570,20 @@ function buildOrderProcessingModal() {
             
             let detectedArticle = "";
             let detectedName = "";
+            // 🔥 НОВАЯ ПЕРЕМЕННАЯ ДЛЯ СКРЫТОГО ХРАНЕНИЯ ССЫЛКИ
+            let detectedLink = "";
 
             if (/^[A-Z0-9_-]+$/.test(firstWord)) {
                 detectedArticle = firstWord;
                 
                 // 🎯 МАГИЯ: Забираем всё, что идет ПОСЛЕ артикула
                 let remainingText = firstLine.substring(firstWord.length).trim();
+                
+                // 🔥 НАХОДИМ ССЫЛКУ И СОХРАНЯЕМ ЕЁ ПЕРЕД УДАЛЕНИЕМ
+                const linkMatch = remainingText.match(/\((https?:\/\/[^\)]+)\)/i);
+                if (linkMatch && linkMatch[1]) {
+                    detectedLink = linkMatch[1].trim();
+                }
                 
                 // Если в строке есть ссылка в круглых скобках (https://...), отрезаем её, чтобы не спамить в название
                 remainingText = remainingText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
@@ -1604,7 +1612,8 @@ function buildOrderProcessingModal() {
                 </div>
                 <div style="width: 100%;">
                     <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
-                    <input type="text" class="input-textarea script-input-name" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
+                    <!-- 🔥 ДОБАВИЛИ СКРЫТЫЙ DATA-АТРИБУТ ДЛЯ ХРАНЕНИЯ ССЫЛКИ НА ТОВАР -->
+                    <input type="text" class="input-textarea script-input-name" data-link="${detectedLink}" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
                 </div>
             `;
             container.appendChild(prodRow);
@@ -1676,15 +1685,23 @@ function updateLiveScriptText() {
     const nameInputs = document.querySelectorAll('.script-input-name');
     
     let productParts = [];
-    for (let i = 0; i < artInputs.length; i++) {
+for (let i = 0; i < artInputs.length; i++) {
         const art = artInputs[i].value.trim();
         const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
         const prodName = nameInputs[i] ? nameInputs[i].value.trim() : "";
         
+        // 🔥 ВЫТАСКИВАЕМ СКРЫТУЮ ССЫЛКУ НА ТОВАР ИЗ DATA-АТРИБУТА
+        const prodLink = nameInputs[i] ? nameInputs[i].getAttribute('data-link') : "";
+        
         // 🚥 СВЕТОФОР ДЛЯ НАИМЕНОВАНИЯ И АРТИКУЛА ТОВАРА
         let displayItem = "";
         if (prodName) {
-            displayItem = `товар "<span style="color: #22c55e; font-weight: 700;">${prodName}</span>"`;
+            // Если ссылка найдена, оборачиваем текст в тег ссылки <a>, иначе выводим просто текст
+            const nameHtml = prodLink 
+                ? `<a href="${prodLink}" target="_blank" style="color: #22c55e; font-weight: 700; text-decoration: underline; cursor: pointer;">${prodName}</a>`
+                : `<span style="color: #22c55e; font-weight: 700;">${prodName}</span>`;
+                
+            displayItem = `товар "${nameHtml}"`;
         } else {
             if (art) {
                 displayItem = `товар (артикул: <span style="color: #22c55e; font-weight: 700;">${art}</span>)`;
