@@ -1560,7 +1560,10 @@ function updateLiveScriptText() {
     const liveOutput = document.getElementById('script-live-output');
     if (!liveOutput) return;
 
-    const clientName = clientNameInput ? clientNameInput : "[Имя клиента]";
+    // ТВОЙ АЛГОРИТМ И СТРУКТУРА + ЛОГИКА СВЕТОФОРА
+    const clientName = clientNameInput 
+        ? `<span style="color: #22c55e; font-weight: 700;">${clientNameInput}</span>` 
+        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
     // Вытаскиваем имя оператора из приветственного блока
     let opName = "Оператор";
@@ -1586,8 +1589,20 @@ function updateLiveScriptText() {
         const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
         const prodName = nameInputs[i] ? nameInputs[i].value.trim() : "";
         
-        let displayItem = prodName ? `товар "${prodName}"` : (art ? `товар (артикул: ${art})` : `товар №${i+1}`);
-        productParts.push(`${displayItem} в количестве ${qty} шт.`);
+        // 🚥 СВЕТОФОР ДЛЯ НАИМЕНОВАНИЯ И АРТИКУЛА ТОВАРА
+        let displayItem = "";
+        if (prodName) {
+            displayItem = `товар "<span style="color: #22c55e; font-weight: 700;">${prodName}</span>"`;
+        } else {
+            if (art) {
+                displayItem = `товар (артикул: <span style="color: #22c55e; font-weight: 700;">${art}</span>)`;
+            } else {
+                displayItem = `товар №${i+1} <span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+            }
+        }
+
+        // Количество тоже подсвечиваем зеленым как заполненное
+        productParts.push(`${displayItem} в количестве <span style="color: #22c55e; font-weight: 700;">${qty} шт.</span>`);
     }
 
     if (productParts.length === 1) {
@@ -1596,7 +1611,7 @@ function updateLiveScriptText() {
         const lastPart = productParts.pop();
         scriptText += productParts.join(', ') + ' и ' + lastPart;
     } else {
-        scriptText += `[Товары не заполнены]`;
+        scriptText += `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
     }
     scriptText += `, верно?\n\n`;
 
@@ -1608,19 +1623,43 @@ function updateLiveScriptText() {
     // Проверяем, зафиксировал ли оператор магазин кнопкой "Выбрать"
     if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
         const storeInfo = storeDatabase[selectedStoreCode];
-        scriptText += `в городе ${storeInfo.city || "[Город]"} по адресу: ${storeInfo.address || "[Адрес складов]"}.\n\n`;
+        
+        // 🚥 СВЕТОФОР ДЛЯ ТОЧКИ ОТГРУЗКИ (Зелёный, если данные подтянулись)
+        const storeCityHtml = storeInfo.city 
+            ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.city}</span>` 
+            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+            
+        const storeAddressHtml = storeInfo.address 
+            ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.address}</span>` 
+            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+
+        scriptText += `в городе ${storeCityHtml} по адресу: ${storeAddressHtml}.\n\n`;
     } else {
-        scriptText += `[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ].\n\n`;
+        // Твоё оригинальное предупреждение (Красный цвет)
+        scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
     }
 
     // ========================================================
     // БЛОК 4: СОГЛАСОВАНИЕ ЛОГИСТИКИ И ДАННЫХ
     // ========================================================
-     const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
-    const priceText = delivPriceInput ? (parseInt(delivPriceInput, 10) === 0 ? "бесплатно" : `${delivPriceInput} рублей`) : "[Цена] рублей";
+    const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
+    
+    // 🚥 СВЕТОФОР ДЛЯ СТОИМОСТИ ДОСТАВКИ
+    let priceText = "";
+    if (delivPriceInput) {
+        const parsedPrice = parseInt(delivPriceInput, 10);
+        const corePriceString = parsedPrice === 0 ? "бесплатно" : `${delivPriceInput} рублей`;
+        priceText = `<span style="color: #22c55e; font-weight: 700;">${corePriceString}</span>`;
+    } else {
+        priceText = `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+    }
     
     const delivDaysInput = document.getElementById('script-deliv-days').value.trim();
-    const daysText = delivDaysInput ? delivDaysInput : "[Срок]";
+    
+    // 🚥 СВЕТОФОР ДЛЯ СРОКОВ ДОСТАВКИ
+    const daysText = delivDaysInput 
+        ? `<span style="color: #22c55e; font-weight: 700;">${delivDaysInput}</span>` 
+        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
     // Текст-подсказка, который мы красим в красный и делаем жирным
     const redNotice = `<span style="color: #ef4444; font-weight: 700;">(если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже)</span>`;
@@ -1629,27 +1668,35 @@ function updateLiveScriptText() {
     const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
 
     if (currentDeliveryMode === 'pvz') {
-        // Если адрес введен, красим его в зеленый. Если пустой — заглушка становится красной.
+        // 🚥 СВЕТОФОР ДЛЯ АДРЕСА ПВЗ (Зеленый / Единая красная подсказка)
         const pvzAddress = deliveryAddressInput 
             ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
-            : `<span style="color: #ef4444; font-weight: 700;">[Точный адрес или номер ПВЗ]</span>`;
+            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
             
         scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}, или курьером на домашний/рабочий адрес. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     } else {
-        // Точно такая же логика подсветки для адреса курьера
+        // 🚥 СВЕТОФОР ДЛЯ АДРЕСА КУРЬЕРА (Зеленый / Единая красная подсказка)
         const clientAddress = deliveryAddressInput 
             ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
-            : `<span style="color: #ef4444; font-weight: 700;">[Точный адрес курьера]</span>`;
+            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
             
         scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
     }
 
     // Собираем ФИО и телефон
     const recFioInput = document.getElementById('script-rec-fio').value.trim();
-    const recFio = recFioInput ? recFioInput : "[ФИО получателя]";
+    
+    // 🚥 СВЕТОФОР ДЛЯ ФИО ПОЛУЧАТЕЛЯ
+    const recFio = recFioInput 
+        ? `<span style="color: #22c55e; font-weight: 700;">${recFioInput}</span>` 
+        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
     
     const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
-    const recPhone = recPhoneInput ? recPhoneInput : "[Телефон получателя]";
+    
+    // 🚥 СВЕТОФОР ДЛЯ ТЕЛЕФОНА ПОЛУЧАТЕЛЯ
+    const recPhone = recPhoneInput 
+        ? `<span style="color: #22c55e; font-weight: 700;">${recPhoneInput}</span>` 
+        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
     scriptText += `Для отправки мне потребуется зафиксировать данные получателя. Уточните, пожалуйста, ФИО получателя: ${recFio}, и контактный номер телефона: ${recPhone}.\n\n`;
 
@@ -1657,11 +1704,16 @@ function updateLiveScriptText() {
     // БЛОК 5: ДАТА ОФОРМЛЕНИЯ И ФИНАЛ
     // ========================================================
     const delivDateInput = document.getElementById('script-deliv-date').value;
-    let dateText = "[Дата и время]";
+    
+    // 🚥 СВЕТОФОР ДЛЯ ДАТЫ ОФОРМЛЕНИЯ
+    let dateText = "";
     if (delivDateInput) {
         const d = new Date(delivDateInput);
-        // Красиво форматируем дату на русском языке: "12 августа 2026 г. в 17:00"
-        dateText = d.toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(' г.', ' года в');
+        // Твоё оригинальное красивое форматирование даты
+        const formattedDate = d.toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(' г.', ' года в');
+        dateText = `<span style="color: #22c55e; font-weight: 700;">${formattedDate}</span>`;
+    } else {
+        dateText = `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
     }
 
     scriptText += `Отлично! Я зафиксировал-(ла) все данные и отправляю заказ в обработку. Дата и время оформления (ориентировочно): ${dateText}. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
