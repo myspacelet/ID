@@ -164,7 +164,7 @@
                         <div id="script-live-output" style="width: 100%; height: 510px; background: #f8fafc; font-weight: 500; font-size: 14.5px; line-height: 1.6; color: #0f172a; overflow-y: auto; padding: 20px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 10px; white-space: pre-wrap;"></div>
                         <!-- Кнопка копирования под скриптом -->
                         <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary">
-                            📋 Скопировать весь скрипт
+                            📋 Скопировать в таблицу
                         </button>
                     </div>
 
@@ -1818,18 +1818,26 @@ function updateLiveScriptText() {
 
 // Функция умного копирования данных в формате одной строки Excel/Google Таблиц
 function copyGeneratedScript(btnElement) {
-    // 1. Очистка и парсинг номера телефона получателя (Строго 11 цифр, формат 79XXXXXXXXX)
+    // 1. 🎯 ИСПРАВЛЕНИЕ ПРОБЛЕМЫ 1: Ювелирный парсер телефона (Строго 11 цифр, формат 79XXXXXXXXX)
     const rawPhone = document.getElementById('script-rec-phone').value.trim();
     let cleanPhone = rawPhone.replace(/\D/g, ''); // Оставляем только голые цифры
     
     if (cleanPhone.length > 0) {
-        if (cleanPhone.startsWith('8') && cleanPhone.length === 11) {
-            cleanPhone = '7' + cleanPhone.substring(1); // Меняем 8 на 7
-        } else if (cleanPhone.length === 10) {
-            cleanPhone = '7' + cleanPhone; // Если ввели без кода страны (900...), дописываем 7
+        // Если оператор начал ввод с 8, меняем её на 7
+        if (cleanPhone.startsWith('8')) {
+            cleanPhone = '7' + cleanPhone.substring(1);
+        }
+        // Если оператор ввёл номер без кода страны (например, сразу 900...), дописываем 7 в начало
+        else if (cleanPhone.length === 10) {
+            cleanPhone = '7' + cleanPhone;
+        }
+        
+        // КРИТИЧЕСКИЙ СТРАХОВОЙ ЛИМИТ: Обрезаем строку строго до первых 11 цифр,
+        // чтобы Excel никогда больше не превращал телефон в экспоненту (7,90E+13)
+        if (cleanPhone.length > 11) {
+            cleanPhone = cleanPhone.substring(0, 11);
         }
     }
-    // Если поле пустое, оставляем пустую ячейку, а не ошибку
     if (!cleanPhone) cleanPhone = '';
 
     // 2. Получение базовых текстовых данных получателя и логистики
@@ -1839,7 +1847,7 @@ function copyGeneratedScript(btnElement) {
     const delivDays = document.getElementById('script-deliv-days').value.trim();
     const delivDate = document.getElementById('script-deliv-date').value;
 
-    // 3. 🎯 УМНЫЙ СБОР КОРЗИНЫ ТОВАРОВ (Склейка артикулов и сумма штук)
+    // 3. Умный сбор корзины товаров (Склейка артикулов через запятую и сумма штук)
     const artInputs = document.querySelectorAll('.script-input-art');
     const qtyInputs = document.querySelectorAll('.script-input-qty');
     
@@ -1854,22 +1862,36 @@ function copyGeneratedScript(btnElement) {
         if (!isNaN(qty)) totalQty += qty;
     }
 
-    const finalArticlesString = articlesArray.join(', '); // Склеиваем артикулы через запятую
-    const finalQtyString = totalQty > 0 ? totalQty.toString() : ''; // Итоговое суммированное кол-во
+    const finalArticlesString = articlesArray.join(', '); 
+    const finalQtyString = totalQty > 0 ? totalQty.toString() : ''; 
 
     // 4. Автоматическое вычисление города клиента из строки адреса (Столбец F)
     let clientCity = '';
     if (deliveryAddress) {
-        // Убираем популярные префиксы, чтобы достать чистое название города
         const cleanAddr = deliveryAddress.replace(/^(г\.|город\s+|обл\.|область\s+)/i, '').trim();
         clientCity = cleanAddr.split(/[, ]/)[0]; // Забираем первое слово до запятой или пробела
     }
 
-    // 5. Данные о складе ЛЭТУАЛЬ, откуда оформлен заказ (Столбец G)
+    // 5. 🎯 ИСПРАВЛЕНИЕ ПРОБЛЕМЫ 2: Фильтрация мусора и дублей в адресе магазина (Столбец G)
     let storeInfoString = '';
     if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
         const store = storeDatabase[selectedStoreCode];
-        storeInfoString = `${store.city || ''}, ${store.address || ''}`.trim().replace(/^,|,$/g, '');
+        const rawCity = (store.city || '').trim();
+        let rawAddress = (store.address || '').trim();
+
+        if (rawAddress) {
+            // а) Намертво отрезаем время работы (; пн-вс... или ; ежедневно...) в конце строки
+            rawAddress = rawAddress.split(';')[0].trim();
+
+            // б) Убираем дублирование названия города/населенного пункта в начале адреса
+            if (rawCity && rawAddress.startsWith(rawCity)) {
+                // Отрезаем кусок с городом из адреса и вычищаем оставшиеся запятые и пробелы
+                rawAddress = rawAddress.substring(rawCity.length).replace(/^[\s,;.-]+/, '').trim();
+            }
+        }
+
+        // Собираем красивую чистую строчку: Город, Точный адрес без мусора и часов работы
+        storeInfoString = rawCity ? `${rawCity}, ${rawAddress}` : rawAddress;
     }
 
     // 6. Распределение цен в зависимости от способа доставки (Столбцы H и I)
@@ -1887,25 +1909,24 @@ function copyGeneratedScript(btnElement) {
     // 8. Сборка финальной строки по правилам буфера Excel (Разделитель — \t)
     const excelRowParts = [
         '',                     // Столбец A: ID (Пустая заглушка-пробел)
-        cleanPhone,             // Столбец B: ТЕЛЕФОН КЛИЕНТА (Строго 11 цифр 79...)
+        cleanPhone,             // Столбец B: ТЕЛЕФОН КЛИЕНТА (Защита 11 цифр)
         recFio,                 // Столбец C: ФИО ПОЛУЧАТЕЛЯ
-        finalArticlesString,    // Столбец D: АРТИКУЛ ТОВАРА (Склеены через запятую)
-        finalQtyString,         // Столбец E: КОЛ-ВО ТОВАРА (Математическая сумма)
-        clientCity,             // Столбец F: ГОРОД КЛИЕНТА (Вырезан из адреса)
-        storeInfoString,        // Столбец G: ГОРОД И МАГАЗИН, ОТКУДА ОФОРМИТЬ ЗАКАЗ
+        finalArticlesString,    // Столбец D: АРТИКУЛ ТОВАРА
+        finalQtyString,         // Столбец E: КОЛ-ВО ТОВАРА (Сумма)
+        clientCity,             // Столбец F: ГОРОД КЛИЕНТА
+        storeInfoString,        // Столбец G: ГОРОД И МАГАЗИН (Уже без спама и дублей!)
         pricePvz,               // Столбец H: ПВЗ - ЦЕНА ДОСТАВКИ
         priceCourier,           // Столбец I: КК - ЦЕНА ДОСТАВКИ
         delivDays,              // Столбец J: СРОК
         methodText,             // Столбец K: Способ:
         deliveryAddress,        // Столбец L: Адрес доставки:
-        delivDate ? delivDate.replace('T', ' ') : '', // Столбец M: Когда клиент планирует оформить заказ
-        ''                      // Столбец N: НОМЕР ЗАКАЗА (Пока игнорируем/пропускаем)
+        delivDate ? delivDate.replace('T', ' ') : '', // Столбец M: Дата оформления
+        ''                      // Столбец N: НОМЕР ЗАКАЗА (Пусто)
     ];
 
-    // Объединяем массив в одну монолитную Excel-строку через символы табуляции
     const finalExcelString = excelRowParts.join('\t');
 
-    // Отправляем чистую строку в буфер обмена оператора
+    // Отправляем очищенную строку в буфер обмена оператора
     navigator.clipboard.writeText(finalExcelString).then(() => {
         const oldText = btnElement.innerHTML;
         btnElement.innerHTML = '✅ Строка Excel скопирована!';
@@ -1913,11 +1934,11 @@ function copyGeneratedScript(btnElement) {
         
         setTimeout(() => {
             btnElement.innerHTML = oldText;
-            btnElement.style.background = '#4338ca'; // Возвращаем родной индиго-стиль кнопке
+            btnElement.style.background = '#4338ca'; 
         }, 1500);
     }).catch(err => {
-        console.error('Ошибка при копировании строки в буфер Excel:', err);
-        alert('❌ Не удалось скопировать строку. Предоставьте браузеру доступ к буферу обмена.');
+        console.error('Ошибка буфера Excel:', err);
+        alert('❌ Ошибка доступа к буферу.');
     });
 }
 
