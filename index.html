@@ -1641,7 +1641,7 @@ function updateLiveScriptText() {
         scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
     }
     
-    scriptText += `На данный момент доступно 2 способа доставки: в пункт выдачи СДЭК и курьером на рабочий или домашний адрес. Уточните, пожалуйста, какой способ Вам удобнее?\n<br><br>`;
+    scriptText += `На данный момент доступно 2 способа доставки: в пункт выдачи СДЭК и курьером на рабочий или домашний адрес. Уточните, пожалуйста, какой способ Вам удобнее?\n<br>`;
 
     // ========================================================
     // БЛОК 4: СОГЛАСОВАНИЕ ЛОГИСТИКИ И ДАННЫХ
@@ -1671,20 +1671,20 @@ function updateLiveScriptText() {
     // Выносим получение адреса наверх, чтобы оно работало и для ПВЗ, и для курьера
     const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
 
-    if (currentDeliveryMode === 'pvz') {
+ if (currentDeliveryMode === 'pvz') {
         // 🚥 СВЕТОФОР ДЛЯ АДРЕСА ПВЗ (Зеленый / Единая красная подсказка)
         const pvzAddress = deliveryAddressInput 
             ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-            
-        scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
+
+       scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
     } else {
         // 🚥 СВЕТОФОР ДЛЯ АДРЕСА КУРЬЕРА (Зеленый / Единая красная подсказка)
         const clientAddress = deliveryAddressInput 
             ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
             
-        scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${redNotice} ${priceText}.\n\n`;
+     scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
     }
 
     // Собираем ФИО и телефон
