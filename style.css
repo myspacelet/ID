@@ -1212,3 +1212,36 @@ body.dark-mode .city-modal-select-btn.disabled {
     cursor: not-allowed !important;         /* Запрещающий курсор мыши */
     opacity: 0.6 !important;                /* Легкая прозрачность */
 }
+/* ========================================================
+   ☀️ СТИЛИЗАЦИЯ ЭЛЕМЕНТОВ МОДАЛКИ ДЛЯ СВЕТЛОЙ ТЕМЫ
+   ======================================================== */
+
+/* Красивый контрастный бейдж ДОСТУПЕН в светлой теме */
+.city-modal-badge.available-badge {
+    background-color: #eff6ff !important; /* Мягкий нежно-синий фон */
+    color: #2563eb !important;            /* Яркий синий текст */
+    border: 1px solid #bfdbfe !important;  /* Аккуратная синяя рамка */
+}
+
+/* Красивый бейдж ВЫБРАН в светлой теме */
+.city-modal-badge.selected-badge {
+    background-color: #f0fdf4 !important; /* Мягкий нежно-зеленый фон */
+    color: #16a34a !important;            /* Зеленый текст */
+    border: 1px solid #bbf7d0 !important;  /* Зеленая рамка */
+}
+
+/* Красивая обводка ТОВАРA НЕТ в светлой теме */
+.city-modal-badge.empty-badge {
+    background-color: #fef2f2 !important; /* Мягкий нежно-красный фон */
+    color: #dc2626 !important;            /* Красный текст */
+    border: 1px solid #fca5a5 !important;  /* Красная рамка */
+}
+
+/* 🛑 СЕРАЯ КНОПКА ДЛЯ ПУСТОГО МАГАЗИНА В СВЕТЛОЙ ТЕМЕ */
+.city-modal-select-btn.disabled {
+    background-color: #f1f5f9 !important;  /* Светло-серый фон */
+    color: #94a3b8 !important;             /* Приглушенный серый текст */
+    border: 1px solid #cbd5e1 !important;   /* Серая рамка */
+    cursor: not-allowed !important;         /* Запрещающий курсор */
+    opacity: 0.8 !important;
+}
