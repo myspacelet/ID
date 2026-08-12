@@ -1138,3 +1138,16 @@ body.dark-mode #results-rows-container .result-row .badges-container .store-badg
     background-color: #0f172a !important; /* Меняет цвет на более глубокий при наведении */
     color: #f8fafc !important;
 }
+/* Включаем сочный неоново-фиолетовый цвет для выбранной точки на черном фоне */
+body.dark-mode #results-rows-container .result-row .badges-container .store-badge.selected-active {
+    background-color: #6366f1 !important; /* Яркий индиго/фиолетовый */
+    color: #ffffff !important;            /* Белый текст */
+    border: 2px solid #818cf8 !important;  /* Светло-фиолетовая рамка */
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4) !important; /* Легкое неоновое свечение */
+}
+
+/* Эффект наведения на выбранный магазин в темноте */
+body.dark-mode #results-rows-container .result-row .badges-container .store-badge.selected-active:hover {
+    background-color: #4f46e5 !important; /* Чуть темнее при наведении */
+    border-color: #6366f1 !important;
+}
