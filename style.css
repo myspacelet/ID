@@ -1097,15 +1097,15 @@ body.dark-mode .city-modal-store-card .store-address {
 /* 🟢 Точный магазин в светлой теме */
 .search-match-badge.exact-match-badge {
     color: #101412; /* Насыщенный зеленый текст */
-    background-color: #f0fdf4; /* Нежно-зеленый фон */
-    border: 1px solid #c5a806; /* Тонкая аккуратная рамка */
+    background-color: #e70909; /* Нежно-зеленый фон */
+    border: 1px solid #e70909; /* Тонкая аккуратная рамка */
 }
 
 /* 🔵 Совпадение по городу в светлой теме */
 .search-match-badge.city-match-badge {
     color: #254ec0; /* Насыщенный синий текст */
-    background-color: #eff6ff; /* Нежно-синий фон */
-    border: 1px solid #456081; /* Тонкая аккуратная рамка */
+    background-color: #b2e94c; /* Нежно-синий фон */
+    border: 1px solid #b2e94c; /* Тонкая аккуратная рамка */
 }
 
 /* ========================================================
@@ -1115,13 +1115,13 @@ body.dark-mode .city-modal-store-card .store-address {
 /* 🟢 Финальный красивый точный магазин в тёмной теме */
 body.dark-mode .search-match-badge.exact-match-badge {
     color: #34d399 !important; /* Приятный неоново-зеленый текст */
-    background-color: #064e3b !important; /* Глубокий темно-зеленый фон */
-    border: 1px solid #be0000 !important; /* Аккуратная темно-зеленая рамка */
+    background-color: #e70909 !important; /* Глубокий темно-зеленый фон */
+    border: 1px solid #e70909 !important; /* Аккуратная темно-зеленая рамка */
 }
 
 /* 🔵 Финальное красивое совпадение по городу в тёмной теме */
 body.dark-mode .search-match-badge.city-match-badge {
     color: #60a5fa !important; /* Аккуратный небесно-синий текст */
-    background-color: #1e3a8a !important; /* Глубокий темно-синий фон */
-    border: 1px solid #1d4ed8 !important; /* Темно-синяя рамка */
+    background-color: #ccf02d !important; /* Глубокий темно-синий фон */
+    border: 1px solid #dfc90a !important; /* Темно-синяя рамка */
 }
