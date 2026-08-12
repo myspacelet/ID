@@ -1038,7 +1038,7 @@ function renderResults(storesArray, matchType) {
             badgesHtml += `<button class="store-badge ${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
         });
 
-               // 🔥 ОЧИСТИЛИ ОТ ИНЛАЙН-ЦВЕТОВ: теперь плашки ТОЧНЫЙ МАГАЗИН и СОВПАДЕНИЕ ПО ГОРОДУ управляются через CSS
+        // 🔥 СТИЛЬНЫЕ ПЛАШКИ: убрали инлайн-стили, перевели на гибкие CSS-классы
         const matchLabel = group.isExact 
             ? `<span class="search-match-badge exact-match-badge">ТОЧНЫЙ МАГАЗИН</span>` 
             : `<span class="search-match-badge city-match-badge">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
