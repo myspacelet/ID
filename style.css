@@ -1096,16 +1096,16 @@ body.dark-mode .city-modal-store-card .store-address {
 
 /* 🟢 Точный магазин в светлой теме */
 .search-match-badge.exact-match-badge {
-    color: #101412; /* Насыщенный зеленый текст */
-    background-color: #e70909; /* Нежно-зеленый фон */
-    border: 1px solid #e70909; /* Тонкая аккуратная рамка */
+    color: #15803d; /* Насыщенный зеленый текст */
+    background-color: #f0fdf4; /* Нежно-зеленый фон */
+    border: 1px solid #bbf7d0; /* Тонкая аккуратная рамка */
 }
 
 /* 🔵 Совпадение по городу в светлой теме */
 .search-match-badge.city-match-badge {
-    color: #254ec0; /* Насыщенный синий текст */
-    background-color: #b2e94c; /* Нежно-синий фон */
-    border: 1px solid #b2e94c; /* Тонкая аккуратная рамка */
+    color: #1d4ed8; /* Насыщенный синий текст */
+    background-color: #eff6ff; /* Нежно-синий фон */
+    border: 1px solid #bfdbfe; /* Тонкая аккуратная рамка */
 }
 
 /* ========================================================
