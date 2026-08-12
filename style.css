@@ -1087,11 +1087,11 @@ body.dark-mode .city-modal-store-card .store-address {
 }
 
 /* Бейджи статусов (СВЕТЛАЯ ТЕМА) */
-.city-modal-badge.selected-badge { background-color: #ec0808; }
+.city-modal-badge.selected-badge { background-color: #a31616; }
 .city-modal-badge.available-badge { background-color: #3b82f6; }
 
 /* Кнопки в модалке (СВЕТЛАЯ ТЕМА) */
-.city-modal-select-btn.selected { background-color: #d3ff0c; color: #ffffff; }
+.city-modal-select-btn.selected { background-color: #16a34a; color: #ffffff; }
 .city-modal-select-btn.available { background-color: #3b82f6; color: #ffffff; }
 
 /* 🟢 Точный магазин в светлой теме */
@@ -1115,8 +1115,8 @@ body.dark-mode .city-modal-store-card .store-address {
 /* 🟢 Финальный красивый точный магазин в тёмной теме */
 body.dark-mode .search-match-badge.exact-match-badge {
     color: #34d399 !important; /* Приятный неоново-зеленый текст */
-    background-color: #e70909 !important; /* Глубокий темно-зеленый фон */
-    border: 1px solid #e70909 !important; /* Аккуратная темно-зеленая рамка */
+    background-color: #064e3b !important; /* Глубокий темно-зеленый фон */
+    border: 1px solid #047857 !important; /* Аккуратная темно-зеленая рамка */
 }
 
 /* 🔵 Финальное красивое совпадение по городу в тёмной теме */
@@ -1124,4 +1124,17 @@ body.dark-mode .search-match-badge.city-match-badge {
     color: #60a5fa !important; /* Аккуратный небесно-синий текст */
     background-color: #ccf02d !important; /* Глубокий темно-синий фон */
     border: 1px solid #dfc90a !important; /* Темно-синяя рамка */
+}
+
+/* Меняем цвет ТОЧНЫХ магазинов справа (Абакан4, Анапа3) в темноте */
+body.dark-mode #results-rows-container .result-row .badges-container .store-badge.exact-badge {
+    background-color: #1e293b !important; /* Сделай, например, благородный темно-серый фон */
+    color: #38bdf8 !important;            /* Красивый ярко-голубой текст */
+    border: 2px solid #0284c7 !important;  /* Насыщенная синяя рамка */
+}
+
+/* Эффект при наведении на эти кнопки в темноте */
+body.dark-mode #results-rows-container .result-row .badges-container .store-badge.exact-badge:hover {
+    background-color: #0f172a !important; /* Меняет цвет на более глубокий при наведении */
+    color: #f8fafc !important;
 }
