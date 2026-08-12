@@ -296,6 +296,7 @@
     <script>
         let currentDeliveryMode = 'pvz';
         let selectedStoreCode = null;
+        let activeLists = [];
         // Конфигурация Supabase (Адрес собран по твоему ID)
 const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_JinHB8pKvvmIkIkIFRjF4A_BXnnC0rD";
@@ -843,7 +844,7 @@ function parseDirtyList(text) {
 }
 
 function startSearch() {
-    const activeLists = [];
+    activeLists = [];
 
     // 1. Собираем данные со всех существующих полей на экране (динамически до 100)
     for (let i = 1; i <= 100; i++) {
