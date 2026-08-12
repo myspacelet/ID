@@ -1046,11 +1046,7 @@ function renderResults(storesArray, matchType) {
         // 🔥 МОДИФИЦИРОВАЛИ ШАБЛОН: Сделали название города кликабельной кнопкой-ссылкой
         row.innerHTML = `
             <div class="result-city" style="display:flex; align-items:center;">
-                <span class="clickable-city-title" 
-                      onclick="openCityShopsModal('${cityNameEscaped}')" 
-                      style="cursor: pointer; font-weight: 700; text-decoration: underline; color: #3b82f6; transition: color 0.2s ease;"
-                      onmouseover="this.style.color='#2563eb'" 
-                      onmouseout="this.style.color='#3b82f6'">
+                <span class="clickable-city-title" onclick="openCityShopsModal('${cityNameEscaped}')">
                     ${group.cityName}
                 </span>
                 ${matchLabel}

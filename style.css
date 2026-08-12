@@ -853,12 +853,12 @@ body.dark-mode #script-live-output {
     cursor: pointer;
     font-weight: 700;
     text-decoration: underline;
-    color: #3b82f6;
+    color: #2563eb; /* Заметный синий цвет для светлого фона */
     transition: color 0.2s ease, transform 0.1s ease;
 }
 
 .clickable-city-title:hover {
-    color: #2563eb;
+    color: #1d4ed8;
 }
 
 .clickable-city-title:active {
@@ -1158,4 +1158,11 @@ body.dark-mode .city-modal-store-card .store-address {
 .badges-container .store-badge:hover {
     opacity: 0.9;
     transform: translateY(-1px);
+}
+body.dark-mode .clickable-city-title {
+    color: #60a5fa !important; /* Яркий, контрастный небесно-синий цвет для темноты */
+}
+
+body.dark-mode .clickable-city-title:hover {
+    color: #93c5fd !important; /* Еще более светлый оттенок при наведении в темноте */
 }
