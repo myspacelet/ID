@@ -1113,14 +1113,14 @@ body.dark-mode .city-modal-store-card .store-address {
 
 /* 🟢 Точный магазин в тёмной теме */
 body.dark-mode .search-match-badge.exact-match-badge {
-    color: #edeff0 !important; /* Яркий неоново-зеленый текст */
-    background-color: #064e3b !important; /* Глубокий темно-зеленый фон */
+    color: #050607 !important; /* Яркий неоново-зеленый текст */
+    background-color: #1aff00 !important; /* Глубокий темно-зеленый фон */
     border: 1px solid #9a169e !important; /* Темно-зеленая рамка */
 }
 
 /* 🔵 Совпадение по городу в тёмной теме */
 body.dark-mode .search-match-badge.city-match-badge {
     color: #f2f2f5 !important; /* Яркий неоново-синий текст */
-    background-color: #1e3a8a !important; /* Глубокий темно-синий фон */
+    background-color: #0a287c !important; /* Глубокий темно-синий фон */
     border: 1px solid #384a7a !important; /* Темно-синяя рамка */
 }
