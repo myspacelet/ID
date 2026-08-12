@@ -2115,12 +2115,13 @@ function clearSpecificProductList(index) {
         }
     }
 }
+// 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ МОДАЛКИ С ПРОВЕРКОЙ НАЛИЧИЯ ТОВАРА
 function openCityShopsModal(cityName) {
     let modal = document.getElementById('city-shops-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'city-shops-modal';
-        modal.className = 'city-modal-overlay'; // 🌟 Применили класс из CSS
+        modal.className = 'city-modal-overlay';
         document.body.appendChild(modal);
     }
 
@@ -2133,16 +2134,42 @@ function openCityShopsModal(cityName) {
         if (store && store.city && store.city.trim().toLowerCase() === cleanTargetCity) {
             foundCount++;
             
+            // 🌟 УМНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРА В МАГАЗИНЕ СРЕДИ ВСЕХ СПИСКОВ
+            let totalStockInThisShop = 0;
+            if (typeof activeLists !== 'undefined' && activeLists.length > 0) {
+                activeLists.forEach(item => {
+                    if (item.storesMap && item.storesMap.has(code)) {
+                        totalStockInThisShop += item.storesMap.get(code);
+                    }
+                });
+            }
+
+            // Формируем переменные для бейджа и кнопки в зависимости от наличия товара
+            let statusBadge = '';
+            let buttonAttributes = '';
+            let buttonStyleModifier = '';
+
+            if (totalStockInThisShop > 0) {
+                // Товар есть хотя бы в одном списке
+                statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
+                buttonAttributes = `onclick="selectStoreFromCityModal('${code}')"`;
+            } else {
+                // 🛑 ТОВАРА НЕТ НИ В ОДНОМ ИЗ СПИСКОВ
+                statusBadge = `<span style="background: #ef4444; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Товара нет</span>`;
+                buttonAttributes = `disabled`; // Блокируем клик на кнопку
+                buttonStyleModifier = `background: #334155; color: #64748b; cursor: not-allowed; opacity: 0.6;`; // Делаем кнопку серой и некликабельной
+            }
+            
             shopsHTML += `
                 <div class="city-modal-store-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-weight: 700; color: #f8fafc; font-size: 14px;">🏬 Код: ${code}</span>
-                        <span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>
+                        ${statusBadge}
                     </div>
                     <div style="font-size: 12px; color: #94a3b8;">
                         📍 <strong>Адрес:</strong> ${store.address || 'Адрес не указан'}
                     </div>
-                    <button class="city-modal-select-btn" onclick="selectStoreFromCityModal('${code}')">
+                    <button class="city-modal-select-btn" ${buttonAttributes} style="${buttonStyleModifier}">
                         🛒 Выбрать этот магазин для заказа
                     </button>
                 </div>
