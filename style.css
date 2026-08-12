@@ -1139,30 +1139,23 @@ body.dark-mode .city-modal-store-card .store-address {
     from { opacity: 0; }
     to { opacity: 1; }
 }
-/* Базовый стиль кнопки-бейджа магазина на главной */
-.badges-container .store-badge {
-    background: #f0fdf4; 
-    color: #16a34a;
-    border: 2px solid #bbf7d0;
-    transition: all 0.15s ease;
+
+/* Светлая тема — сочный синий */
+#results-rows-container .result-row .result-city .clickable-city-title {
+    color: #2563eb !important;
+    text-decoration: underline !important;
+    font-weight: 700 !important;
+}
+#results-rows-container .result-row .result-city .clickable-city-title:hover {
+    color: #1d4ed8 !important;
 }
 
-/* 🌟 Фиолетовый стиль, когда этот магазин ВЫБРАН (активен) */
-.badges-container .store-badge.active-selected-store {
-    background: #4f46e5 !important;
-    color: #ffffff !important;
-    border-color: #4f46e5 !important;
+/* Тёмная тема — контрастный небесно-голубой, который теперь отлично видно! */
+body.dark-mode #results-rows-container .result-row .result-city .clickable-city-title {
+    color: #60a5fa !important;
+    text-decoration: underline !important;
+    font-weight: 700 !important;
 }
-
-/* Стиль при наведении */
-.badges-container .store-badge:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-body.dark-mode .clickable-city-title {
-    color: #60a5fa !important; /* Яркий, контрастный небесно-синий цвет для темноты */
-}
-
-body.dark-mode .clickable-city-title:hover {
-    color: #93c5fd !important; /* Еще более светлый оттенок при наведении в темноте */
+body.dark-mode #results-rows-container .result-row .result-city .clickable-city-title:hover {
+    color: #93c5fd !important;
 }
