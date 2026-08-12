@@ -860,6 +860,9 @@ body.dark-mode #script-live-output {
 
 /* Базовый стиль кнопок-бейджей на главной */
 .badges-container .store-badge {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    border: 2px solid #cbd5e1 !important;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
@@ -893,16 +896,36 @@ body.dark-mode #results-rows-container .result-row .result-city .clickable-city-
 
 /* Тёмные кнопки-бейджи на главной по умолчанию */
 body.dark-mode .badges-container .store-badge {
-    background: #1e293b;
-    color: #94a3b8;
-    border: 2px solid #334155;
+    background: #1e293b !important;
+    color: #94a3b8 !important;
+    border: 2px solid #334155 !important;
+}
+body.dark-mode .badges-container .store-badge.exact-badge {
+    background: #064e3b !important; /* Глубокий тёмно-зелёный */
+    color: #34d399 !important; /* Мягкий неоново-зелёный текст */
+    border: 2px solid #047857 !important; /* Тёмно-зелёная рамка */
+}
+body.dark-mode .badges-container .store-badge.selected-active {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    border-color: #6366f1 !important;
+}
+/* Эффект наведения */
+.badges-container .store-badge:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+/* Тёмный точный магазин на главной (адаптированный зелёный) */
+.badges-container .store-badge.exact-badge {
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+    border: 2px solid #bbf7d0 !important;
 }
 
-/* Тёмный точный магазин на главной (адаптированный зелёный) */
-body.dark-mode .badges-container .store-badge.exact-badge {
-    background: #064e3b !important;
-    color: #34d399 !important;
-    border: 2px solid #047857 !important;
+.badges-container .store-badge.selected-active {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4f46e5 !important;
 }
 
 /* Фиолетовый выбранный магазин в тёмной теме */
