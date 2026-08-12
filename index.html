@@ -669,7 +669,6 @@ window.addEventListener('DOMContentLoaded', async () => {
                 if (overlay) overlay.style.display = 'none';
 
                 // 🔥 ДОБАВЛЯЕМ: Подставляем имя оператора при автоматическом входе
-// Подставляем ТОЛЬКО ИМЯ оператора при автоматическом входе
 const welcomeTitle = document.getElementById('app-welcome-title');
 if (welcomeTitle && profile && profile.full_name) {
     // Регулярное выражение удаляет первое слово и пробел за ним
@@ -871,98 +870,102 @@ function startSearch() {
     }
 
     let finalMatches = [];
-    const addedExactCodes = new Set();
 
     // ========================================================
-    // ЛОГИКА 1: ТОЧНЫЕ СОВПАДЕНИЯ ПО МАГАЗИНАМ (Строгое пересечение)
+    // 🔥 НОВАЯ ЛОГИКА: АГРЕГАЦИЯ ПО ГОРОДАМ И РАСЧЕТ ПЕРЕМЕЩЕНИЙ ("1+1=2")
     // ========================================================
-    if (activeLists.length === 1) {
-        // Если товар всего один — просто фильтруем его магазины по его личному лимиту
-        const singleItem = activeLists[0];
-        singleItem.storesMap.forEach((stock, code) => {
-            if (stock >= singleItem.requiredStock) {
-                finalMatches.push({ code, stock, isExact: true });
-                addedExactCodes.add(code);
-            }
-        });
-    } else {
-        // Если товаров несколько — проверяем пересечение по первому списку
-        const firstItem = activeLists[0];
+    const cityStockEvaluation = {};
+
+    // Инициализируем структуру для каждого города из справочника магазинов Google Таблицы
+    for (let code in storeDatabase) {
+        const store = storeDatabase[code];
+        if (!store || !store.city) continue;
         
-        firstItem.storesMap.forEach((stockInFirst, code) => {
-            // Проверяем первый список: хватает ли остатка под его требование
-            if (stockInFirst < firstItem.requiredStock) return;
-
-            let isInAll = true;
-            let totalMinStock = stockInFirst; // Будем выводить минимальный остаток для отображения в бейдже
-
-            // Пробегаем по всем остальным спискам товаров
-            for (let j = 1; j < activeLists.length; j++) {
-                const currentItem = activeLists[j];
-                
-                // Если у магазина нет этого кода вообще ИЛИ остаток меньше, чем требует этот конкретный список
-                if (!currentItem.storesMap.has(code) || currentItem.storesMap.get(code) < currentItem.requiredStock) {
-                    isInAll = false;
-                    break;
-                } else {
-                    totalMinStock = Math.min(totalMinStock, currentItem.storesMap.get(code));
-                }
-            }
-            
-            // Если магазин прошёл проверки по всем спискам и их личным лимитам количества
-            if (isInAll) {
-                finalMatches.push({ code, stock: totalMinStock, isExact: true });
-                addedExactCodes.add(code);
-            }
-        });
+        const cityName = store.city.trim();
+        if (!cityStockEvaluation[cityName]) {
+            cityStockEvaluation[cityName] = {
+                cityName: cityName,
+                allShopsInCity: [], // Храним вообще все магазины города для модалки
+                itemStocksSum: Array(activeLists.length).fill(0) // Суммы остатков по каждому Товарному списку
+            };
+        }
+        
+        // Запоминаем код магазина в этом городе
+        if (!cityStockEvaluation[cityName].allShopsInCity.includes(code)) {
+            cityStockEvaluation[cityName].allShopsInCity.push(code);
+        }
     }
 
-    // ========================================================
-    // ЛОГИКА 2: МЯГКИЕ СОВПАДЕНИЯ ПО ГОРОДАМ (Группировка)
-    // ========================================================
-    if (activeLists.length > 1) {
-        // Превращаем каждый товар в сет городов, где этот товар есть в нужном количестве
-        const listsOfCities = activeLists.map(item => {
-            const citySet = new Set();
-            item.storesMap.forEach((stock, code) => {
-                if (stock >= item.requiredStock) {
-                    const dbItem = storeDatabase[code];
-                    if (dbItem && dbItem.city) citySet.add(dbItem.city);
+    // Наполняем суммы остатков по городам для каждого товара отдельно
+    activeLists.forEach((item, listIdx) => {
+        item.storesMap.forEach((stock, code) => {
+            const store = storeDatabase[code];
+            if (store && store.city) {
+                const cityName = store.city.trim();
+                if (cityStockEvaluation[cityName]) {
+                    cityStockEvaluation[cityName].itemStocksSum[listIdx] += stock;
                 }
-            });
-            return citySet;
+            }
         });
+    });
 
-        // Находим города, которые пересекаются абсолютно во всех списках
-        const matchingCities = [];
-        if (listsOfCities.length > 0) {
-            listsOfCities[0].forEach(cityName => {
-                let isCityInAll = true;
-                for (let j = 1; j < listsOfCities.length; j++) {
-                    if (!listsOfCities[j].has(cityName)) {
-                        isCityInAll = false;
-                        break;
-                    }
-                }
-                if (isCityInAll) matchingCities.push(cityName);
-            });
+    // Фильтруем города: город проходит, если для КАЖДОГО товара сумма остатков >= лимит
+    for (const cityName in cityStockEvaluation) {
+        const cityData = cityStockEvaluation[cityName];
+        
+        let cityPassesFilter = true;
+        for (let i = 0; i < activeLists.length; i++) {
+            if (cityData.itemStocksSum[i] < activeLists[i].requiredStock) {
+                cityPassesFilter = false;
+                break;
+            }
         }
 
-        // Собираем магазины из этих общих городов, проверяя лимиты штук
-        matchingCities.forEach(cityName => {
-            activeLists.forEach(item => {
-                item.storesMap.forEach((stock, code) => {
-                    const dbItem = storeDatabase[code];
-                    
-                    // Магазин в нужном городе, его еще нет в точных совпадениях, и остаток покрывает лимит этого списка
-                    if (dbItem && dbItem.city === cityName && !addedExactCodes.has(code) && stock >= item.requiredStock) {
-                        if (!finalMatches.some(s => s.code === code)) {
-                            finalMatches.push({ code, stock, isExact: false, softCityKey: cityName });
-                        }
+        // Если город суммарно удовлетворяет условиям по всем товарам — берем его!
+        if (cityPassesFilter) {
+            // Собираем магазины этого города, в которых физически есть хоть один из нужных товаров
+            let cityShopsWithStock = [];
+            
+            cityData.allShopsInCity.forEach(code => {
+                let maxStockInShop = 0;
+                // Ищем максимальный остаток среди всех списков для сортировки Топ-3
+                activeLists.forEach(item => {
+                    if (item.storesMap.has(code)) {
+                        maxStockInShop = Math.max(maxStockInShop, item.storesMap.get(code));
                     }
                 });
+                
+                // Если в магазине есть хоть что-то из списков, закидываем его в пул рендеринга
+                if (maxStockInShop > 0) {
+                    cityShopsWithStock.push({ code, sortStock: maxStockInShop });
+                }
             });
-        });
+
+            // Сортируем магазины города по убыванию остатка (Старая логика Топ-3)
+            cityShopsWithStock.sort((a, b) => b.sortStock - a.sortStock);
+
+            // Берем Топ-3 для отображения на главной странице
+            const top3Shops = cityShopsWithStock.slice(0, 3);
+
+            // Закидываем в finalMatches
+            top3Shops.forEach((shop, index) => {
+                // Определяем минимальный остаток товара в этом магазине среди всех списков для вывода на бейдже
+                let minStockForBadge = Infinity;
+                activeLists.forEach(item => {
+                    if (item.storesMap.has(shop.code)) {
+                        minStockForBadge = Math.min(minStockForBadge, item.storesMap.get(shop.code));
+                    }
+                });
+                if (minStockForBadge === Infinity) minStockForBadge = shop.sortStock;
+
+                finalMatches.push({
+                    code: shop.code,
+                    stock: minStockForBadge,
+                    isExact: (activeLists.length === 1 || index === 0), // Эмулируем флаг для старого рендерера
+                    softCityKey: cityName
+                });
+            });
+        }
     }
 
     // Отрисовка результатов на экране и плавный скролл вниз
@@ -1010,13 +1013,16 @@ function renderResults(storesArray, matchType) {
         groupedRows[groupKey].stores.push(item);
     });
 
-    Object.keys(groupedRows).forEach(key => {
+        Object.keys(groupedRows).forEach(key => {
         const group = groupedRows[key];
         const row = document.createElement('div');
         row.className = 'result-row';
 
-      // Привязываем имя города в нижнем регистре для удобного поиска
+        // Привязываем имя города в нижнем регистре для удобного поиска
         row.setAttribute('data-city', group.cityName.trim().toLowerCase());
+
+        // 🔥 ЭКРАНИРУЕМ КАВЫЧКИ ДЛЯ БЕЗОПАСНОЙ ПЕРЕДАЧИ В ONCLICK МОДАЛКИ
+        const cityNameEscaped = group.cityName.replace(/'/g, "\\'");
 
         const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
         const top3Stores = sortedStores.slice(0, 3);
@@ -1032,12 +1038,22 @@ function renderResults(storesArray, matchType) {
             badgesHtml += `<button class="store-badge ${exactClass}" style="${badgeStyle}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
         });
 
-        const matchLabel = group.isExact 
+                const matchLabel = group.isExact 
             ? `<span style="font-size:10px; color:#16a34a; background:#e1f5fe; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">ТОЧНЫЙ МАГАЗИН</span>` 
             : `<span style="font-size:10px; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
 
+        // 🔥 МОДИФИЦИРОВАЛИ ШАБЛОН: Сделали название города кликабельной кнопкой-ссылкой
         row.innerHTML = `
-            <div class="result-city" style="display:flex; align-items:center;">${group.cityName} ${matchLabel}</div>
+            <div class="result-city" style="display:flex; align-items:center;">
+                <span class="clickable-city-title" 
+                      onclick="openCityShopsModal('${cityNameEscaped}')" 
+                      style="cursor: pointer; font-weight: 700; text-decoration: underline; color: #3b82f6; transition: color 0.2s ease;"
+                      onmouseover="this.style.color='#2563eb'" 
+                      onmouseout="this.style.color='#3b82f6'">
+                    ${group.cityName}
+                </span>
+                ${matchLabel}
+            </div>
             <div class="badges-container">${badgesHtml}</div>
         `;
         container.appendChild(row);
@@ -1045,6 +1061,7 @@ function renderResults(storesArray, matchType) {
 
     document.getElementById('results-section').style.display = 'block';
 }
+
 function openStoreCard(storeCode) {
     const modal = document.getElementById('store-modal'); 
     document.getElementById('modal-store-title').innerText = `🏪 Карточка магазина: ${storeCode}`;
@@ -2097,6 +2114,71 @@ function clearSpecificProductList(index) {
             refreshProductContainerOnly();
         }
     }
+}
+function openCityShopsModal(cityName) {
+    let modal = document.getElementById('city-shops-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'city-shops-modal';
+        modal.className = 'city-modal-overlay'; // 🌟 Применили класс из CSS
+        document.body.appendChild(modal);
+    }
+
+    let shopsHTML = '';
+    let foundCount = 0;
+    const cleanTargetCity = cityName.trim().toLowerCase();
+
+    for (let code in storeDatabase) {
+        const store = storeDatabase[code];
+        if (store && store.city && store.city.trim().toLowerCase() === cleanTargetCity) {
+            foundCount++;
+            
+            shopsHTML += `
+                <div class="city-modal-store-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: #f8fafc; font-size: 14px;">🏬 Код: ${code}</span>
+                        <span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8;">
+                        📍 <strong>Адрес:</strong> ${store.address || 'Адрес не указан'}
+                    </div>
+                    <button class="city-modal-select-btn" onclick="selectStoreFromCityModal('${code}')">
+                        🛒 Выбрать этот магазин для заказа
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    if (foundCount === 0) {
+        shopsHTML = `<div style="text-align:center; color:#94a3b8; font-size:13px; padding:20px;">Магазины для города не найдены в базе данных</div>`;
+    }
+
+    modal.innerHTML = `
+        <div class="city-modal-container">
+            <div class="city-modal-header">
+                <h3>🏙️ Все магазины города: ${cityName}</h3>
+                <button class="city-modal-close-btn" onclick="closeCityShopsModal()">&times;</button>
+            </div>
+            <div class="city-modal-body">
+                ${shopsHTML}
+            </div>
+            <button class="city-modal-footer-btn" onclick="closeCityShopsModal()">Закрыть окно</button>
+        </div>
+    `;
+    modal.style.display = 'flex';
+}
+
+function closeCityShopsModal() {
+    const modal = document.getElementById('city-shops-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function selectStoreFromCityModal(storeCode) {
+    selectedStoreCode = storeCode;
+    console.log("Оператор выбрал магазин из общего списка города:", storeCode);
+    alert(`Магазин ${storeCode} успешно выбран для выполнения логистической цепочки заказа!`);
+    closeCityShopsModal();
 }
 
     </script>
