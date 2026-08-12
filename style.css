@@ -1098,7 +1098,7 @@ body.dark-mode .city-modal-store-card .store-address {
 .search-match-badge.exact-match-badge {
     color: #101412; /* Насыщенный зеленый текст */
     background-color: #f0fdf4; /* Нежно-зеленый фон */
-    border: 1px solid #036325; /* Тонкая аккуратная рамка */
+    border: 1px solid #c5a806; /* Тонкая аккуратная рамка */
 }
 
 /* 🔵 Совпадение по городу в светлой теме */
@@ -1116,7 +1116,7 @@ body.dark-mode .city-modal-store-card .store-address {
 body.dark-mode .search-match-badge.exact-match-badge {
     color: #34d399 !important; /* Приятный неоново-зеленый текст */
     background-color: #064e3b !important; /* Глубокий темно-зеленый фон */
-    border: 1px solid #047857 !important; /* Аккуратная темно-зеленая рамка */
+    border: 1px solid #be0000 !important; /* Аккуратная темно-зеленая рамка */
 }
 
 /* 🔵 Финальное красивое совпадение по городу в тёмной теме */
