@@ -2116,13 +2116,21 @@ function clearSpecificProductList(index) {
         }
     }
 }
-// 🔥 ФУНКЦИЯ ОТКРЫТИЯ МОДАЛКИ С ОТОБРАЖЕНИЕМ ВЫБРАННОГО МАГАЗИНА
+// 🔥 ФУНКЦИЯ ОТКРЫТИЯ МОДАЛКИ (С ЗАКРЫТИЕМ ПО ОВЕРЛЕЮ)
 function openCityShopsModal(cityName) {
     let modal = document.getElementById('city-shops-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'city-shops-modal';
         modal.className = 'city-modal-overlay';
+        
+        // 🌟 ЗАКРЫТИЕ ПРИ КЛИКЕ НА ПУСТОЕ МЕСТО (ВНЕ ОКНА)
+        modal.addEventListener('click', (event) => {
+            if (event.target.id === 'city-shops-modal') {
+                closeCityShopsModal();
+            }
+        });
+        
         document.body.appendChild(modal);
     }
 
@@ -2145,28 +2153,25 @@ function openCityShopsModal(cityName) {
                 });
             }
 
-            // 2. Проверяем, выбран ли текущий магазин в данный момент
+            // 2. Проверяем, выбран ли текущий магазин
             const isCurrentlySelected = (selectedStoreCode === code);
 
             let statusBadge = '';
             let buttonText = '🛒 Выбрать этот магазин для заказа';
             let buttonStyle = '';
-            let buttonAttributes = `onclick="selectStoreFromCityModal('${code}')"`;
+            let buttonAttributes = `onclick="selectStoreFromCityModal('${code}', '${cityName.replace(/'/g, "\\'")}')"`;
 
             if (totalStockInThisShop > 0) {
                 if (isCurrentlySelected) {
-                    // 🌟 МАГАЗИН УЖЕ ВЫБРАН ОПЕРАТОРОМ (Зеленый стиль со скриншота)
                     statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Выбран</span>`;
                     buttonText = '✅ Магазин выбран (Нажмите, чтобы отменить)';
                     buttonStyle = 'background: #16a34a; color: white;';
                 } else {
-                    // Магазин доступен, но не выбран
                     statusBadge = `<span style="background: #3b82f6; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
                     buttonText = '🛒 Выбрать этот магазин для заказа';
-                    buttonStyle = ''; // Использует стандартный класс из CSS
+                    buttonStyle = '';
                 }
             } else {
-                // Товара нет в наличии
                 statusBadge = `<span style="background: #ef4444; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Товара нет</span>`;
                 buttonText = '❌ Магазин пуст (Выбор невозможен)';
                 buttonAttributes = `disabled`;
@@ -2209,27 +2214,26 @@ function openCityShopsModal(cityName) {
     modal.style.display = 'flex';
 }
 
-// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ КЛИКА: УМЕЕТ ВЫБИРАТЬ И ОТМЕНЯТЬ ВЫБОР
-function selectStoreFromCityModal(storeCode) {
+// 🔥 ФУНКЦИЯ ЗАКРЫТИЯ МОДАЛКИ (С Полноценным удалением флага отображения)
+function closeCityShopsModal() {
+    const modal = document.getElementById('city-shops-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ КЛИКА КНОПКИ ВЫБОРА
+function selectStoreFromCityModal(storeCode, cityName) {
     if (selectedStoreCode === storeCode) {
-        // Если оператор нажал на уже выбранный магазин — отменяем выбор
         selectedStoreCode = null;
         console.log("Оператор отменил выбор магазина:", storeCode);
-        alert(`Выбор магазина ${storeCode} отменен.`);
     } else {
-        // Если выбран новый магазин — перезаписываем переменную
         selectedStoreCode = storeCode;
         console.log("Оператор выбрал магазин из общего списка города:", storeCode);
-        alert(`Магазин ${storeCode} успешно выбран для заказа!`);
     }
     
-    // Перерисовываем модалку на лету, чтобы изменения применились визуально мгновенно
-    const modalTitleElement = document.querySelector('.city-modal-header h3');
-    if (modalTitleElement) {
-        // Извлекаем имя города из текущего заголовка модалки
-        const currentCityName = modalTitleElement.innerText.replace('🏙️ Все магазины города: ', '').trim();
-        openCityShopsModal(currentCityName);
-    }
+    // Перерисовываем модалку корректно, передавая имя города напрямую в аргументе
+    openCityShopsModal(cityName);
 }
 
     </script>
