@@ -1028,22 +1028,20 @@ function renderResults(storesArray, matchType) {
         const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
         const top3Stores = sortedStores.slice(0, 3);
 
-        let badgesHtml = '';
+                let badgesHtml = '';
         top3Stores.forEach(store => {
-            // Если магазин точный, вешаем на него класс exact-badge для темной темы и базовый инлайн для светлой
-            const badgeStyle = store.isExact 
-                ? 'background: #f0fdf4; color: #16a34a; border: 2px solid #bbf7d0;' 
-                : '';
             const exactClass = store.isExact ? 'exact-badge' : '';
             
-            badgesHtml += `<button class="store-badge ${exactClass}" style="${badgeStyle}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
+            // Если этот магазин уже выбран глобально — сразу вешаем на него фиолетовый класс
+            const isSelectedClass = (selectedStoreCode === store.code) ? ' active-selected-store' : '';
+            
+            badgesHtml += `<button class="store-badge ${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
         });
 
-                const matchLabel = group.isExact 
+        const matchLabel = group.isExact 
             ? `<span style="font-size:10px; color:#16a34a; background:#e1f5fe; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">ТОЧНЫЙ МАГАЗИН</span>` 
             : `<span style="font-size:10px; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
 
-        // 🔥 МОДИФИЦИРОВАЛИ ШАБЛОН: Сделали название города кликабельной кнопкой-ссылкой
         row.innerHTML = `
             <div class="result-city" style="display:flex; align-items:center;">
                 <span class="clickable-city-title" onclick="openCityShopsModal('${cityNameEscaped}')">
