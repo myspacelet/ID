@@ -2244,20 +2244,33 @@ function closeCityShopsModal() {
     }
 }
 
-// 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ КЛИКА КНОПКИ ВЫБОРА
+// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ КЛИКА: ЧИСТАЯ СИНХРОНИЗИРАЦИЯ КЛАССОВ ЧЕРЕЗ CSS
 function selectStoreFromCityModal(storeCode, cityName) {
+    // 1. Сначала сбрасываем класс выбора со ВСЕХ кнопок на главной
+    document.querySelectorAll('.badges-container .store-badge').forEach(badge => {
+        badge.classList.remove('active-selected-store');
+    });
+
     if (selectedStoreCode === storeCode) {
+        // Если оператор нажал на уже выбранный магазин — отменяем выбор
         selectedStoreCode = null;
         console.log("Оператор отменил выбор магазина:", storeCode);
     } else {
+        // Если выбран новый магазин — перезаписываем переменную
         selectedStoreCode = storeCode;
         console.log("Оператор выбрал магазин из общего списка города:", storeCode);
+
+        // 2. Находим нужную кнопку на главной и вешаем CSS-класс активного выбора
+        document.querySelectorAll('.badges-container .store-badge').forEach(badge => {
+            if (badge.innerText.trim().startsWith(storeCode)) {
+                badge.classList.add('active-selected-store');
+            }
+        });
     }
     
-    // Перерисовываем модалку корректно, передавая имя города напрямую в аргументе
+    // Перерисовываем модалку города для обновления ее внутренних кнопок
     openCityShopsModal(cityName);
 }
-
     </script>
 <div id="scroll-nav" class="scroll-nav">
   <!-- 🔥 НОВАЯ ПЛАШКА: Свернутый заказ (скрыта по умолчанию) -->

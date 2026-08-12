@@ -1139,3 +1139,23 @@ body.dark-mode .city-modal-store-card .store-address {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+/* Базовый стиль кнопки-бейджа магазина на главной */
+.badges-container .store-badge {
+    background: #f0fdf4; 
+    color: #16a34a;
+    border: 2px solid #bbf7d0;
+    transition: all 0.15s ease;
+}
+
+/* 🌟 Фиолетовый стиль, когда этот магазин ВЫБРАН (активен) */
+.badges-container .store-badge.active-selected-store {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4f46e5 !important;
+}
+
+/* Стиль при наведении */
+.badges-container .store-badge:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
