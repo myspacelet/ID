@@ -1246,3 +1246,15 @@ body.dark-mode .city-modal-select-btn.disabled {
     cursor: not-allowed !important;         /* Запрещающий курсор мыши */
     opacity: 0.6 !important;                /* Легкая прозрачность */
 }
+#results-rows-container .result-row .badges-container .store-badge.selected-active {
+    background-color: #4f46e5 !important; /* Насыщенный фиолетовый */
+    color: #ffffff !important;            /* Белый текст */
+    border: 2px solid #4338ca !important;  /* Темно-фиолетовая рамка */
+    box-shadow: 0 0 12px rgba(79, 70, 229, 0.2) !important; /* Мягкая тень */
+}
+
+/* Эффект наведения на выбранную точку в светлой теме */
+#results-rows-container .result-row .badges-container .store-badge.selected-active:hover {
+    background-color: #4338ca !important; /* Чуть темнее при наведении */
+    border-color: #3730a3 !important;
+}
