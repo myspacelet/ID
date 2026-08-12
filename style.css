@@ -1087,11 +1087,11 @@ body.dark-mode .city-modal-store-card .store-address {
 }
 
 /* Бейджи статусов (СВЕТЛАЯ ТЕМА) */
-.city-modal-badge.selected-badge { background-color: #16a34a; }
+.city-modal-badge.selected-badge { background-color: #ec0808; }
 .city-modal-badge.available-badge { background-color: #3b82f6; }
 
 /* Кнопки в модалке (СВЕТЛАЯ ТЕМА) */
-.city-modal-select-btn.selected { background-color: #16a34a; color: #ffffff; }
+.city-modal-select-btn.selected { background-color: #d3ff0c; color: #ffffff; }
 .city-modal-select-btn.available { background-color: #3b82f6; color: #ffffff; }
 
 /* 🟢 Точный магазин в светлой теме */
