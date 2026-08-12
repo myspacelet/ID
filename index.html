@@ -2116,7 +2116,7 @@ function clearSpecificProductList(index) {
         }
     }
 }
-// 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ МОДАЛКИ С ПРОВЕРКОЙ НАЛИЧИЯ ТОВАРА
+// 🔥 ФУНКЦИЯ ОТКРЫТИЯ МОДАЛКИ С ОТОБРАЖЕНИЕМ ВЫБРАННОГО МАГАЗИНА
 function openCityShopsModal(cityName) {
     let modal = document.getElementById('city-shops-modal');
     if (!modal) {
@@ -2135,7 +2135,7 @@ function openCityShopsModal(cityName) {
         if (store && store.city && store.city.trim().toLowerCase() === cleanTargetCity) {
             foundCount++;
             
-            // 🌟 УМНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРА В МАГАЗИНЕ СРЕДИ ВСЕХ СПИСКОВ
+            // 1. Проверяем наличие товара в магазине
             let totalStockInThisShop = 0;
             if (typeof activeLists !== 'undefined' && activeLists.length > 0) {
                 activeLists.forEach(item => {
@@ -2145,24 +2145,36 @@ function openCityShopsModal(cityName) {
                 });
             }
 
-            // Формируем переменные для бейджа и кнопки в зависимости от наличия товара
+            // 2. Проверяем, выбран ли текущий магазин в данный момент
+            const isCurrentlySelected = (selectedStoreCode === code);
+
             let statusBadge = '';
-            let buttonAttributes = '';
-            let buttonStyleModifier = '';
+            let buttonText = '🛒 Выбрать этот магазин для заказа';
+            let buttonStyle = '';
+            let buttonAttributes = `onclick="selectStoreFromCityModal('${code}')"`;
 
             if (totalStockInThisShop > 0) {
-                // Товар есть хотя бы в одном списке
-                statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
-                buttonAttributes = `onclick="selectStoreFromCityModal('${code}')"`;
+                if (isCurrentlySelected) {
+                    // 🌟 МАГАЗИН УЖЕ ВЫБРАН ОПЕРАТОРОМ (Зеленый стиль со скриншота)
+                    statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Выбран</span>`;
+                    buttonText = '✅ Магазин выбран (Нажмите, чтобы отменить)';
+                    buttonStyle = 'background: #16a34a; color: white;';
+                } else {
+                    // Магазин доступен, но не выбран
+                    statusBadge = `<span style="background: #3b82f6; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
+                    buttonText = '🛒 Выбрать этот магазин для заказа';
+                    buttonStyle = ''; // Использует стандартный класс из CSS
+                }
             } else {
-                // 🛑 ТОВАРА НЕТ НИ В ОДНОМ ИЗ СПИСКОВ
+                // Товара нет в наличии
                 statusBadge = `<span style="background: #ef4444; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Товара нет</span>`;
-                buttonAttributes = `disabled`; // Блокируем клик на кнопку
-                buttonStyleModifier = `background: #334155; color: #64748b; cursor: not-allowed; opacity: 0.6;`; // Делаем кнопку серой и некликабельной
+                buttonText = '❌ Магазин пуст (Выбор невозможен)';
+                buttonAttributes = `disabled`;
+                buttonStyle = 'background: #334155; color: #64748b; cursor: not-allowed; opacity: 0.6;';
             }
             
             shopsHTML += `
-                <div class="city-modal-store-card">
+                <div class="city-modal-store-card" style="${isCurrentlySelected ? 'border-color: #16a34a;' : ''}">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-weight: 700; color: #f8fafc; font-size: 14px;">🏬 Код: ${code}</span>
                         ${statusBadge}
@@ -2170,8 +2182,8 @@ function openCityShopsModal(cityName) {
                     <div style="font-size: 12px; color: #94a3b8;">
                         📍 <strong>Адрес:</strong> ${store.address || 'Адрес не указан'}
                     </div>
-                    <button class="city-modal-select-btn" ${buttonAttributes} style="${buttonStyleModifier}">
-                        🛒 Выбрать этот магазин для заказа
+                    <button class="city-modal-select-btn" ${buttonAttributes} style="${buttonStyle}">
+                        ${buttonText}
                     </button>
                 </div>
             `;
@@ -2197,16 +2209,27 @@ function openCityShopsModal(cityName) {
     modal.style.display = 'flex';
 }
 
-function closeCityShopsModal() {
-    const modal = document.getElementById('city-shops-modal');
-    if (modal) modal.style.display = 'none';
-}
-
+// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ КЛИКА: УМЕЕТ ВЫБИРАТЬ И ОТМЕНЯТЬ ВЫБОР
 function selectStoreFromCityModal(storeCode) {
-    selectedStoreCode = storeCode;
-    console.log("Оператор выбрал магазин из общего списка города:", storeCode);
-    alert(`Магазин ${storeCode} успешно выбран для выполнения логистической цепочки заказа!`);
-    closeCityShopsModal();
+    if (selectedStoreCode === storeCode) {
+        // Если оператор нажал на уже выбранный магазин — отменяем выбор
+        selectedStoreCode = null;
+        console.log("Оператор отменил выбор магазина:", storeCode);
+        alert(`Выбор магазина ${storeCode} отменен.`);
+    } else {
+        // Если выбран новый магазин — перезаписываем переменную
+        selectedStoreCode = storeCode;
+        console.log("Оператор выбрал магазин из общего списка города:", storeCode);
+        alert(`Магазин ${storeCode} успешно выбран для заказа!`);
+    }
+    
+    // Перерисовываем модалку на лету, чтобы изменения применились визуально мгновенно
+    const modalTitleElement = document.querySelector('.city-modal-header h3');
+    if (modalTitleElement) {
+        // Извлекаем имя города из текущего заголовка модалки
+        const currentCityName = modalTitleElement.innerText.replace('🏙️ Все магазины города: ', '').trim();
+        openCityShopsModal(currentCityName);
+    }
 }
 
     </script>
