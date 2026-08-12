@@ -2116,6 +2116,7 @@ function clearSpecificProductList(index) {
         }
     }
 }
+// 🔥 МОДЕРНИЗИРОВАННАЯ ФУНКЦИЯ МОДАЛКИ С УМНОЙ СОРТИРОВКОЙ
 function openCityShopsModal(cityName) {
     let modal = document.getElementById('city-shops-modal');
     if (!modal) {
@@ -2132,16 +2133,15 @@ function openCityShopsModal(cityName) {
         document.body.appendChild(modal);
     }
 
-    let shopsHTML = '';
-    let foundCount = 0;
+    let foundShops = []; // Временный массив для сбора и сортировки магазинов
     const cleanTargetCity = cityName.trim().toLowerCase();
 
+    // 1. Сначала просто собираем все магазины этого города и вычисляем их остатки
     for (let code in storeDatabase) {
         const store = storeDatabase[code];
         if (store && store.city && store.city.trim().toLowerCase() === cleanTargetCity) {
-            foundCount++;
             
-            // 1. Проверяем наличие товара в магазине
+            // Считаем суммарный остаток товара во всех списках для этой точки
             let totalStockInThisShop = 0;
             if (typeof activeLists !== 'undefined' && activeLists.length > 0) {
                 activeLists.forEach(item => {
@@ -2151,54 +2151,77 @@ function openCityShopsModal(cityName) {
                 });
             }
 
-            // 2. Проверяем, выбран ли текущий магазин
-            const isCurrentlySelected = (selectedStoreCode === code);
-
-            let statusBadge = '';
-            let buttonText = '🛒 Выбрать этот магазин для заказа';
-            let buttonStyle = '';
-            let buttonAttributes = `onclick="selectStoreFromCityModal('${code}', '${cityName.replace(/'/g, "\\'")}')"`;
-
-            if (totalStockInThisShop > 0) {
-                if (isCurrentlySelected) {
-                    statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Выбран</span>`;
-                    buttonText = '✅ Магазин выбран (Нажмите, чтобы отменить)';
-                    buttonStyle = 'background: #16a34a; color: white;';
-                } else {
-                    statusBadge = `<span style="background: #3b82f6; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
-                    buttonText = '🛒 Выбрать этот магазин для заказа';
-                    buttonStyle = '';
-                }
-            } else {
-                statusBadge = `<span style="background: #ef4444; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Товара нет</span>`;
-                buttonText = '❌ Магазин пуст (Выбор невозможен)';
-                buttonAttributes = `disabled`;
-                buttonStyle = 'background: #64748b; color: #cbd5e1; cursor: not-allowed; opacity: 0.5;';
-            }
-            
-            // Применяем семантические классы из CSS без лишнего инлайна цветов
-            shopsHTML += `
-                <div class="city-modal-store-card" style="${isCurrentlySelected ? 'border-color: #16a34a; border-width: 2px;' : ''}">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="store-title">🏬 Код: ${code}</span>
-                        ${statusBadge}
-                    </div>
-                    <div class="store-address">
-                        <strong>📍 Адрес:</strong> ${store.address || 'Адрес не указан'}
-                    </div>
-                    <button class="city-modal-select-btn" ${buttonAttributes} style="${buttonStyle}">
-                        ${buttonText}
-                    </button>
-                </div>
-            `;
+            // Закидываем объект магазина в наш массив
+            foundShops.push({
+                code: code,
+                storeData: store,
+                hasStock: totalStockInThisShop > 0, // Флаг: есть ли товар в наличии
+                totalStock: totalStockInThisShop    // Точное количество для дополнительной сортировки
+            });
         }
     }
 
-    if (foundCount === 0) {
+    // 2. 🌟 УМНАЯ СОРТИРОВКА:
+    // Сначала сравниваем по флагу наличия товара (hasStock). 
+    // Магазины с товаром (true) поднимутся наверх, без товара (false) упадут вниз.
+    // Если у обоих магазинов статус одинаковый, сортируем их по объёму остатка (от большего к меньшему).
+    foundShops.sort((a, b) => {
+        if (a.hasStock !== b.hasStock) {
+            return b.hasStock - a.hasStock; // true (1) пойдет раньше false (0)
+        }
+        return b.totalStock - a.totalStock; // вторичная сортировка по количеству штук
+    });
+
+    // 3. Генерируем HTML на основе уже отсортированного массива
+    let shopsHTML = '';
+    
+    foundShops.forEach(shop => {
+        const code = shop.code;
+        const store = shop.storeData;
+        const isCurrentlySelected = (selectedStoreCode === code);
+
+        let statusBadge = '';
+        let buttonText = '🛒 Выбрать этот магазин для заказа';
+        let buttonStyle = '';
+        let buttonAttributes = `onclick="selectStoreFromCityModal('${code}', '${cityName.replace(/'/g, "\\'")}')"`;
+
+        if (shop.hasStock) {
+            if (isCurrentlySelected) {
+                statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Выбран</span>`;
+                buttonText = '✅ Магазин выбран (Нажмите, чтобы отменить)';
+                buttonStyle = 'background: #16a34a; color: white;';
+            } else {
+                statusBadge = `<span style="background: #3b82f6; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
+                buttonText = '🛒 Выбрать этот магазин для заказа';
+                buttonStyle = '';
+            }
+        } else {
+            statusBadge = `<span style="background: #ef4444; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Товара нет</span>`;
+            buttonText = '❌ Магазин пуст (Выбор невозможен)';
+            buttonAttributes = `disabled`;
+            buttonStyle = 'background: #64748b; color: #cbd5e1; cursor: not-allowed; opacity: 0.5;';
+        }
+        
+        shopsHTML += `
+            <div class="city-modal-store-card" style="${isCurrentlySelected ? 'border-color: #16a34a; border-width: 2px;' : ''}">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="store-title">🏬 Код: ${code}</span>
+                    ${statusBadge}
+                </div>
+                <div class="store-address">
+                    <strong>📍 Адрес:</strong> ${store.address || 'Адрес не указан'}
+                </div>
+                <button class="city-modal-select-btn" ${buttonAttributes} style="${buttonStyle}">
+                    ${buttonText}
+                </button>
+            </div>
+        `;
+    });
+
+    if (foundShops.length === 0) {
         shopsHTML = `<div style="text-align:center; color:#64748b; font-size:13px; padding:20px;">Магазины для города не найдены в базе данных</div>`;
     }
 
-    // Из разметки полностью удален футер с дублирующей кнопкой закрытия
     modal.innerHTML = `
         <div class="city-modal-container">
             <div class="city-modal-header">
@@ -2212,7 +2235,6 @@ function openCityShopsModal(cityName) {
     `;
     modal.style.display = 'flex';
 }
-
 
 // 🔥 ФУНКЦИЯ ЗАКРЫТИЯ МОДАЛКИ (С Полноценным удалением флага отображения)
 function closeCityShopsModal() {
