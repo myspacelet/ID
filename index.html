@@ -1038,9 +1038,10 @@ function renderResults(storesArray, matchType) {
             badgesHtml += `<button class="store-badge ${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
         });
 
+               // 🔥 ОЧИСТИЛИ ОТ ИНЛАЙН-ЦВЕТОВ: теперь плашки ТОЧНЫЙ МАГАЗИН и СОВПАДЕНИЕ ПО ГОРОДУ управляются через CSS
         const matchLabel = group.isExact 
-            ? `<span style="font-size:10px; color:#16a34a; background:#e1f5fe; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">ТОЧНЫЙ МАГАЗИН</span>` 
-            : `<span style="font-size:10px; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700;">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
+            ? `<span class="search-match-badge exact-match-badge">ТОЧНЫЙ МАГАЗИН</span>` 
+            : `<span class="search-match-badge city-match-badge">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
 
         row.innerHTML = `
             <div class="result-city" style="display:flex; align-items:center;">
