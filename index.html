@@ -173,15 +173,99 @@
             </div>
         </div>
 
-        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ЛИСТ ОЖИДАНИЯ -->
-        <div id="modal-waiting-list" class="floating-modal">
-            <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-waiting-list')">
-                <span>⏳ Лист ожидания</span>
-                <button class="floating-modal-close" onclick="closeFloatingModal('modal-waiting-list')">×</button>
-            </div>
-            <div class="floating-modal-body">
-                <p style="color: #64748b; font-size: 13px;">Здесь будет лист ожидания... (Заглушка)</p>
-            </div>
+<!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ЛИСТ ОЖИДАНИЯ (МОДИФИКАТОР .modal-wide) -->
+<div id="modal-waiting-list" class="floating-modal modal-wide">
+    <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-waiting-list')">
+        <span class="modal-header-title">⏳ Лист ожидания</span>
+        
+        <!-- Управляющие кнопки в правом углу -->
+        <div class="modal-header-actions" onmousedown="event.stopPropagation();">
+            <button class="btn-modal-control btn-action-add" onclick="toggleWaitingForm()" title="Добавить задачу">🟣</button>
+            <button class="btn-modal-control btn-action-close" onclick="closeFloatingModal('modal-waiting-list')" title="Закрыть">🔴</button>
+        </div>
+    </div>
+    
+    <div class="floating-modal-body">
+        <div class="waiting-table-wrapper">
+            <table class="crm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">ID:</th>
+                        <th style="width: 20%;">Классификатор:</th>
+                        <th style="width: 30%;">Комментарий:</th>
+                        <th style="width: 20%;">Перезвонить:</th>
+                        <th style="width: 12%;">Оператор:</th>
+                        <th style="width: 8%;">Статус:</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- СТРОКА-ФОРМА ДЛЯ ДОБАВЛЕНИЯ НОВОЙ ЗАДАЧИ (Управляется через 🟣) -->
+                    <tr id="waiting-form-row" class="waiting-form-row">
+                        <td>
+                            <input type="text" id="new-crm-id" class="crm-input" placeholder="12345">
+                        </td>
+                        <td>
+                            <select id="new-crm-class" class="crm-select">
+                                <option value="" disabled selected hidden>Выберите...</option>
+                                <option value="1">Классификатор 1</option>
+                                <option value="2">Классификатор 2</option>
+                                <option value="3">Классификатор 3</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" id="new-crm-comment" class="crm-input" placeholder="Введите комментарий...">
+                        </td>
+                        <td>
+                            <div class="crm-datetime-container">
+                                <input type="datetime-local" id="new-crm-date" class="crm-input crm-date-input">
+                            </div>
+                        </td>
+                        <td>
+                            <!-- Автоматическое имя текущего оператора -->
+                            <span class="crm-operator-name">Александр</span>
+                        </td>
+                        <td>
+                            <button class="btn-crm-save" onclick="saveCrmRow()" title="Сохранить задачу">✔️</button>
+                        </td>
+                    </tr>
+
+                    <!-- ДИНАМИЧЕСКИЕ СТРОКИ С ЗАДАЧАМИ (ПРИМЕРЫ) -->
+                    <tr>
+                        <td class="text-bold">12344</td>
+                        <td>2</td>
+                        <td class="text-muted">Ждем доставку в магазин</td>
+                        <td>
+                            <div class="crm-date-cell">
+                                <span>17.08.2026 09:00</span>
+                                <span class="crm-icon-cal">📅</span>
+                            </div>
+                        </td>
+                        <td>Александр</td>
+                        <td>
+                            <span class="crm-status" title="В работе">В работе <span class="status-dot dot-green"></span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">12344</td>
+                        <td>2</td>
+                        <td class="text-muted">Ждем доставку в магазин</td>
+                        <td>
+                            <div class="crm-date-cell">
+                                <span>17.08.2026 09:00</span>
+                                <span class="crm-icon-cal">📅</span>
+                            </div>
+                        </td>
+                        <td>Александр</td>
+                        <td>
+                            <span class="crm-status" title="В работе">В работе <span class="status-dot dot-green"></span></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 
         <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 3: ФОРМА ОТПРАВКИ -->
         <div id="modal-send-form" class="floating-modal">
