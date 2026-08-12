@@ -1028,14 +1028,16 @@ function renderResults(storesArray, matchType) {
         const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
         const top3Stores = sortedStores.slice(0, 3);
 
-                let badgesHtml = '';
+        let badgesHtml = '';
         top3Stores.forEach(store => {
-            const exactClass = store.isExact ? 'exact-badge' : '';
+            // Класс для точного магазина
+            const exactClass = store.isExact ? ' exact-badge' : '';
             
-            // Если этот магазин уже выбран глобально — сразу вешаем на него фиолетовый класс
+            // Класс для выбранного магазина
             const isSelectedClass = (selectedStoreCode === store.code) ? ' active-selected-store' : '';
             
-            badgesHtml += `<button class="store-badge ${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
+            // 🔥 СТРОГАЯ ЗАЧИСТКА: Никаких переменных badgeStyle и никаких атрибутов style=""!
+            badgesHtml += `<button class="store-badge${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
         });
 
         // 🔥 СТИЛЬНЫЕ ПЛАШКИ: убрали инлайн-стили, перевели на гибкие CSS-классы
