@@ -2248,29 +2248,31 @@ function closeCityShopsModal() {
 
 // 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ КЛИКА: ЧИСТАЯ СИНХРОНИЗИРАЦИЯ КЛАССОВ ЧЕРЕЗ CSS
 function selectStoreFromCityModal(storeCode, cityName) {
-    // 1. Сначала сбрасываем класс выбора со ВСЕХ кнопок на главной
+    // 1. Сначала сбрасываем класс выбора абсолютно со ВСЕХ кнопок на главной странице
     document.querySelectorAll('.badges-container .store-badge').forEach(badge => {
-        badge.classList.remove('active-selected-store');
+        badge.classList.remove('selected-active');
     });
 
     if (selectedStoreCode === storeCode) {
-        // Если оператор нажал на уже выбранный магазин — отменяем выбор
+        // Если оператор нажал на уже выбранный магазин — отменяем выбор глобально
         selectedStoreCode = null;
         console.log("Оператор отменил выбор магазина:", storeCode);
     } else {
-        // Если выбран новый магазин — перезаписываем переменную
+        // Если выбран новый магазин — перезаписываем глобальную переменную
         selectedStoreCode = storeCode;
         console.log("Оператор выбрал магазин из общего списка города:", storeCode);
 
-        // 2. Находим нужную кнопку на главной и вешаем CSS-класс активного выбора
+        // 2. 🌟 СИНХРОНИЗАЦИЯ: Находим бейдж этого магазина на главной странице и зажигаем его фиолетовым
         document.querySelectorAll('.badges-container .store-badge').forEach(badge => {
-            if (badge.innerText.trim().startsWith(storeCode)) {
-                badge.classList.add('active-selected-store');
+            // Отрезаем остатки штук в скобках, чтобы сравнить чистый код (например "Армавир2 (9 шт)" -> "Армавир2")
+            const badgeText = badge.innerText.split('(')[0].trim();
+            if (badgeText === storeCode) {
+                badge.classList.add('selected-active');
             }
         });
     }
     
-    // Перерисовываем модалку города для обновления ее внутренних кнопок
+    // 3. Перерисовываем городскую модалку, чтобы её внутренние кнопки тоже обновились ("Выбран")
     openCityShopsModal(cityName);
 }
     </script>
