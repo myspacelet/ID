@@ -1113,9 +1113,9 @@ body.dark-mode .city-modal-store-card .store-address {
 
 /* 🟢 Точный магазин в тёмной теме */
 body.dark-mode .search-match-badge.exact-match-badge {
-    color: #f6f8fa !important; /* Яркий неоново-зеленый текст */
-    background-color: #e9f0e8 !important; /* Глубокий темно-зеленый фон */
-    border: 1px solid #e5dfe6 !important; /* Темно-зеленая рамка */
+    color: #da079a !important; /* Яркий неоново-зеленый текст */
+    background-color: #79ff68 !important; /* Глубокий темно-зеленый фон */
+    border: 1px solid #fc0909 !important; /* Темно-зеленая рамка */
 }
 
 /* 🔵 Совпадение по городу в тёмной теме */
