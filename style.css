@@ -1151,3 +1151,64 @@ body.dark-mode #results-rows-container .result-row .badges-container .store-badg
     background-color: #4f46e5 !important; /* Чуть темнее при наведении */
     border-color: #6366f1 !important;
 }
+/* ========================================================
+   🎨 ФИКС ЦВЕТОВ И БЕЙДЖЕЙ В ГОРОДСКОЙ МОДАЛКЕ
+   ======================================================== */
+
+/* Общие базовые стили для бейджей статуса (Доступен / Выбран / Товара нет) */
+.city-modal-badge {
+    font-size: 11px !important;
+    padding: 3px 10px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+}
+
+/* 🔵 Настройка бейджа ДОСТУПЕН в темной теме */
+body.dark-mode .city-modal-badge.available-badge {
+    background-color: #1e3a8a !important; /* Глубокий темно-синий фон подложки */
+    color: #60a5fa !important;            /* Яркий, читаемый небесно-голубой текст */
+    border: 1px solid #3b82f6 !important;  /* Аккуратная синяя рамка */
+}
+
+/* 🟢 Настройка бейджа ВЫБРАН в темной теме */
+body.dark-mode .city-modal-badge.selected-badge {
+    background-color: #064e3b !important; /* Темно-зеленый фон */
+    color: #34d399 !important;            /* Неоново-зеленый текст */
+    border: 1px solid #059669 !important;  /* Зеленая рамка */
+}
+
+/* 🔴 Настройка бейджа ТОВАРA НЕТ в темной теме (Возвращаем красивую обводку!) */
+body.dark-mode .city-modal-badge.empty-badge {
+    background-color: #451a03 !important; /* Глубокий бордово-коричневый фон */
+    color: #f87171 !important;            /* Красивый пастельно-красный текст */
+    border: 1px solid #ef4444 !important;  /* Четкая красная рамка */
+}
+
+/* ========================================================
+   🎛️ ИСПРАВЛЕНИЕ КНОПОК ДЕЙСТВИЯ В МОДАЛКЕ В ТЕМНОТЕ
+   ======================================================== */
+
+/* Активная кнопка ДОСТУПЕН */
+body.dark-mode .city-modal-select-btn.available {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+body.dark-mode .city-modal-select-btn.available:hover {
+    background-color: #2563eb !important;
+}
+
+/* Активная кнопка ВЫБРАН */
+body.dark-mode .city-modal-select-btn.selected {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+}
+
+/* 🛑 КНОПКА ДЛЯ ПУСТОГО МАГАЗИНА (Возвращаем серый неактивный цвет!) */
+body.dark-mode .city-modal-select-btn.disabled {
+    background-color: #334155 !important;  /* Серый приглушенный фон */
+    color: #64748b !important;             /* Темно-серый текст */
+    border: 1px solid #475569 !important;   /* Серая рамка */
+    cursor: not-allowed !important;         /* Запрещающий курсор мыши */
+    opacity: 0.6 !important;                /* Легкая прозрачность */
+}

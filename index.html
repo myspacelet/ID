@@ -2184,24 +2184,22 @@ function openCityShopsModal(cityName) {
 
         if (shop.hasStock) {
             if (isCurrentlySelected) {
-                // 🌟 Перевели на CSS классы, убрали инлайн-цвета
                 statusBadge = `<span class="city-modal-badge selected-badge">Выбран</span>`;
                 buttonText = '✅ Магазин выбран (Нажмите, чтобы отменить)';
                 buttonClassModifier = 'selected';
-                buttonStyle = ''; 
+                buttonAttributes = `onclick="selectStoreFromCityModal('${code}', '${cityName.replace(/'/g, "\\'")}')"`;
             } else {
                 statusBadge = `<span class="city-modal-badge available-badge">Доступен</span>`;
                 buttonText = '🛒 Выбрать этот магазин для заказа';
                 buttonClassModifier = 'available';
-                buttonStyle = ''; 
+                buttonAttributes = `onclick="selectStoreFromCityModal('${code}', '${cityName.replace(/'/g, "\\'")}')"`;
             }
         } else {
-            // Закрываем логику, если товара вообще нет
+            // Если товара нет
             statusBadge = `<span class="city-modal-badge empty-badge">Товара нет</span>`;
             buttonText = '❌ Магазин пуст (Выбор невозможен)';
-            buttonAttributes = `disabled`;
-            buttonClassModifier = 'disabled';
-            buttonStyle = '';
+            buttonClassModifier = 'disabled'; // 🌟 Применит наш серый стиль из CSS
+            buttonAttributes = `disabled`;     // Намертво заблокирует клик
         }
         // 🔥 ПОЛНАЯ ЗАЧИСТКА ОТ ИНЛАЙН-СТИЛЕЙ: рамки и цвета кнопок ушли в CSS-классы
         shopsHTML += `
