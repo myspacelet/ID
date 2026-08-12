@@ -1186,33 +1186,6 @@ body.dark-mode .city-modal-badge.empty-badge {
 }
 
 /* ========================================================
-   🎛️ ИСПРАВЛЕНИЕ КНОПОК ДЕЙСТВИЯ В МОДАЛКЕ В ТЕМНОТЕ
-   ======================================================== */
-
-/* Активная кнопка ДОСТУПЕН */
-body.dark-mode .city-modal-select-btn.available {
-    background-color: #3b82f6 !important;
-    color: #ffffff !important;
-}
-body.dark-mode .city-modal-select-btn.available:hover {
-    background-color: #2563eb !important;
-}
-
-/* Активная кнопка ВЫБРАН */
-body.dark-mode .city-modal-select-btn.selected {
-    background-color: #16a34a !important;
-    color: #ffffff !important;
-}
-
-/* 🛑 КНОПКА ДЛЯ ПУСТОГО МАГАЗИНА (Возвращаем серый неактивный цвет!) */
-body.dark-mode .city-modal-select-btn.disabled {
-    background-color: #334155 !important;  /* Серый приглушенный фон */
-    color: #64748b !important;             /* Темно-серый текст */
-    border: 1px solid #475569 !important;   /* Серая рамка */
-    cursor: not-allowed !important;         /* Запрещающий курсор мыши */
-    opacity: 0.6 !important;                /* Легкая прозрачность */
-}
-/* ========================================================
    ☀️ СТИЛИЗАЦИЯ ЭЛЕМЕНТОВ МОДАЛКИ ДЛЯ СВЕТЛОЙ ТЕМЫ
    ======================================================== */
 
@@ -1244,4 +1217,32 @@ body.dark-mode .city-modal-select-btn.disabled {
     border: 1px solid #cbd5e1 !important;   /* Серая рамка */
     cursor: not-allowed !important;         /* Запрещающий курсор */
     opacity: 0.8 !important;
+}
+
+/* ========================================================
+   🎛️ ИСПРАВЛЕНИЕ КНОПОК ДЕЙСТВИЯ В МОДАЛКЕ В ТЕМНОТЕ
+   ======================================================== */
+
+/* Активная кнопка ДОСТУПЕН */
+body.dark-mode .city-modal-select-btn.available {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+body.dark-mode .city-modal-select-btn.available:hover {
+    background-color: #2563eb !important;
+}
+
+/* Активная кнопка ВЫБРАН */
+body.dark-mode .city-modal-select-btn.selected {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+}
+
+/* 🛑 КНОПКА ДЛЯ ПУСТОГО МАГАЗИНА (Возвращаем серый неактивный цвет!) */
+body.dark-mode .city-modal-select-btn.disabled {
+    background-color: #334155 !important;  /* Серый приглушенный фон */
+    color: #64748b !important;             /* Темно-серый текст */
+    border: 1px solid #475569 !important;   /* Серая рамка */
+    cursor: not-allowed !important;         /* Запрещающий курсор мыши */
+    opacity: 0.6 !important;                /* Легкая прозрачность */
 }
