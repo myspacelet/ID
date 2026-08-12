@@ -2182,16 +2182,20 @@ function openCityShopsModal(cityName) {
         let buttonStyle = '';
         let buttonAttributes = `onclick="selectStoreFromCityModal('${code}', '${cityName.replace(/'/g, "\\'")}')"`;
 
-        if (shop.hasStock) {
+               if (shop.hasStock) {
             if (isCurrentlySelected) {
-                statusBadge = `<span style="background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Выбран</span>`;
+                // 🌟 Заменили инлайн-стили на семантические CSS-классы
+                statusBadge = `<span class="city-modal-badge selected-badge">Выбран</span>`;
                 buttonText = '✅ Магазин выбран (Нажмите, чтобы отменить)';
-                buttonStyle = 'background: #16a34a; color: white;';
+                buttonClassModifier = 'selected';
+                buttonStyle = ''; // Очистили инлайн
             } else {
-                statusBadge = `<span style="background: #3b82f6; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Доступен</span>`;
+                statusBadge = `<span class="city-modal-badge available-badge">Доступен</span>`;
                 buttonText = '🛒 Выбрать этот магазин для заказа';
-                buttonStyle = '';
+                buttonClassModifier = 'available';
+                buttonStyle = ''; // Очистили инлайн
             }
+
         } else {
             statusBadge = `<span style="background: #ef4444; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Товара нет</span>`;
             buttonText = '❌ Магазин пуст (Выбор невозможен)';

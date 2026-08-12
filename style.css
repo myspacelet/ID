@@ -1093,6 +1093,14 @@ body.dark-mode .city-modal-store-card .store-address {
     transition: all 0.2s ease;
 }
 
+/* Бейджи статусов (СВЕТЛАЯ ТЕМА) */
+.city-modal-badge.selected-badge { background-color: #16a34a; }
+.city-modal-badge.available-badge { background-color: #3b82f6; }
+
+/* Кнопки в модалке (СВЕТЛАЯ ТЕМА) */
+.city-modal-select-btn.selected { background-color: #16a34a; color: #ffffff; }
+.city-modal-select-btn.available { background-color: #3b82f6; color: #ffffff; }
+
 /* 🟢 Точный магазин в светлой теме */
 .search-match-badge.exact-match-badge {
     color: #101412; /* Насыщенный зеленый текст */
@@ -1111,16 +1119,16 @@ body.dark-mode .city-modal-store-card .store-address {
    🌗 АДАПТАЦИЯ ПЛАШЕК ДЛЯ ТЁМНОЙ ТЕМЫ (body.dark-mode)
    ======================================================== */
 
-/* 🟢 Точный магазин в тёмной теме */
+/* 🟢 Финальный красивый точный магазин в тёмной теме */
 body.dark-mode .search-match-badge.exact-match-badge {
-    color: #da079a !important; 
-    background-color: #79ff68 !important; 
-    border: 1px solid #fc0909 !important; 
+    color: #34d399 !important; /* Приятный неоново-зеленый текст */
+    background-color: #064e3b !important; /* Глубокий темно-зеленый фон */
+    border: 1px solid #047857 !important; /* Аккуратная темно-зеленая рамка */
 }
 
-/* 🔵 Совпадение по городу в тёмной теме */
+/* 🔵 Финальное красивое совпадение по городу в тёмной теме */
 body.dark-mode .search-match-badge.city-match-badge {
-    color: #f2f2f5 !important; /* Яркий неоново-синий текст */
-    background-color: #0a287c !important; /* Глубокий темно-синий фон */
-    border: 1px solid #384a7a !important; /* Темно-синяя рамка */
+    color: #60a5fa !important; /* Аккуратный небесно-синий текст */
+    background-color: #1e3a8a !important; /* Глубокий темно-синий фон */
+    border: 1px solid #1d4ed8 !important; /* Темно-синяя рамка */
 }
