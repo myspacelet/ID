@@ -290,7 +290,7 @@
 const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_JinHB8pKvvmIkIkIFRjF4A_BXnnC0rD";
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentAuthMode = 'login';
 // Функция переключения вкладок Вход / Регистрация
 function toggleAuthTab(mode) {
@@ -2315,7 +2315,7 @@ async function saveNewTaskToSupabase() {
 
     try {
         // Меняем supabase на supabaseClient, который точно работает:
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabaseClient // <- Проверь, чтобы было написано именно так!
             .from('waiting_list')
             .insert([
                 {
