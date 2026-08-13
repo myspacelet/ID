@@ -2448,7 +2448,7 @@ async function loadWaitingList() {
   <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
   <button onclick="scrollToBottom()" title="Вниз">▼</button>
 </div>
-<!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ С ФОРМОЙ ДОБАВЛЕНИЯ -->
+<!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ (ФИНАЛЬНЫЙ СТРУКТУРИРОВАННЫЙ ВАРИАНТ) -->
 <div id="modal-waiting-list" class="floating-modal">
     <div class="floating-modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -2460,7 +2460,7 @@ async function loadWaitingList() {
     </div>
     
     <div class="floating-modal-body">
-        <!-- БЛОК ФОРМЫ (Изначально скрыт через CSS) -->
+        <!-- 📑 БЛОК ФОРМЫ ДОБАВЛЕНИЯ ЗАДАЧИ -->
         <div id="wl-add-form-block" class="wl-add-form">
             <div class="wl-form-grid">
                 <div class="wl-form-group">
@@ -2471,9 +2471,9 @@ async function loadWaitingList() {
                 <div class="wl-form-group">
                     <label>Классификатор:</label>
                     <select id="wl-input-classifier">
-                        <option value="1">Категория 1</option>
-                        <option value="2">Категория 2</option>
-                        <option value="3">Категория 3</option>
+                        <option value="класс 1">класс 1</option>
+                        <option value="класс 2">класс 2</option>
+                        <option value="класс 3">класс 3</option>
                     </select>
                 </div>
 
@@ -2484,13 +2484,11 @@ async function loadWaitingList() {
 
                 <div class="wl-form-group">
                     <label>Перезвонить в:</label>
-                    <!-- Календарь с выбором даты и точного времени -->
                     <input type="datetime-local" id="wl-input-callback">
                 </div>
 
                 <div class="wl-form-group">
                     <label>Оператор:</label>
-                    <!-- Поле заблокировано для ручного ввода, имя вставит JS автоматически -->
                     <input type="text" id="wl-input-operator" readonly style="opacity: 0.6; cursor: not-allowed;">
                 </div>
             </div>
@@ -2500,28 +2498,26 @@ async function loadWaitingList() {
             </div>
         </div>
 
-        <!-- СЮДА В ДАЛЬНЕЙШЕМ ВСТАНЕТ ТАБЛИЦА -->
-        <!-- Контейнер для вывода списка задач из базы -->
-<div id="wl-table-container">
-    <table class="wl-data-table">
-        <thead>
-            <tr>
-                <th>ID задачи</th>
-                <th>Классификатор</th>
-                <th>Комментарий</th>
-                <th>Перезвонить</th>
-                <th>Оператор</th>
-                <th>Статус</th>
-            </tr>
-        </thead>
-        <tbody id="wl-table-body">
-            <!-- Сюда JavaScript будет подставлять строки из Supabase -->
-            <tr>
-                <td colspan="6" class="wl-loading-text">Загрузка данных из Supabase...</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+        <!-- 📊 ТАБЛИЦА ВЫВОДА ДАННЫХ ИЗ SUPABASE -->
+        <div id="wl-table-container">
+            <table class="wl-data-table">
+                <thead>
+                    <tr>
+                        <th>ID задачи</th>
+                        <th>Классификатор</th>
+                        <th>Комментарий</th>
+                        <th>Перезвонить</th>
+                        <th>Оператор</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="wl-table-body">
+                    <tr>
+                        <td colspan="6" class="wl-loading-text">Загрузка данных из Supabase...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
