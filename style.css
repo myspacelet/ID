@@ -477,25 +477,22 @@ body.dark-mode .btn-logout:hover {
     background: #ef4444;
     color: #ffffff;
 }
-/* Переделанный стиль для окна Листа ожидания */
+/* Обновленный и расширенный стиль для окна Листа ожидания */
 .floating-modal {
-    position: fixed !important;
-    
-    /* Принудительно выбиваем окно в центр экрана, игнорируя любые JS-расчеты */
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    
-    background: #1e293b !important;
-    border-radius: 12px !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid #334155 !important;
-    z-index: 99999 !important;
+    position: fixed;
+    background: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    border: 1px solid #334155;
+    z-index: 2000;
     display: none; /* Управляется через JS */
-    flex-direction: column !important;
-    width: 450px !important;
-    max-width: 90% !important;
-    overflow: hidden !important;
+    flex-direction: column;
+    
+    /* 🔥 ИЗМЕНЕННЫЙ БЛОК ШИРИНЫ ДЛЯ ТАБЛИЦЫ: */
+    width: 750px !important; /* Делаем окно комфортно широким под 6 колонок */
+    max-width: 95vw !important; /* На маленьких экранах не вылезет за границы */
+    
+    overflow: hidden;
     box-sizing: border-box !important;
 }
 
@@ -1428,14 +1425,22 @@ body.dark-mode .city-modal-select-btn.disabled {
 .light-theme .wl-form-group label { color: #64748b !important; }
 .light-theme .wl-form-grid input, .light-theme .wl-form-grid select { background: #ffffff !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
 
-/* Стилизация таблицы Листа ожидания */
+/* Принудительно заставляем таблицу занимать 100% ширины окна */
 .wl-data-table {
     width: 100% !important;
+    table-layout: fixed !important; /* Фиксирует колонки, чтобы они не скакали */
     border-collapse: collapse !important;
     margin-top: 10px !important;
     font-family: sans-serif !important;
     font-size: 13px !important;
 }
+
+.wl-data-table th:nth-child(1), .wl-data-table td:nth-child(1) { width: 12% !important; } -- ID
+.wl-data-table th:nth-child(2), .wl-data-table td:nth-child(2) { width: 18% !important; } -- Классификатор
+.wl-data-table th:nth-child(3), .wl-data-table td:nth-child(3) { width: 30% !important; } -- Комментарий
+.wl-data-table th:nth-child(4), .wl-data-table td:nth-child(4) { width: 18% !important; } -- Перезвонить
+.wl-data-table th:nth-child(5), .wl-data-table td:nth-child(5) { width: 12% !important; } -- Оператор
+.wl-data-table th:nth-child(6), .wl-data-table td:nth-child(6) { width: 10% !important; } -- Статус
 
 .wl-data-table th {
     background: #0f172a !important; /* Темная шапка */
