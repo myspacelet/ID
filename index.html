@@ -2285,8 +2285,14 @@ function toggleAddForm() {
     }
 }
 
-// ВСТАВЛЯЙТЕ СТРОГО СЮДА:
 async function saveNewTaskToSupabase() {
+    // 🔥 ХАК-ПЕРЕСТРАХОВКА: Если глобальный supabase поломан, 
+    // инициализируем его принудительно прямо внутри функции
+    const supabaseClient = (typeof supabase !== 'undefined' && typeof supabase.from === 'function') 
+        ? supabase 
+        : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 1. Собираем значения из полей формы
     const taskId = document.getElementById('wl-input-id').value.trim();
     const classifier = document.getElementById('wl-input-classifier').value;
     const comment = document.getElementById('wl-input-comment').value.trim();
@@ -2308,7 +2314,8 @@ async function saveNewTaskToSupabase() {
     saveBtn.disabled = true;
 
     try {
-        const { data, error } = await supabase
+        // Меняем supabase на supabaseClient, который точно работает:
+        const { data, error } = await supabaseClient
             .from('waiting_list')
             .insert([
                 {
