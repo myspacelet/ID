@@ -1427,16 +1427,13 @@ function openFloatingModal(modalId) {
     if (modal) {
         modal.style.display = 'flex';
         
-        // ⏳ ХАК ЦЕНТРИРОВАНИЯ ДЛЯ ЛИСТА ОЖИДАНИЯ
+        // Для листа ожидания очищаем JS-координаты, чтобы работал наш центрированный CSS!
         if (modalId === 'modal-waiting-list') {
-            const modalWidth = modal.offsetWidth || 450;
-            const modalHeight = modal.offsetHeight || 200;
-            
-            modal.style.left = Math.max(20, (window.innerWidth - modalWidth) / 2) + 'px';
-            modal.style.top = Math.max(20, (window.innerHeight - modalHeight) / 2) + 'px';
+            modal.style.left = '';
+            modal.style.top = '';
         }
 
-        // Если открывается наше широкое окно обработки заказа
+        // Если открывается наше широкое окно обработки заказа (оставляем без изменений)
         if (modalId === 'modal-process-order') {
             // Разрешаем адаптивному CSS (85vw) самому задать ширину без жестких JS-перезаписей!
             modal.style.width = ''; 
