@@ -499,13 +499,35 @@ body.dark-mode .btn-logout:hover {
     box-sizing: border-box !important;
 }
 
-/* Стили для шапки внутри окна */
+/* ======================================================== */
+/* ⏳ ИЗОЛИРОВАННЫЙ СТИЛЬ ДЛЯ МОДАЛЬНОГО ОКНА ЛИСТА ОЖИДАНИЯ */
+/* ======================================================== */
+
+.floating-modal {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: #1e293b !important; /* Дефолтный тёмный фон */
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid #334155 !important;
+    z-index: 99999 !important;
+    display: none; /* Управляется через JS (flex / none) */
+    flex-direction: column !important;
+    width: 450px !important;
+    max-width: 90% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Шапка модалки */
 .floating-modal-header {
     padding: 14px 16px !important;
     background: #0f172a !important;
     border-bottom: 1px solid #334155 !important;
     display: flex !important;
-    justify-content: space-between !important; /* Расталкивает заголовок и кнопку */
+    justify-content: space-between !important; /* Расталкивает заголовок влево, кнопку вправо */
     align-items: center !important;
     user-select: none !important;
     box-sizing: border-box !important;
@@ -518,40 +540,52 @@ body.dark-mode .btn-logout:hover {
     font-family: sans-serif !important;
 }
 
+/* Кнопка закрытия справа: область 24x24px, внутри кружок macOS 14px */
 .modal-close-right {
     width: 24px !important;
     height: 24px !important;
     background: none !important;
     border: none !important;
-    font-size: 20px !important; /* Размер самого крестика */
-    line-height: 1 !important;
-    color: #94a3b8 !important;
     cursor: pointer !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 !important;
-    transition: color 0.15s ease !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
 }
 
-.modal-close-right:hover {
-    color: #f1f5f9 !important; /* Высветление при наведении */
-}
-
-/* Красная кнопка в стиле macOS */
-.mac-btn-close {
+/* Красный кружок macOS внутри области 24px */
+.modal-close-right::after {
+    content: '' !important;
     width: 14px !important;
     height: 14px !important;
     background-color: #ff5f56 !important;
     border: 1px solid #e0443e !important;
     border-radius: 50% !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
+    transition: background-color 0.15s ease !important;
+    display: block !important;
 }
-.mac-btn-close:hover { 
-    background-color: #ff7c75 !important; 
+
+/* Высветление кружка при наведении */
+.modal-close-right:hover::after {
+    background-color: #ff7c75 !important;
+}
+
+/* Появление крестика внутри кружка при наведении (как на Mac) */
+.modal-close-right:hover::before {
+    content: '×' !important;
+    position: absolute !important;
+    z-index: 2 !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    color: #4c0000 !important;
+    font-weight: bold !important;
+    font-family: sans-serif !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -51%) !important;
 }
 
 /* Тело модалки */
@@ -562,11 +596,19 @@ body.dark-mode .btn-logout:hover {
     box-sizing: border-box !important;
 }
 
-/* Поддержка светлой темы (если у вас меняется класс на body) */
-.light-theme .floating-modal { background: #ffffff; border-color: #e2e8f0; }
-.light-theme .floating-modal-header { background: #f8fafc; border-color: #e2e8f0; }
-.light-theme .floating-modal-header span { color: #0f172a; }
-.light-theme .floating-modal-body { background: #ffffff; }
+.modal-placeholder-text {
+    color: #94a3b8 !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    margin: 0 !important;
+}
+
+/* ☀️ ПОДДЕРЖКА СВЕТЛОЙ ТЕМЫ */
+.light-theme .floating-modal { background: #ffffff !important; border-color: #e2e8f0 !important; }
+.light-theme .floating-modal-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.light-theme .floating-modal-header span { color: #0f172a !important; }
+.light-theme .floating-modal-body { background: #ffffff !important; }
+.light-theme .modal-placeholder-text { color: #64748b !important; }
 
 /* Новая панель управления сложной логикой заказа */
 .order-management-panel {
