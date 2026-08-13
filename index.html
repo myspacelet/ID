@@ -1410,9 +1410,10 @@ let topModalZIndex = 2000;
 function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.style.display = 'flex';
+        // 🔥 Переключаем отображение с наивысшим инлайн-приоритетом:
+        modal.style.setProperty('display', 'flex', 'important');
         
-        // Автоматический триггер: если открыли Лист ожидания — сразу запрашиваем данные из базы
+        // Автоматический триггер загрузки данных для Листа ожидания
         if (modalId === 'modal-waiting-list') {
             if (typeof loadWaitingList === 'function') {
                 loadWaitingList();
@@ -1421,8 +1422,6 @@ function openFloatingModal(modalId) {
         
         // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
         if (!modal.style.left || modal.style.left === "35%") {
-            
-            // Если открывается лист ожидания — даем приоритет нашему новому CSS!
             if (modalId === "modal-waiting-list") {
                 modal.style.width = ""; 
             }
@@ -1430,11 +1429,9 @@ function openFloatingModal(modalId) {
             const modalWidth = modalId === "modal-waiting-list" ? 850 : (modal.offsetWidth || 450);
             const modalHeight = modal.offsetHeight || 300;
             
-            // 1. Расчет центра по горизонтали
             const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
             modal.style.left = startLeft + "px";
             
-            // 2. Расчет позиции по вертикали
             if (modalId === 'modal-process-order') {
                 modal.style.top = '40px'; 
                 modal.style.width = '';  
@@ -1443,7 +1440,7 @@ function openFloatingModal(modalId) {
                 modal.style.top = startTop + "px";
             }
         }
-   
+        
         if (typeof focusModal === 'function') {
             focusModal(modal);
         }
@@ -1454,32 +1451,25 @@ function openFloatingModal(modalId) {
 function closeFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.style.display = 'none';
+        // 🔥 Жестко выключаем отображение обратно в скрытое состояние:
+        modal.style.setProperty('display', 'none', 'important');
         
-        // 🎯 ГИГИЕНА ИНТЕРФЕЙСА: Если окно закрыли на крестик, окончательно уничтожаем свернутую плашку
+        // Твоя стандартная гигиена интерфейса для окна заказов
         if (modalId === 'modal-process-order') {
             const minBtn = document.getElementById('btn-minimized-order');
             if (minBtn) minBtn.style.display = 'none';
 
-            // 🔥 ПРИНУДИТЕЛЬНО СТИРАЕМ ВСЕ ДАННЫЕ ИЗ ПОЛЕЙ, ЧТОБЫ НИЧЕГО НЕ КЭШИРОВАЛОСЬ:
             const inputsToClear = [
-                'script-client-name',
-                'script-delivery-address',
-                'script-rec-fio',
-                'script-rec-phone',
-                'script-deliv-price',
-                'script-deliv-days',
-                'script-deliv-date'
+                'script-client-name', 'script-delivery-address', 'script-rec-fio',
+                'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 'script-deliv-date'
             ];
-            
             inputsToClear.forEach(id => {
                 const inputElement = document.getElementById(id);
-                if (inputElement) inputElement.value = ''; // Зануляем текст в DOM
+                if (inputElement) inputElement.value = '';
             });
         }
     }
 }
-
 
 // 🔥 ФУНКЦИЯ СВЕРНУТЬ ОКНО В ПЛАШКУ 📋
 function minimizeOrderModal() {
