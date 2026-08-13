@@ -2266,7 +2266,11 @@ function selectStoreFromCityModal(storeCode, cityName) {
 function toggleWaitingModal(show) {
     const overlay = document.getElementById('wl-modal-overlay');
     if (overlay) {
-        overlay.style.display = show ? 'flex' : 'none';
+        if (show) {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
     }
 }
 

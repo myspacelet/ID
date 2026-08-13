@@ -1258,7 +1258,7 @@ body.dark-mode .city-modal-select-btn.disabled {
     background-color: #4338ca !important; /* Чуть темнее при наведении */
     border-color: #3730a3 !important;
 }
-/* Полностью изолированный оверлей */
+/* Исправленный и 100% безопасный оверлей */
 .wl-modal-overlay {
     position: fixed !important;
     top: 0 !important;
@@ -1267,13 +1267,25 @@ body.dark-mode .city-modal-select-btn.disabled {
     height: 100vh !important;
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(4px) !important;
-    display: none; /* Переключается через JS на flex */
+    
+    /* Вместо display: none/flex используем это, чтобы блок не ломал общую сетку: */
+    opacity: 0 !important;
+    pointer-events: none !important; 
+    
+    display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    z-index: 999999 !important; /* Поверх абсолютно всего */
+    z-index: 999999 !important;
+    transition: opacity 0.2s ease !important; /* Бонус: окно будет появляться плавно */
 }
 
-/* Контейнер окна */
+/* Этот класс будет добавляться через JS для показа окна */
+.wl-modal-overlay.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Контейнер окна (без изменений, просто для проверки) */
 .wl-fixed-modal {
     width: 450px !important;
     max-width: 90% !important;
@@ -1285,55 +1297,3 @@ body.dark-mode .city-modal-select-btn.disabled {
     display: flex !important;
     flex-direction: column !important;
 }
-
-/* Шапка окна */
-.wl-fixed-modal-header {
-    padding: 14px 16px !important;
-    background: #0f172a !important;
-    border-bottom: 1px solid #334155 !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    user-select: none !important;
-}
-
-.wl-fixed-modal-title {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #f1f5f9 !important;
-    font-family: sans-serif !important;
-}
-
-/* Кнопка закрытия macOS */
-.wl-mac-btn-close {
-    width: 14px !important;
-    height: 14px !important;
-    background-color: #ff5f56 !important;
-    border: 1px solid #e0443e !important;
-    border-radius: 50% !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    position: relative !important;
-}
-.wl-mac-btn-close:hover { background-color: #ff7c75 !important; }
-
-/* Тело модалки */
-.wl-fixed-modal-body {
-    padding: 20px !important;
-    background: #1e293b !important;
-    min-height: 120px !important;
-}
-.wl-modal-placeholder-text {
-    color: #94a3b8 !important;
-    font-size: 14px !important;
-    text-align: center !important;
-    margin: 0 !important;
-    font-family: sans-serif !important;
-}
-
-/* Поддержка светлой темы */
-.light-theme .wl-fixed-modal { background: #ffffff !important; border-color: #e2e8f0 !important; }
-.light-theme .wl-fixed-modal-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
-.light-theme .wl-fixed-modal-title { color: #0f172a !important; }
-.light-theme .wl-fixed-modal-body { background: #ffffff !important; }
-.light-theme .wl-modal-placeholder-text { color: #64748b !important; }
