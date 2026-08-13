@@ -1406,25 +1406,29 @@ let modalXOffset = 0;
 let modalYOffset = 0;
 let topModalZIndex = 2000;
 
+// Открытие любого окна с автоматическим расчетом геометрии под экран
 function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
         
-        // Очищаем ручные координаты для листа ожидания, чтобы работал центрированный CSS
-        if (modalId === 'modal-waiting-list') {
-            modal.style.left = '';
-            modal.style.top = '';
-        }
-
-        // Логика для широкого окна обработки заказа (остаётся родной, не трогаем)
-        if (modalId === 'modal-process-order') {
-            modal.style.width = ''; 
-            if (!modal.style.left || modal.style.left === '35%') {
-                const modalWidth = modal.offsetWidth;
-                const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
-                modal.style.left = startLeft + 'px';
-                modal.style.top = '40px';
+        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
+        if (!modal.style.left || modal.style.left === '35%') {
+            const modalWidth = modal.offsetWidth || 450;
+            const modalHeight = modal.offsetHeight || 300;
+            
+            // Центрируем по горизонтали
+            const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
+            modal.style.left = startLeft + 'px';
+            
+            // Задаем комфортный отступ сверху (для листа ожидания пониже, для формы повыше)
+            if (modalId === 'modal-process-order') {
+                modal.style.top = '40px'; 
+                modal.style.width = ''; // Разрешаем адаптивному CSS управлять шириной заказа
+            } else {
+                // Для Листа ожидания и других окон — аккуратно по вертикальному центру
+                const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
+                modal.style.top = startTop + 'px';
             }
         }
         
@@ -2281,11 +2285,12 @@ function selectStoreFromCityModal(storeCode, cityName) {
 <!-- Изолированное окно Листа ожидания в самом низу сайта -->
 <div id="modal-waiting-list" class="floating-modal">
     <div class="floating-modal-header">
-        <button class="mac-btn-close" onclick="closeFloatingModal('modal-waiting-list')"></button>
         <span>⏳ Лист ожидания</span>
+        <!-- Кнопка закрытия 24x24px справа -->
+        <button class="modal-close-right" onclick="closeFloatingModal('modal-waiting-list')">×</button>
     </div>
     <div class="floating-modal-body">
-        <p class="modal-placeholder-text">Здесь будет лист ожидания... (Заглушка)</p>
+        <p class="modal-placeholder-text">Здесь будет лист ожидания...</p>
     </div>
 </div>
 </body>
