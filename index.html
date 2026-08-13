@@ -78,7 +78,7 @@
                     <!-- 🛠️ ПАНЕЛЬ УПРАВЛЕНИЯ ЗАКАЗОМ -->
         <div class="order-management-panel">
             <button onclick="buildOrderProcessingModal()" class="btn-order-action">⚙️ Обработать заказ</button>
-            <button onclick="openFloatingModal('modal-waiting-list')" class="btn-order-action">⏳ Лист ожидания</button>
+            <button onclick="toggleWaitingModal(true)" class="btn-order-action">⏳ Лист ожидания</button>
             <button onclick="openFloatingModal('modal-send-form')" class="btn-order-action">✉️ Форма отправки</button>
         </div>
 
@@ -172,16 +172,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ЛИСТ ОЖИДАНИЯ -->
-        <div id="modal-waiting-list" class="floating-modal">
-            <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-waiting-list')">
-                <span>⏳ Лист ожидания</span>
-                <button class="floating-modal-close" onclick="closeFloatingModal('modal-waiting-list')">×</button>
-            </div>
-            <div class="floating-modal-body">
-                <p style="color: #64748b; font-size: 13px;">Здесь будет лист ожидания... (Заглушка)</p>
-            </div>
 
         <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 3: ФОРМА ОТПРАВКИ -->
         <div id="modal-send-form" class="floating-modal">
@@ -2273,6 +2263,18 @@ function selectStoreFromCityModal(storeCode, cityName) {
     // 3. Перерисовываем городскую модалку, чтобы её внутренние кнопки тоже обновились ("Выбран")
     openCityShopsModal(cityName);
 }
+function toggleWaitingModal(show) {
+    const overlay = document.getElementById('wl-modal-overlay');
+    if (overlay) {
+        overlay.style.display = show ? 'flex' : 'none';
+    }
+}
+
+function closeWaitingModalByOverlay(event) {
+    if (event.target.id === 'wl-modal-overlay') {
+        toggleWaitingModal(false);
+    }
+}
     </script>
 <div id="scroll-nav" class="scroll-nav">
   <!-- 🔥 НОВАЯ ПЛАШКА: Свернутый заказ (скрыта по умолчанию) -->
@@ -2281,6 +2283,19 @@ function selectStoreFromCityModal(storeCode, cityName) {
   <button onclick="scrollToTop()" title="Наверх">▲</button>
   <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
   <button onclick="scrollToBottom()" title="Вниз">▼</button>
+</div>
+<!-- Изолированное модальное окно: Лист ожидания -->
+<div id="wl-modal-overlay" class="wl-modal-overlay" onclick="closeWaitingModalByOverlay(event)">
+    <div class="wl-fixed-modal">
+        <div class="wl-fixed-modal-header">
+            <button class="wl-mac-btn-close" onclick="toggleWaitingModal(false)"></button>
+            <span class="wl-fixed-modal-title">⏳ Лист ожидания</span>
+            <div style="width: 14px;"></div> 
+        </div>
+        <div class="wl-fixed-modal-body">
+            <p class="wl-modal-placeholder-text">Здесь будет лист ожидания... (Заглушка)</p>
+        </div>
+    </div>
 </div>
 </body>
 </html>
