@@ -2293,6 +2293,18 @@ function toggleAddForm() {
     formBlock.classList.toggle('active');
     
     if (formBlock.classList.contains('active')) {
+        // 🔥 Если форму открыли кнопкой "Добавить" — принудительно сбрасываем её в режим создания задачи
+        const saveBtn = document.querySelector('.wl-btn-save');
+        if (saveBtn && saveBtn.innerText === 'Обновить задачу') {
+            document.getElementById('wl-input-id').value = '';
+            document.getElementById('wl-input-id').readOnly = false;
+            document.getElementById('wl-input-id').style.opacity = '1';
+            document.getElementById('wl-input-comment').value = '';
+            document.getElementById('wl-input-callback').value = '';
+            saveBtn.innerText = 'Сохранить задачу';
+            saveBtn.setAttribute('onclick', 'saveNewTaskToSupabase()');
+            saveBtn.style.background = '#2563eb';
+        }
         autoFillFormDetails();
     }
 }
@@ -2420,18 +2432,30 @@ async function loadWaitingList() {
         tbody.innerHTML = '';
         
         data.forEach(task => {
-            // Форматируем дату перезвона в красивый человеческий вид (ДД.ММ.ГГГГ ЧЧ:ММ)
             const dateObj = new Date(task.callback_at);
             const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
             const row = document.createElement('tr');
+            
+            // 🔥 ДОБАВЛЯЕМ: Делаем всю строчку кликабельной, кроме иконки статуса
+            row.style.cursor = 'pointer';
+            // Экранируем спецсимволы в комментарии, чтобы JS не сломался
+            const cleanComment = (task.comment || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+            
+            row.onclick = function(e) {
+                // Если кликнули не на статус, то открываем режим редактирования
+                if (!e.target.classList.contains('wl-status-cell')) {
+                    editTaskInForm(task.id, task.classifier, cleanComment, task.callback_at);
+                }
+            };
+
             row.innerHTML = `
-                <td style="font-weight: bold; color: #3b82f6; cursor: pointer;">${task.id}</td>
+                <td style="font-weight: bold; color: #3b82f6;">${task.id}</td>
                 <td><span class="wl-badge">${task.classifier}</span></td>
-                <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${task.comment || ''}">${task.comment || '-'}</td>
+                <td style="line-height: 1.4; word-break: break-word;">${task.comment || '-'}</td>
                 <td>${formattedDate}</td>
                 <td>${task.operator_name}</td>
-                <td><span style="color: #10b981; font-weight: 600;">● ${task.status}</span></td>
+                <td class="wl-status-cell"><span style="color: #10b981; font-weight: 600;">● ${task.status}</span></td>
             `;
             tbody.appendChild(row);
         });
@@ -2439,6 +2463,111 @@ async function loadWaitingList() {
     } catch (err) {
         console.error('Ошибка загрузки Листа ожидания:', err);
         tbody.innerHTML = `<tr><td colspan="6" class="wl-loading-text" style="color: #ef4444;">❌ Ошибка загрузки: ${err.message}</td></tr>`;
+    }
+}
+// Функция перевода формы в режим редактирования существующей задачи
+function editTaskInForm(id, classifier, comment, callbackAt) {
+    const formBlock = document.getElementById('wl-add-form-block');
+    if (!formBlock) return;
+
+    // 1. Принудительно открываем форму, если она была закрыта
+    formBlock.classList.add('active');
+
+    // 2. Раскладываем данные по инпутам
+    const idInput = document.getElementById('wl-input-id');
+    idInput.value = id;
+    idInput.readOnly = true; // Запрещаем менять ID при редактировании!
+    idInput.style.opacity = '0.6';
+
+    document.getElementById('wl-input-classifier').value = classifier;
+    document.getElementById('wl-input-comment').value = comment;
+    
+    // Форматируем дату из базы (ISO) под формат инпута календаря (ГГГГ-ММ-ДДТЧЧ:ММ)
+    if (callbackAt) {
+        const localDate = new Date(callbackAt);
+        const tzOffset = localDate.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(localDate - tzOffset)).toISOString().slice(0, 16);
+        document.getElementById('wl-input-callback').value = localISOTime;
+    }
+
+    // Автоматически подтягиваем имя текущего оператора, кто правит
+    if (typeof autoFillFormDetails === 'function') {
+        autoFillFormDetails();
+    }
+
+    // 3. Переобуваем кнопку сохранения: меняем текст и вешаем функцию UPDATE
+    const saveBtn = document.querySelector('.wl-btn-save');
+    if (saveBtn) {
+        saveBtn.innerText = 'Обновить задачу';
+        saveBtn.setAttribute('onclick', 'updateTaskInSupabase()');
+        saveBtn.style.background = '#10b981'; // Красим в зеленый для визуала правки
+    }
+}
+// Функция отправки измененных данных в базу через UPDATE
+async function updateTaskInSupabase() {
+    const taskId = document.getElementById('wl-input-id').value;
+    const classifier = document.getElementById('wl-input-classifier').value;
+    const comment = document.getElementById('wl-input-comment').value.trim();
+    const callbackAt = document.getElementById('wl-input-callback').value;
+    const operatorName = document.getElementById('wl-input-operator').value;
+
+    if (!callbackAt) {
+        alert('⚠️ Пожалуйста, укажите дату и время перезвона!');
+        return;
+    }
+
+    const saveBtn = document.querySelector('.wl-btn-save');
+    saveBtn.innerText = 'Обновление...';
+    saveBtn.disabled = true;
+
+    try {
+        // Шлём запрос на изменение строки по её первичному ключу ID
+        const { error } = await supabaseClient
+            .from('waiting_list')
+            .update({
+                classifier: classifier,
+                comment: comment || null,
+                callback_at: callbackAt,
+                operator_name: operatorName // Фиксируем, кто последний внес правки
+            })
+            .eq('id', parseInt(taskId, 10));
+
+        if (error) throw error;
+
+        alert('🔄 Задача успешно обновлена!');
+        
+        // Сбрасываем форму в дефолтное состояние создания новой задачи
+        resetWlFormToDefault();
+
+    } catch (err) {
+        console.error('Ошибка обновления задачи:', err);
+        alert('❌ Не удалось обновить задачу: ' + err.message);
+    } finally {
+        saveBtn.disabled = false;
+    }
+}
+
+// Вспомогательная функция очистки и возврата формы к созданию задач
+function resetWlFormToDefault() {
+    document.getElementById('wl-input-id').value = '';
+    document.getElementById('wl-input-id').readOnly = false;
+    document.getElementById('wl-input-id').style.opacity = '1';
+    document.getElementById('wl-input-comment').value = '';
+    document.getElementById('wl-input-callback').value = '';
+    
+    const formBlock = document.getElementById('wl-add-form-block');
+    if (formBlock) formBlock.classList.remove('active');
+
+    const saveBtn = document.querySelector('.wl-btn-save');
+    if (saveBtn) {
+        saveBtn.innerText = 'Сохранить задачу';
+        saveBtn.setAttribute('onclick', 'saveNewTaskToSupabase()');
+        saveBtn.style.background = '#2563eb'; // Возвращаем синий цвет
+    }
+
+    // Перезагружаем таблицу, чтобы увидеть новые данные
+    if (typeof loadWaitingList === 'function') {
+        loadWaitingList();
     }
 }
 
