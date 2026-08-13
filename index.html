@@ -1411,32 +1411,34 @@ function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
-
-            if (modalId === 'modal-waiting-list') {
-            loadWaitingList();
+        
+        // Автоматический триггер: если открыли Лист ожидания — сразу запрашиваем данные из базы
+        if (modalId === 'modal-waiting-list') {
+            if (typeof loadWaitingList === 'function') {
+                loadWaitingList();
+            }
         }
         
+        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
         if (!modal.style.left || modal.style.left === "35%") {
-        // Если открывается лист ожидания — закладываем 750px, для остальных — дефолтные 450px
-        const defaultWidth = (modalId === "modal-waiting-list") ? 750 : 450;
-        
-        const modalWidth = modal.offsetWidth || defaultWidth;
-        const modalHeight = modal.offsetHeight || 300;
-        const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
-        modal.style.left = startLeft + "px";
-        
-        // Сразу центрируем и по вертикали, чтобы окно не прижималось к верху
-        const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
-        modal.style.top = startTop + "px";
+            // Если открывается лист ожидания — закладываем 750px, для остальных окон — дефолтные 450px
+            const defaultWidth = (modalId === "modal-waiting-list") ? 750 : 450;
             
-            // Задаем комфортный отступ сверху (для листа ожидания пониже, для формы повыше)
+            const modalWidth = modal.offsetWidth || defaultWidth;
+            const modalHeight = modal.offsetHeight || 300;
+            
+            // 1. Расчет центра по горизонтали (для всех окон одинаково)
+            const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
+            modal.style.left = startLeft + "px";
+            
+            // 2. Расчет позиции по вертикали (разделяем окна)
             if (modalId === 'modal-process-order') {
-                modal.style.top = '40px'; 
-                modal.style.width = ''; // Разрешаем адаптивному CSS управлять шириной заказа
+                modal.style.top = '40px'; // Комфортный стартовый отступ сверху для окна заказа
+                modal.style.width = '';  // Разрешаем адаптивному CSS управлять шириной заказа
             } else {
-                // Для Листа ожидания и других окон — аккуратно по вертикальному центру
+                // Для Листа ожидания и других окон — высчитываем идеальный вертикальный центр
                 const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
-                modal.style.top = startTop + 'px';
+                modal.style.top = startTop + "px";
             }
         }
         
