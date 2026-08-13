@@ -2367,19 +2367,18 @@ async function saveNewTaskToSupabase() {
     saveBtn.disabled = true;
 
     try {
-        // Меняем supabase на supabaseClient, который точно работает:
         const { data, error } = await supabaseClient
             .from('waiting_list')
             .insert([
                 {
-            id: parseInt(taskId, 10),
-            classifier: classifier,
-            comment: comment || null,
-            callback_at: callbackAt, // Передаем напрямую чистую строку даты из инпута
-            operator_name: operatorName,
-            status: 'В работе'
-        }
-    ]);
+                    id: parseInt(taskId, 10),
+                    classifier: classifier,
+                    comment: comment || null,
+                    callback_at: callbackAt, 
+                    operator_name: operatorName,
+                    status: 'В работе'
+                }
+            ]);
 
         if (error) {
             if (error.code === '23505') {
@@ -2388,13 +2387,23 @@ async function saveNewTaskToSupabase() {
             throw error;
         }
 
+        // 1. Уведомляем об успехе (можно закомментировать alert, если он раздражает оператора)
         alert('🎉 Задача успешно сохранена в Лист ожидания!');
         
-        document.getElementById('wl-input-id').value = '';
-        document.getElementById('wl-input-comment').value = '';
-        document.getElementById('wl-input-callback').value = '';
+        // 2. Наводим идеальную чистоту в полях
+        if (typeof resetWlFormInputsOnly === 'function') {
+            resetWlFormInputsOnly();
+        }
         
-        toggleAddForm();
+        // 3. Прячем форму добавления обратно
+        const formBlock = document.getElementById('wl-add-form-block');
+        if (formBlock) formBlock.classList.remove('active');
+
+        // 🔥 4. ЖЕЛЕЗОБЕТОННОЕ ОБНОВЛЕНИЕ ТАБЛИЦЫ «НА ЛЕТУ»
+        // Вызываем чтение из базы с приставкой await, чтобы дождаться отрисовки новых данных
+        if (typeof loadWaitingList === 'function') {
+            await loadWaitingList(); 
+        }
 
     } catch (err) {
         console.error('Ошибка Supabase:', err);
