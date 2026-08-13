@@ -1416,14 +1416,18 @@ function openFloatingModal(modalId) {
             loadWaitingList();
         }
         
-        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
-        if (!modal.style.left || modal.style.left === '35%') {
-            const modalWidth = modal.offsetWidth || 450;
-            const modalHeight = modal.offsetHeight || 300;
-            
-            // Центрируем по горизонтали
-            const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
-            modal.style.left = startLeft + 'px';
+        if (!modal.style.left || modal.style.left === "35%") {
+        // Если открывается лист ожидания — закладываем 750px, для остальных — дефолтные 450px
+        const defaultWidth = (modalId === "modal-waiting-list") ? 750 : 450;
+        
+        const modalWidth = modal.offsetWidth || defaultWidth;
+        const modalHeight = modal.offsetHeight || 300;
+        const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
+        modal.style.left = startLeft + "px";
+        
+        // Сразу центрируем и по вертикали, чтобы окно не прижималось к верху
+        const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
+        modal.style.top = startTop + "px";
             
             // Задаем комфортный отступ сверху (для листа ожидания пониже, для формы повыше)
             if (modalId === 'modal-process-order') {
