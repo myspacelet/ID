@@ -1465,6 +1465,20 @@ body.dark-mode .city-modal-select-btn.disabled {
     padding: 20px !important;
 }
 
+/* Разрешаем ячейке комментария переносить длинный текст на новые строки */
+.wl-data-table td:nth-child(3) {
+    max-width: 250px !important;    /* Комфортная максимальная ширина для текста */
+    white-space: normal !important;  /* Принудительно разрешаем перенос строк */
+    word-wrap: break-word !important; /* Переносит длинные слова (типа ммммм) */
+    word-break: break-word !important; /* Подстраховка для старых браузеров */
+    line-height: 1.4 !important;    /* Делаем текст читаемым, если он станет многострочным */
+}
+
+/* Принудительно выравниваем все остальные колонки, чтобы они не сжимались */
+.wl-data-table th:nth-child(3) {
+    text-align: left !important;
+}
+
 #modal-waiting-list {
     width: 850px !important;
     max-width: 95vw !important;
