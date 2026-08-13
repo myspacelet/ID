@@ -1268,8 +1268,9 @@ body.dark-mode .city-modal-select-btn.disabled {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(4px) !important;
     
-    /* Изначально полностью выключаем блок из верстки */
+    /* Ультимативная изоляция: */
     display: none !important; 
+    visibility: hidden !important;
     
     justify-content: center !important;
     align-items: center !important;
@@ -1279,6 +1280,7 @@ body.dark-mode .city-modal-select-btn.disabled {
 /* Класс, который делает окно видимым */
 .wl-modal-overlay.active {
     display: flex !important;
+    visibility: visible !important;
 }
 
 /* Контейнер самого окна */
