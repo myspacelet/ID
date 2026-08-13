@@ -2582,18 +2582,11 @@ function resetWlFormToDefault() {
 </div>
 <!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ С ИДЕАЛЬНОЙ СТРУКТУРОЙ -->
 <div id="modal-waiting-list" class="floating-modal">
-        <div class="floating-modal-header">
-        <!-- Заголовок теперь гордо стоит один слева -->
-        <span>⏳ Лист ожидания</span>
-        
-        <!-- Правый блок управления окном -->
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <!-- Синяя точка добавления переехала сюда -->
+    <div class="floating-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
             <button class="modal-btn-blue" onclick="toggleAddForm()" title="Добавить задачу"></button>
-            <!-- Твоя стандартная кнопка закрытия -->
-            <button class="modal-close-right" onclick="closeFloatingModal('modal-waiting-list')"></button>
+            <span>⏳ Лист ожидания</span>
         </div>
-    </div>
         <button class="modal-close-right" onclick="closeFloatingModal('modal-waiting-list')"></button>
     </div>
     
