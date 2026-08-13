@@ -173,20 +173,6 @@
             </div>
         </div>
 
-        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ЛИСТ ОЖИДАНИЯ -->
-<div id="modal-waiting-list" class="floating-modal">
-    <div class="floating-modal-header">
-        <!-- Наша круглая кнопка закрытия -->
-        <button class="mac-btn-close" onclick="closeFloatingModal('modal-waiting-list')"></button>
-        <span>⏳ Лист ожидания</span>
-        <!-- Пустой блок для баланса и центрирования заголовка -->
-        <div style="width: 14px;"></div> 
-    </div>
-    <div class="floating-modal-body">
-        <p style="color: #64748b; font-size: 14px; text-align: center; margin: 0;">Здесь будет лист ожидания... (Заглушка)</p>
-    </div>
-</div>
-
         <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 3: ФОРМА ОТПРАВКИ -->
         <div id="modal-send-form" class="floating-modal">
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-send-form')">
@@ -1421,29 +1407,25 @@ let modalXOffset = 0;
 let modalYOffset = 0;
 let topModalZIndex = 2000;
 
-// Открытие окна с автоматическим расчетом геометрии под экран пользователя
 function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
         
-        // Для листа ожидания очищаем JS-координаты, чтобы работал наш центрированный CSS!
+        // Очищаем ручные координаты для листа ожидания, чтобы работал центрированный CSS
         if (modalId === 'modal-waiting-list') {
             modal.style.left = '';
             modal.style.top = '';
         }
 
-        // Если открывается наше широкое окно обработки заказа (оставляем без изменений)
+        // Логика для широкого окна обработки заказа (остаётся родной, не трогаем)
         if (modalId === 'modal-process-order') {
-            // Разрешаем адаптивному CSS (85vw) самому задать ширину без жестких JS-перезаписей!
             modal.style.width = ''; 
-            
-            // Если окно открывается впервые и оператор еще не таскал его мышкой
             if (!modal.style.left || modal.style.left === '35%') {
                 const modalWidth = modal.offsetWidth;
                 const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
                 modal.style.left = startLeft + 'px';
-                modal.style.top = '40px'; // Комфортный стартовый отступ сверху
+                modal.style.top = '40px';
             }
         }
         
@@ -2296,6 +2278,16 @@ function selectStoreFromCityModal(storeCode, cityName) {
   <button onclick="scrollToTop()" title="Наверх">▲</button>
   <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
   <button onclick="scrollToBottom()" title="Вниз">▼</button>
+</div>
+<!-- Изолированное окно Листа ожидания в самом низу сайта -->
+<div id="modal-waiting-list" class="floating-modal">
+    <div class="floating-modal-header">
+        <button class="mac-btn-close" onclick="closeFloatingModal('modal-waiting-list')"></button>
+        <span>⏳ Лист ожидания</span>
+    </div>
+    <div class="floating-modal-body">
+        <p class="modal-placeholder-text">Здесь будет лист ожидания... (Заглушка)</p>
+    </div>
 </div>
 </body>
 </html>
