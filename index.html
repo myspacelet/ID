@@ -2421,20 +2421,19 @@ async function loadWaitingList() {
         // Очищаем строку загрузки и наполняем таблицу живыми данными
         tbody.innerHTML = '';
         
-        data.forEach(task => {
+                data.forEach(task => {
             const dateObj = new Date(task.callback_at);
             const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
             const row = document.createElement('tr');
-            
-            // 🔥 ДОБАВЛЯЕМ: Делаем всю строчку кликабельной, кроме иконки статуса
             row.style.cursor = 'pointer';
-            // Экранируем спецсимволы в комментарии, чтобы JS не сломался
+            
             const cleanComment = (task.comment || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
             
+            // Клик по всей строке открывает редактирование
             row.onclick = function(e) {
-                // Если кликнули не на статус, то открываем режим редактирования
-                if (!e.target.classList.contains('wl-status-cell')) {
+                // Но если кликнули именно по статусу или внутри него — редактирование НЕ открываем
+                if (!e.target.classList.contains('wl-status-cell') && !e.target.closest('.wl-status-cell')) {
                     editTaskInForm(task.id, task.classifier, cleanComment, task.callback_at);
                 }
             };
@@ -2445,7 +2444,10 @@ async function loadWaitingList() {
                 <td style="line-height: 1.4; word-break: break-word;">${task.comment || '-'}</td>
                 <td>${formattedDate}</td>
                 <td>${task.operator_name}</td>
-                <td class="wl-status-cell"><span style="color: #10b981; font-weight: 600;">● ${task.status}</span></td>
+                <!-- 🔥 КЛАСС И КЛИК НА СТАТУС ДЛЯ УДАЛЕНИЯ -->
+                <td class="wl-status-cell" onclick="confirmAndDeleteTask(event, ${task.id})">
+                    <span class="wl-status-btn">● ${task.status}</span>
+                </td>
             `;
             tbody.appendChild(row);
         });
@@ -2558,6 +2560,43 @@ function resetWlFormToDefault() {
     // Перезагружаем таблицу, чтобы увидеть новые данные
     if (typeof loadWaitingList === 'function') {
         loadWaitingList();
+    }
+}
+// Функция подтверждения и полного удаления задачи из Supabase
+async function confirmAndDeleteTask(event, taskId) {
+    // Останавливаем всплытие события, чтобы не сработало редактирование строки
+    event.stopPropagation();
+
+    // 1. Показываем оператору вопрос
+    const isConfirmed = confirm(`Завершить задачу №${taskId}?`);
+    if (!isConfirmed) return; // Если оператор передумал — ничего не делаем
+
+    try {
+        // Находим ячейку, по которой кликнули, чтобы показать статус загрузки
+        const statusCell = event.currentTarget;
+        statusCell.innerHTML = '<span style="color: #64748b;">Удаление...</span>';
+
+        // 2. Отправляем команду удаления в Supabase по ID строки
+        const { error } = await supabaseClient
+            .from('waiting_list')
+            .delete()
+            .eq('id', taskId);
+
+        if (error) throw error;
+
+        // 3. Перезагружаем таблицу, чтобы строка мгновенно исчезла из списка
+        if (typeof loadWaitingList === 'function') {
+            await loadWaitingList();
+        }
+
+    } catch (err) {
+        console.error('Ошибка при удалении задачи:', err);
+        alert('❌ Не удалось завершить задачу: ' + err.message);
+        
+        // В случае ошибки возвращаем таблицу в исходный вид
+        if (typeof loadWaitingList === 'function') {
+            loadWaitingList();
+        }
     }
 }
 

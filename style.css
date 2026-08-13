@@ -1564,3 +1564,21 @@ body.dark-mode .city-modal-select-btn.disabled {
 .light-theme .wl-data-table th { background: #f1f5f9 !important; color: #64748b !important; border-color: #cbd5e1 !important; }
 .light-theme .wl-data-table td { color: #0f172a !important; border-color: #e2e8f0 !important; }
 .light-theme .wl-data-table tbody tr:hover { background: rgba(241, 245, 249, 0.8) !important; }
+
+/* Выделяем ячейку статуса как интерактивную кнопку */
+.wl-status-cell {
+    text-align: left !important;
+}
+
+.wl-status-btn {
+    color: #10b981 !important; /* Зелёный цвет */
+    font-weight: 600 !important;
+    transition: color 0.15s ease !important;
+    display: inline-block !important;
+}
+
+/* При наведении на "В работе" красим в ярко-зелёный или красный, намекая на закрытие */
+.wl-status-cell:hover .wl-status-btn {
+    color: #34d399 !important; /* Более яркий зелёный подсвет */
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.4) !important;
+}
