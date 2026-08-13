@@ -2280,9 +2280,68 @@ function toggleAddForm() {
     
     formBlock.classList.toggle('active');
     
-    // Если форму открыли — автоматически подтягиваем текущие сессионные данные
     if (formBlock.classList.contains('active')) {
         autoFillFormDetails();
+    }
+}
+
+// ВСТАВЛЯЙТЕ СТРОГО СЮДА:
+async function saveNewTaskToSupabase() {
+    const taskId = document.getElementById('wl-input-id').value.trim();
+    const classifier = document.getElementById('wl-input-classifier').value;
+    const comment = document.getElementById('wl-input-comment').value.trim();
+    const callbackAt = document.getElementById('wl-input-callback').value;
+    const operatorName = document.getElementById('wl-input-operator').value;
+
+    if (!taskId) {
+        alert('⚠️ Пожалуйста, введите ID задачи вручную!');
+        return;
+    }
+    if (!callbackAt) {
+        alert('⚠️ Пожалуйста, выберите дату и время для перезвона!');
+        return;
+    }
+
+    const saveBtn = document.querySelector('.wl-btn-save');
+    const originalText = saveBtn.innerText;
+    saveBtn.innerText = 'Сохранение...';
+    saveBtn.disabled = true;
+
+    try {
+        const { data, error } = await supabase
+            .from('waiting_list')
+            .insert([
+                {
+                    id: parseInt(taskId, 10),
+                    classifier: classifier,
+                    comment: comment || null,
+                    callback_at: new Date(callbackAt).toISOString(),
+                    operator_name: operatorName,
+                    status: 'В работе'
+                }
+            ]);
+
+        if (error) {
+            if (error.code === '23505') {
+                throw new Error('Задача с таким ID уже существует в Листе ожидания!');
+            }
+            throw error;
+        }
+
+        alert('🎉 Задача успешно сохранена в Лист ожидания!');
+        
+        document.getElementById('wl-input-id').value = '';
+        document.getElementById('wl-input-comment').value = '';
+        document.getElementById('wl-input-callback').value = '';
+        
+        toggleAddForm();
+
+    } catch (err) {
+        console.error('Ошибка Supabase:', err);
+        alert('❌ Ошибка при сохранении: ' + (err.message || 'Неизвестная ошибка базы данных'));
+    } finally {
+        saveBtn.innerText = originalText;
+        saveBtn.disabled = false;
     }
 }
 
@@ -2315,81 +2374,6 @@ function autoFillFormDetails() {
     
     if (mainDelivDateInput && mainDelivDateInput.value && formCallbackInput) {
         formCallbackInput.value = mainDelivDateInput.value;
-    }
-}
-// Функция отправки данных в Supabase и Лист ожидания
-async function saveNewTaskToSupabase() {
-    // 1. Собираем значения из полей формы
-    const taskId = document.getElementById('wl-input-id').value.trim();
-    const classifier = document.getElementById('wl-input-classifier').value;
-    const comment = document.getElementById('wl-input-comment').value.trim();
-    const callbackAt = document.getElementById('wl-input-callback').value;
-    const operatorName = document.getElementById('wl-input-operator').value;
-
-    // 2. Валидация: проверяем обязательные поля
-    if (!taskId) {
-        alert('⚠️ Пожалуйста, введите ID задачи вручную!');
-        return;
-    }
-    if (!callbackAt) {
-        alert('⚠️ Пожалуйста, выберите дату и время для перезвона!');
-        return;
-    }
-
-    // Показываем визуальный индикатор загрузки на кнопке
-    const saveBtn = document.querySelector('.wl-btn-save');
-    const originalText = saveBtn.innerText;
-    saveBtn.innerText = 'Сохранение...';
-    saveBtn.disabled = true;
-
-    try {
-        // 3. Отправляем запрос в созданную нами таблицу waiting_list
-        // Наш ранее настроенный RLS пропустит запрос, так как у оператора роль 'op'
-        const { data, error } = await supabase
-            .from('waiting_list')
-            .insert([
-                {
-                    id: parseInt(taskId, 10), // Превращаем строку в число для поля bigint
-                    classifier: classifier,
-                    comment: comment || null, // Если пусто — запишется NULL
-                    callback_at: new Date(callbackAt).toISOString(), // Переводим в формат таймзоны базы данных
-                    operator_name: operatorName,
-                    status: 'В работе' // Статус по умолчанию
-                }
-            ]);
-
-        if (error) {
-            // Если база вернула ошибку (например, такой ID уже существует)
-            if (error.code === '23505') {
-                throw new Error('Задача с таким ID уже существует в Листе ожидания!');
-            }
-            throw error;
-        }
-
-        // 4. Если всё успешно — радуем оператора и наводим гигиену
-        alert('🎉 Задача успешно сохранена в Лист ожидания!');
-        
-        // Очищаем поля ввода формы
-        document.getElementById('wl-input-id').value = '';
-        document.getElementById('wl-input-comment').value = '';
-        document.getElementById('wl-input-callback').value = '';
-        
-        // Сворачиваем форму обратно
-        toggleAddForm();
-
-        // 5. ТРИГГЕР ОБНОВЛЕНИЯ ТАБЛИЦЫ
-        // Сюда мы добавим функцию вызова отрисовки списка, как только сделаем дизайн таблицы
-        if (typeof loadWaitingList === 'function') {
-            loadWaitingList(); 
-        }
-
-    } catch (err) {
-        console.error('Ошибка Supabase:', err);
-        alert('❌ Ошибка при сохранении: ' + (err.message || 'Неизвестная ошибка базы данных'));
-    } finally {
-        // Возвращаем кнопку в исходное состояние
-        saveBtn.innerText = originalText;
-        saveBtn.disabled = false;
     }
 }
 
