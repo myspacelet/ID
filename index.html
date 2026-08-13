@@ -2362,22 +2362,22 @@ async function saveNewTaskToSupabase() {
     }
 }
 
-// Финальная автоподстановка имени оператора
+// Точечное автоподставление имени без беготни по сайту
 function autoFillFormDetails() {
-    let currentOperator = "Александр"; // Дефолтное имя на случай сбоя
+    let currentOperator = "Оператор"; // Дефолт на случай сбоя
 
-    // Ищем фразу "Добро пожаловать" абсолютно во всех элементах страницы
-    const allElements = document.getElementsByTagName('*');
-    for (let i = 0; i < allElements.length; i++) {
-        const text = allElements[i].innerText;
-        if (text && text.includes("Добро пожаловать")) {
-            // Как только нашли нужную строчку — вытаскиваем из неё только имя
+    // Напрямую берем элемент, в который твой рабочий код уже записал имя
+    const welcomeTitle = document.getElementById('app-welcome-title');
+    
+    if (welcomeTitle && welcomeTitle.innerText) {
+        const text = welcomeTitle.innerText;
+        // Проверяем, что это точно приветствие, а не левый блок
+        if (text.includes("Добро пожаловать")) {
             currentOperator = text
-                .replace(/[🚌👋🎯✨💻📢×!]/g, '') // Вычищаем смайлики и знаки
+                .replace(/[🚌👋🎯✨💻📢×!]/g, '') // Вычищаем все смайлики
                 .replace("Добро пожаловать,", "")
                 .replace("Добро пожаловать", "")
                 .trim();
-            break; // Выходим из цикла, имя найдено
         }
     }
 
