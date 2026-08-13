@@ -1465,6 +1465,11 @@ body.dark-mode .city-modal-select-btn.disabled {
     padding: 20px !important;
 }
 
+#modal-waiting-list {
+    width: 850px !important;
+    max-width: 95vw !important;
+}
+
 /* Небольшие подсказки для браузера по минимальной ширине колонок */
 .wl-data-table th:nth-child(1) { width: 80px !important; }  /* ID задачи */
 .wl-data-table th:nth-child(2) { width: 130px !important; } /* Классификатор */
