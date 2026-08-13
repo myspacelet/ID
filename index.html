@@ -2315,18 +2315,19 @@ async function saveNewTaskToSupabase() {
 
     try {
         // Меняем supabase на supabaseClient, который точно работает:
-        const { data, error } = await supabaseClient // <- Проверь, чтобы было написано именно так!
-            .from('waiting_list')
-            .insert([
-                {
-                    id: parseInt(taskId, 10),
-                    classifier: classifier,
-                    comment: comment || null,
-                    callback_at: new Date(callbackAt).toISOString(),
-                    operator_name: operatorName,
-                    status: 'В работе'
-                }
-            ]);
+        const { data, error } = await supabaseClient
+    .from('waiting_list')
+    .insert([
+        {
+            id: parseInt(taskId, 10),
+            classifier: classifier,
+            comment: comment || null,
+            // Передаем дату как чистую строку, убрав .toISOString()
+            callback_at: callbackAt, 
+            operator_name: operatorName,
+            status: 'В работе'
+        }
+    ]);
 
         if (error) {
             if (error.code === '23505') {
