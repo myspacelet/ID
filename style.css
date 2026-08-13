@@ -1437,13 +1437,18 @@ body.dark-mode .city-modal-select-btn.disabled {
 }
 
 .wl-data-table th {
-    background: #0f172a !important;
+    /* 🔥 ДЕЛАЕМ ШАПКУ ЛИПКОЙ: */
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important; /* Чтобы строки таблицы уходили строго ПОД шапку, а не поверх неё */
+    
+    background: #0f172a !important; /* Насыщенный темный фон, чтобы сквозь него не просвечивал текст при скролле */
     color: #94a3b8 !important;
-    padding: 12px 10px !important; /* Увеличили отступы */
+    padding: 12px 10px !important;
     text-align: left !important;
     font-weight: 600 !important;
     border-bottom: 2px solid #334155 !important;
-    white-space: nowrap !important; /* Заголовок никогда не сожмется и не налезет друг на друга */
+    white-space: nowrap !important;
 }
 
 .wl-data-table td {
