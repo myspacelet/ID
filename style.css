@@ -479,20 +479,22 @@ body.dark-mode .btn-logout:hover {
 }
 /* Обновленный и расширенный стиль для окна Листа ожидания */
 .floating-modal {
-    position: fixed;
-    background: #1e293b;
-    border-radius: 12px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-    border: 1px solid #334155;
-    z-index: 2000;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: #1e293b !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid #334155 !important;
+    z-index: 99999 !important;
     display: none; /* Управляется через JS */
-    flex-direction: column;
+    flex-direction: column !important;
     
     /* 🔥 ИЗМЕНЕННЫЙ БЛОК ШИРИНЫ ДЛЯ ТАБЛИЦЫ: */
-    width: 750px !important; /* Делаем окно комфортно широким под 6 колонок */
-    max-width: 95vw !important; /* На маленьких экранах не вылезет за границы */
-    
-    overflow: hidden;
+    width: 850px !important; 
+    max-width: 95vw !important;
+    overflow: hidden !important;
     box-sizing: border-box !important;
 }
 
@@ -587,10 +589,11 @@ body.dark-mode .btn-logout:hover {
 
 /* Тело модалки */
 .floating-modal-body {
-    padding: 20px !important;
+    padding: 16px !important;
     background: #1e293b !important;
-    max-height: 60vh !important; /* Окно не улетит вниз за пределы экрана */
-    overflow-y: auto !important;  /* Если строк много — появится аккуратный вертикальный скролл */
+    max-height: 50vh !important;
+    overflow-y: auto !important; /* Вертикальный скролл появится, если строк будет много */
+    overflow-x: hidden !important; /* Горизонтальный скролл запрещаем! */
     box-sizing: border-box !important;
 }
 
@@ -1429,11 +1432,9 @@ body.dark-mode .city-modal-select-btn.disabled {
 /* Принудительно заставляем таблицу занимать 100% ширины окна */
 .wl-data-table {
     width: 100% !important;
-    table-layout: auto !important; /* Убираем fixed! Теперь браузер сам распределит ширину */
+    table-layout: auto !important;
     border-collapse: collapse !important;
-    margin-top: 16px !important;
-    font-family: sans-serif !important;
-    font-size: 13px !important;
+    margin-top: 0 !important;
 }
 
 .wl-data-table th {

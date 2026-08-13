@@ -1421,8 +1421,8 @@ function openFloatingModal(modalId) {
         
         // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
         if (!modal.style.left || modal.style.left === "35%") {
-            // Если открывается лист ожидания — закладываем 750px, для остальных окон — дефолтные 450px
-            const defaultWidth = (modalId === "modal-waiting-list") ? 750 : 450;
+            // 🔥 Заложили 850px под новый размер Листа ожидания
+            const defaultWidth = (modalId === "modal-waiting-list") ? 850 : 450;
             
             const modalWidth = modal.offsetWidth || defaultWidth;
             const modalHeight = modal.offsetHeight || 300;
@@ -2449,57 +2449,51 @@ async function loadWaitingList() {
   <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
   <button onclick="scrollToBottom()" title="Вниз">▼</button>
 </div>
-<!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ (ФИНАЛЬНЫЙ СТРУКТУРИРОВАННЫЙ ВАРИАНТ) -->
+<!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ С ИДЕАЛЬНОЙ СТРУКТУРОЙ -->
 <div id="modal-waiting-list" class="floating-modal">
     <div class="floating-modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-            <!-- Синяя точка для раскрытия/скрытия формы -->
             <button class="modal-btn-blue" onclick="toggleAddForm()" title="Добавить задачу"></button>
             <span>⏳ Лист ожидания</span>
         </div>
         <button class="modal-close-right" onclick="closeFloatingModal('modal-waiting-list')"></button>
     </div>
     
-    <div class="floating-modal-body">
-        <!-- 📑 БЛОК ФОРМЫ ДОБАВЛЕНИЯ ЗАДАЧИ -->
-        <div id="wl-add-form-block" class="wl-add-form">
-            <div class="wl-form-grid">
-                <div class="wl-form-group">
-                    <label>ID задачи:</label>
-                    <input type="number" id="wl-input-id" placeholder="Вручную">
-                </div>
-                
-                <div class="wl-form-group">
-                    <label>Классификатор:</label>
-                    <select id="wl-input-classifier">
-                        <option value="класс 1">класс 1</option>
-                        <option value="класс 2">класс 2</option>
-                        <option value="класс 3">класс 3</option>
-                    </select>
-                </div>
-
-                <div class="wl-form-group full-width">
-                    <label>Комментарий:</label>
-                    <input type="text" id="wl-input-comment" placeholder="Сомнения, просил перезвонить...">
-                </div>
-
-                <div class="wl-form-group">
-                    <label>Перезвонить в:</label>
-                    <input type="datetime-local" id="wl-input-callback">
-                </div>
-
-                <div class="wl-form-group">
-                    <label>Оператор:</label>
-                    <input type="text" id="wl-input-operator" readonly style="opacity: 0.6; cursor: not-allowed;">
-                </div>
+    <!-- 🔥 ФОРМА ТЕПЕРЬ ТУТ: Она не крадет место у таблицы -->
+    <div id="wl-add-form-block" class="wl-add-form" style="margin: 12px 16px 0 16px !important;">
+        <div class="wl-form-grid">
+            <div class="wl-form-group">
+                <label>ID задачи:</label>
+                <input type="number" id="wl-input-id" placeholder="Вручную">
             </div>
-            
-            <div class="wl-form-actions">
-                <button class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
+            <div class="wl-form-group">
+                <label>Классификатор:</label>
+                <select id="wl-input-classifier">
+                    <option value="класс 1">класс 1</option>
+                    <option value="класс 2">класс 2</option>
+                    <option value="класс 3">класс 3</option>
+                </select>
+            </div>
+            <div class="wl-form-group full-width">
+                <label>Комментарий:</label>
+                <input type="text" id="wl-input-comment" placeholder="Сомнения, просил перезвонить...">
+            </div>
+            <div class="wl-form-group">
+                <label>Перезвонить в:</label>
+                <input type="datetime-local" id="wl-input-callback">
+            </div>
+            <div class="wl-form-group">
+                <label>Оператор:</label>
+                <input type="text" id="wl-input-operator" readonly style="opacity: 0.6; cursor: not-allowed;">
             </div>
         </div>
+        <div class="wl-form-actions">
+            <button class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
+        </div>
+    </div>
 
-        <!-- 📊 ТАБЛИЦА ВЫВОДА ДАННЫХ ИЗ SUPABASE -->
+    <!-- ТЕЛО МОДАЛКИ: Теперь тут ЖИВЕТ ТОЛЬКО ТАБЛИЦА -->
+    <div class="floating-modal-body">
         <div id="wl-table-container">
             <table class="wl-data-table">
                 <thead>
