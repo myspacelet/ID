@@ -2286,28 +2286,110 @@ function toggleAddForm() {
     }
 }
 
-// Автоподставление имени и календаря
+// Автоподставление имени и календаря (Исправленная версия)
 function autoFillFormDetails() {
-    // 1. Автоподстановка имени оператора Александровича из интерфейса
-    // Скрипт попробует найти текст в твоем приветственном блоке
-    const welcomeBlock = document.querySelector('.welcome-text, h3, p'); // Ищет блоки с текстом
+    // 1. Умная автоподстановка имени оператора прямо из верхнего заголовка сайта
     let currentOperator = "Оператор";
     
-    if (welcomeBlock && welcomeBlock.innerText.includes("Булычев")) {
-        currentOperator = "Александр"; // Берем только имя, без фамилии, как на макете
+    // Ищем на странице заголовок, в котором написано "Добро пожаловать"
+    const allHeaders = document.querySelectorAll('h1, h2, h3, div, span, p');
+    for (let element of allHeaders) {
+        if (element.innerText && element.innerText.includes("Добро пожаловать")) {
+            // Очищаем текст от лишних слов и смайликов, оставляя только само имя
+            currentOperator = element.innerText
+                .replace(/[🚌👋🎯👋✨💻📢]/g, '') // Удаляем смайлики (добавь свои, если нужно)
+                .replace("Добро пожаловать,", "")
+                .replace("Добро пожаловать", "")
+                .replace("!", "")
+                .trim();
+            break;
+        }
     }
     
     const opInput = document.getElementById('wl-input-operator');
     if (opInput) opInput.value = currentOperator;
 
     // 2. Автоподстановка даты и времени из твоего основного левого блока
-    // Скрипт ищет твое существующее поле 'script-deliv-date' или аналогичное
     const mainDelivDateInput = document.getElementById('script-deliv-date');
     const formCallbackInput = document.getElementById('wl-input-callback');
     
     if (mainDelivDateInput && mainDelivDateInput.value && formCallbackInput) {
-        // Если в левой части дата уже заполнена оператором — дублируем её в форму
         formCallbackInput.value = mainDelivDateInput.value;
+    }
+}
+// Функция отправки данных в Supabase и Лист ожидания
+async function saveNewTaskToSupabase() {
+    // 1. Собираем значения из полей формы
+    const taskId = document.getElementById('wl-input-id').value.trim();
+    const classifier = document.getElementById('wl-input-classifier').value;
+    const comment = document.getElementById('wl-input-comment').value.trim();
+    const callbackAt = document.getElementById('wl-input-callback').value;
+    const operatorName = document.getElementById('wl-input-operator').value;
+
+    // 2. Валидация: проверяем обязательные поля
+    if (!taskId) {
+        alert('⚠️ Пожалуйста, введите ID задачи вручную!');
+        return;
+    }
+    if (!callbackAt) {
+        alert('⚠️ Пожалуйста, выберите дату и время для перезвона!');
+        return;
+    }
+
+    // Показываем визуальный индикатор загрузки на кнопке
+    const saveBtn = document.querySelector('.wl-btn-save');
+    const originalText = saveBtn.innerText;
+    saveBtn.innerText = 'Сохранение...';
+    saveBtn.disabled = true;
+
+    try {
+        // 3. Отправляем запрос в созданную нами таблицу waiting_list
+        // Наш ранее настроенный RLS пропустит запрос, так как у оператора роль 'op'
+        const { data, error } = await supabase
+            .from('waiting_list')
+            .insert([
+                {
+                    id: parseInt(taskId, 10), // Превращаем строку в число для поля bigint
+                    classifier: classifier,
+                    comment: comment || null, // Если пусто — запишется NULL
+                    callback_at: new Date(callbackAt).toISOString(), // Переводим в формат таймзоны базы данных
+                    operator_name: operatorName,
+                    status: 'В работе' // Статус по умолчанию
+                }
+            ]);
+
+        if (error) {
+            // Если база вернула ошибку (например, такой ID уже существует)
+            if (error.code === '23505') {
+                throw new Error('Задача с таким ID уже существует в Листе ожидания!');
+            }
+            throw error;
+        }
+
+        // 4. Если всё успешно — радуем оператора и наводим гигиену
+        alert('🎉 Задача успешно сохранена в Лист ожидания!');
+        
+        // Очищаем поля ввода формы
+        document.getElementById('wl-input-id').value = '';
+        document.getElementById('wl-input-comment').value = '';
+        document.getElementById('wl-input-callback').value = '';
+        
+        // Сворачиваем форму обратно
+        toggleAddForm();
+
+        // 5. ТРИГГЕР ОБНОВЛЕНИЯ ТАБЛИЦЫ
+        // Сюда мы добавим функцию вызова отрисовки списка, как только сделаем дизайн таблицы
+        if (typeof loadWaitingList === 'function') {
+            loadWaitingList(); 
+        }
+
+    } catch (err) {
+        console.error('Ошибка Supabase:', err);
+        alert('❌ Ошибка при сохранении: ' + (err.message || 'Неизвестная ошибка базы данных'));
+    } finally {
+        // Возвращаем кнопку в исходное состояние
+        saveBtn.innerText = originalText;
+        saveBtn.disabled = false;
     }
 }
 
