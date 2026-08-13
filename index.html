@@ -78,7 +78,7 @@
                     <!-- 🛠️ ПАНЕЛЬ УПРАВЛЕНИЯ ЗАКАЗОМ -->
         <div class="order-management-panel">
             <button onclick="buildOrderProcessingModal()" class="btn-order-action">⚙️ Обработать заказ</button>
-            <button onclick="openFloatingModal('modal-waiting-list')" class="btn-order-action">⏳ Лист ожидания</button>
+            <button onclick="toggleWaitingModal(true)" class="btn-order-action">⏳ Лист ожидания</button>
             <button onclick="openFloatingModal('modal-send-form')" class="btn-order-action">✉️ Форма отправки</button>
         </div>
 
@@ -173,16 +173,23 @@
             </div>
         </div>
 
-        <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ЛИСТ ОЖИДАНИЯ -->
-        <div id="modal-waiting-list" class="floating-modal">
-            <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-waiting-list')">
-                <span>⏳ Лист ожидания</span>
-                <button class="floating-modal-close" onclick="closeFloatingModal('modal-waiting-list')">×</button>
+        <!-- 🪐 МОДАЛЬНОЕ ОКНО: ЛИСТ ОЖИДАНИЯ -->
+        <div id="modal-waiting-list-overlay" class="modal-overlay" onclick="closeWaitingModal(event)">
+            <div class="fixed-modal">
+                <div class="fixed-modal-header">
+                    <!-- Кнопка закрытия в стиле macOS (красная точка) -->
+                    <button class="mac-btn-close" onclick="toggleWaitingModal(false)"></button>
+                    <span class="fixed-modal-title">⏳ Лист ожидания</span>
+                    <!-- Пустышка справа для идеального центрирования заголовка -->
+                    <div style="width: 14px;"></div> 
+                </div>
+                <div class="fixed-modal-body">
+                    <p class="modal-placeholder-text">Здесь будет лист ожидания... (Заглушка)</p>
+                </div>
             </div>
-            <div class="floating-modal-body">
-                <p style="color: #64748b; font-size: 13px;">Здесь будет лист ожидания... (Заглушка)</p>
-            </div>
+        </div>
 
+        
         <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 3: ФОРМА ОТПРАВКИ -->
         <div id="modal-send-form" class="floating-modal">
             <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-send-form')">
@@ -300,6 +307,21 @@
         // Конфигурация Supabase (Адрес собран по твоему ID)
 const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_JinHB8pKvvmIkIkIFRjF4A_BXnnC0rD";
+
+// Универсальная функция: true — открыть, false — закрыть
+function toggleWaitingModal(show) {
+    const overlay = document.getElementById('modal-waiting-list-overlay');
+    if (overlay) {
+        overlay.style.display = show ? 'flex' : 'none';
+    }
+}
+
+// Закрытие при клике на оверлей (проверяем, что кликнули именно по фону, а не по самой модалке)
+function closeWaitingModal(event) {
+    if (event.target.id === 'modal-waiting-list-overlay') {
+        toggleWaitingModal(false);
+    }
+}
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentAuthMode = 'login';
