@@ -587,9 +587,10 @@ body.dark-mode .btn-logout:hover {
 
 /* Тело модалки */
 .floating-modal-body {
-    padding: 24px !important;
+    padding: 20px !important;
     background: #1e293b !important;
-    min-height: 120px !important;
+    max-height: 60vh !important; /* Окно не улетит вниз за пределы экрана */
+    overflow-y: auto !important;  /* Если строк много — появится аккуратный вертикальный скролл */
     box-sizing: border-box !important;
 }
 
@@ -1428,33 +1429,28 @@ body.dark-mode .city-modal-select-btn.disabled {
 /* Принудительно заставляем таблицу занимать 100% ширины окна */
 .wl-data-table {
     width: 100% !important;
-    table-layout: fixed !important; /* Фиксирует колонки, чтобы они не скакали */
+    table-layout: auto !important; /* Убираем fixed! Теперь браузер сам распределит ширину */
     border-collapse: collapse !important;
-    margin-top: 10px !important;
+    margin-top: 16px !important;
     font-family: sans-serif !important;
     font-size: 13px !important;
 }
 
-.wl-data-table th:nth-child(1), .wl-data-table td:nth-child(1) { width: 12% !important; } -- ID
-.wl-data-table th:nth-child(2), .wl-data-table td:nth-child(2) { width: 18% !important; } -- Классификатор
-.wl-data-table th:nth-child(3), .wl-data-table td:nth-child(3) { width: 30% !important; } -- Комментарий
-.wl-data-table th:nth-child(4), .wl-data-table td:nth-child(4) { width: 18% !important; } -- Перезвонить
-.wl-data-table th:nth-child(5), .wl-data-table td:nth-child(5) { width: 12% !important; } -- Оператор
-.wl-data-table th:nth-child(6), .wl-data-table td:nth-child(6) { width: 10% !important; } -- Статус
-
 .wl-data-table th {
-    background: #0f172a !important; /* Темная шапка */
+    background: #0f172a !important;
     color: #94a3b8 !important;
-    padding: 10px !important;
+    padding: 12px 10px !important; /* Увеличили отступы */
     text-align: left !important;
     font-weight: 600 !important;
     border-bottom: 2px solid #334155 !important;
+    white-space: nowrap !important; /* Заголовок никогда не сожмется и не налезет друг на друга */
 }
 
 .wl-data-table td {
-    padding: 10px !important;
+    padding: 12px 10px !important;
     color: #f1f5f9 !important;
     border-bottom: 1px solid #334155 !important;
+    vertical-align: middle !important;
 }
 
 /* Подсветка строки при наведении мыши */
@@ -1467,6 +1463,13 @@ body.dark-mode .city-modal-select-btn.disabled {
     color: #64748b !important;
     padding: 20px !important;
 }
+
+/* Небольшие подсказки для браузера по минимальной ширине колонок */
+.wl-data-table th:nth-child(1) { width: 80px !important; }  /* ID задачи */
+.wl-data-table th:nth-child(2) { width: 130px !important; } /* Классификатор */
+.wl-data-table th:nth-child(4) { width: 140px !important; } /* Перезвонить */
+.wl-data-table th:nth-child(5) { width: 90px !important; }  /* Оператор */
+.wl-data-table th:nth-child(6) { width: 100px !important; } /* Статус */
 
 /* Адаптация под светлую тему */
 .light-theme .wl-data-table th { background: #f1f5f9 !important; color: #64748b !important; border-color: #cbd5e1 !important; }
