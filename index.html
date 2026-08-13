@@ -2275,28 +2275,67 @@ function selectStoreFromCityModal(storeCode, cityName) {
     // 3. Перерисовываем городскую модалку, чтобы её внутренние кнопки тоже обновились ("Выбран")
     openCityShopsModal(cityName);
 }
-// Функция раскрытия и скрытия формы по клику на синюю точку
+// Функция раскрытия и скрытия формы с принудительным сбросом данных
 function toggleAddForm() {
     const formBlock = document.getElementById('wl-add-form-block');
     if (!formBlock) return;
     
+    // Переключаем видимость формы
     formBlock.classList.toggle('active');
     
+    const saveBtn = document.querySelector('.wl-btn-save');
+    
     if (formBlock.classList.contains('active')) {
-        // 🔥 Если форму открыли кнопкой "Добавить" — принудительно сбрасываем её в режим создания задачи
-        const saveBtn = document.querySelector('.wl-btn-save');
+        // --- 🟢 РЕЖИМ ОТКРЫТИЯ ФОРМЫ ---
+        
+        // Если форму открыли синей кнопкой, а там висел режим "Обновить задачу" — сбрасываем её в дефолт
         if (saveBtn && saveBtn.innerText === 'Обновить задачу') {
-            document.getElementById('wl-input-id').value = '';
-            document.getElementById('wl-input-id').readOnly = false;
-            document.getElementById('wl-input-id').style.opacity = '1';
-            document.getElementById('wl-input-comment').value = '';
-            document.getElementById('wl-input-callback').value = '';
+            resetWlFormInputsOnly();
+            
+            // Возвращаем кнопку в режим создания новой задачи
+            saveBtn.innerText = 'Сохранить задачу';
+            saveBtn.setAttribute('onclick', 'saveNewTaskToSupabase()');
+            saveBtn.style.background = '#2563eb';
+        } else {
+            // Если открываем обычное создание — просто наводим чистоту перед вводом
+            resetWlFormInputsOnly();
+        }
+        
+        // Автоматически подтягиваем имя Александра и календарь из левой панели
+        autoFillFormDetails();
+        
+    } else {
+        // --- 🔴 РЕЖИМ СВЕРНУЛИ ФОРМУ ---
+        // Как только оператор кликнул на синюю точку и скрыл панель — полностью зануляем все поля
+        resetWlFormInputsOnly();
+        
+        // Если форма закрылась из режима редактирования, возвращаем кнопку в синий дефолт
+        if (saveBtn && saveBtn.innerText === 'Обновить задачу') {
             saveBtn.innerText = 'Сохранить задачу';
             saveBtn.setAttribute('onclick', 'saveNewTaskToSupabase()');
             saveBtn.style.background = '#2563eb';
         }
-        autoFillFormDetails();
     }
+}
+
+// Вынесенная микро-функция для чистки текстовых полей формы Листа ожидания
+function resetWlFormInputsOnly() {
+    const idInput = document.getElementById('wl-input-id');
+    if (idInput) {
+        idInput.value = '';
+        idInput.readOnly = false; // Возвращаем возможность ручного ввода ID
+        idInput.style.opacity = '1';
+    }
+    
+    const commentInput = document.getElementById('wl-input-comment');
+    if (commentInput) commentInput.value = '';
+    
+    const callbackInput = document.getElementById('wl-input-callback');
+    if (callbackInput) callbackInput.value = '';
+    
+    // Возвращаем выпадающий список классификатора на самый первый пункт ("класс 1")
+    const classifierSelect = document.getElementById('wl-input-classifier');
+    if (classifierSelect) classifierSelect.selectedIndex = 0;
 }
 
 async function saveNewTaskToSupabase() {
