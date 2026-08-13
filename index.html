@@ -2469,7 +2469,7 @@ async function loadWaitingList() {
         // Очищаем строку загрузки и наполняем таблицу живыми данными
         tbody.innerHTML = '';
         
-                data.forEach(task => {
+                    data.forEach(task => {
             const dateObj = new Date(task.callback_at);
             const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
@@ -2478,21 +2478,22 @@ async function loadWaitingList() {
             
             const cleanComment = (task.comment || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
             
-            // Клик по всей строке открывает редактирование
+            // Клик по строке открывает редактирование
             row.onclick = function(e) {
-                // Но если кликнули именно по статусу или внутри него — редактирование НЕ открываем
-                if (!e.target.classList.contains('wl-status-cell') && !e.target.closest('.wl-status-cell')) {
+                // Но если кликнули именно по ID задачи или по Статусу — редактирование НЕ открываем!
+                if (!e.target.classList.contains('wl-id-cell') && !e.target.classList.contains('wl-status-cell') && !e.target.closest('.wl-status-cell')) {
                     editTaskInForm(task.id, task.classifier, cleanComment, task.callback_at);
                 }
             };
 
             row.innerHTML = `
-                <td style="font-weight: bold; color: #3b82f6;">${task.id}</td>
+                <!-- 🔥 КЛАСС И КЛИК НА ID ДЛЯ КОПИРОВАНИЯ ЦИФР -->
+                <td class="wl-id-cell" onclick="copyTaskIdToClipboard(event, '${task.id}')" title="Кликните, чтобы скопировать ID">${task.id}</td>
+                
                 <td><span class="wl-badge">${task.classifier}</span></td>
                 <td style="line-height: 1.4; word-break: break-word;">${task.comment || '-'}</td>
                 <td>${formattedDate}</td>
                 <td>${task.operator_name}</td>
-                <!-- 🔥 КЛАСС И КЛИК НА СТАТУС ДЛЯ УДАЛЕНИЯ -->
                 <td class="wl-status-cell" onclick="confirmAndDeleteTask(event, ${task.id})">
                     <span class="wl-status-btn">● ${task.status}</span>
                 </td>
@@ -2646,6 +2647,40 @@ async function confirmAndDeleteTask(event, taskId) {
             loadWaitingList();
         }
     }
+}
+// Функция копирования голого ID в буфер обмена с быстрой визуальной индикацией
+function copyTaskIdToClipboard(event, idText) {
+    // Останавливаем всплытие клика, чтобы не раскрылась форма редактирования строки
+    event.stopPropagation();
+    
+    // Чистим текст от любых возможных пробелов на всякий случай
+    const cleanId = idText.trim();
+    
+    // Используем современный безопасный API браузера для копирования голого текста
+    navigator.clipboard.writeText(cleanId).then(() => {
+        // Находим ячейку, по которой кликнули, для мимолётного визуального эффекта успеха
+        const cell = event.currentTarget;
+        const originalColor = cell.style.color;
+        
+        // Красим на полсекунды в зеленый цвет и пишем "Скопировано!", чтобы оператор видел результат
+        cell.style.color = '#10b981';
+        cell.innerText = 'Скопировано!';
+        
+        setTimeout(() => {
+            cell.style.color = originalColor;
+            cell.innerText = cleanId; // Возвращаем обратно голые цифры ID
+        }, 600);
+        
+    }).catch(err => {
+        console.error('Не удалось скопировать текст: ', err);
+        // Подстраховка для старых браузеров, если Clipboard API заблокирован политиками
+        const textArea = document.createElement("textarea");
+        textArea.value = cleanId;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+    });
 }
 
     </script>
