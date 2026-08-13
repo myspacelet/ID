@@ -1411,6 +1411,10 @@ function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
+
+            if (modalId === 'modal-waiting-list') {
+            loadWaitingList();
+        }
         
         // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
         if (!modal.style.left || modal.style.left === '35%') {
@@ -2383,6 +2387,51 @@ function autoFillFormDetails() {
         formCallbackInput.value = mainDelivDateInput.value;
     }
 }
+// Функция загрузки и вывода Листа ожидания из Supabase
+async function loadWaitingList() {
+    const tbody = document.getElementById('wl-table-body');
+    if (!tbody) return;
+
+    try {
+        // Делаем запрос к таблице waiting_list через наш рабочий клиент
+        const { data, error } = await supabaseClient
+            .from('waiting_list')
+            .select('*')
+            .order('created_at', { ascending: false }); // Сначала показываем самые свежие
+
+        if (error) throw error;
+
+        // Если в базе пока вообще нет записей
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="wl-loading-text">⏳ Активных задач нет</td></tr>`;
+            return;
+        }
+
+        // Очищаем строку загрузки и наполняем таблицу живыми данными
+        tbody.innerHTML = '';
+        
+        data.forEach(task => {
+            // Форматируем дату перезвона в красивый человеческий вид (ДД.ММ.ГГГГ ЧЧ:ММ)
+            const dateObj = new Date(task.callback_at);
+            const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="font-weight: bold; color: #3b82f6; cursor: pointer;">${task.id}</td>
+                <td><span class="wl-badge">${task.classifier}</span></td>
+                <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${task.comment || ''}">${task.comment || '-'}</td>
+                <td>${formattedDate}</td>
+                <td>${task.operator_name}</td>
+                <td><span style="color: #10b981; font-weight: 600;">● ${task.status}</span></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+    } catch (err) {
+        console.error('Ошибка загрузки Листа ожидания:', err);
+        tbody.innerHTML = `<tr><td colspan="6" class="wl-loading-text" style="color: #ef4444;">❌ Ошибка загрузки: ${err.message}</td></tr>`;
+    }
+}
 
     </script>
 <div id="scroll-nav" class="scroll-nav">
@@ -2446,9 +2495,27 @@ function autoFillFormDetails() {
         </div>
 
         <!-- СЮДА В ДАЛЬНЕЙШЕМ ВСТАНЕТ ТАБЛИЦА -->
-        <div id="wl-table-container">
-            <p class="modal-placeholder-text">Здесь будет список активных задач...</p>
-        </div>
+        <!-- Контейнер для вывода списка задач из базы -->
+<div id="wl-table-container">
+    <table class="wl-data-table">
+        <thead>
+            <tr>
+                <th>ID задачи</th>
+                <th>Классификатор</th>
+                <th>Комментарий</th>
+                <th>Перезвонить</th>
+                <th>Оператор</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody id="wl-table-body">
+            <!-- Сюда JavaScript будет подставлять строки из Supabase -->
+            <tr>
+                <td colspan="6" class="wl-loading-text">Загрузка данных из Supabase...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
     </div>
 </div>
 
