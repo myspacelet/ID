@@ -2316,14 +2316,13 @@ async function saveNewTaskToSupabase() {
     try {
         // Меняем supabase на supabaseClient, который точно работает:
         const { data, error } = await supabaseClient
-    .from('waiting_list')
-    .insert([
-        {
+            .from('waiting_list')
+            .insert([
+                {
             id: parseInt(taskId, 10),
             classifier: classifier,
             comment: comment || null,
-            // Передаем дату как чистую строку, убрав .toISOString()
-            callback_at: callbackAt, 
+            callback_at: callbackAt, // Передаем напрямую чистую строку даты из инпута
             operator_name: operatorName,
             status: 'В работе'
         }
