@@ -2273,6 +2273,44 @@ function selectStoreFromCityModal(storeCode, cityName) {
     // 3. Перерисовываем городскую модалку, чтобы её внутренние кнопки тоже обновились ("Выбран")
     openCityShopsModal(cityName);
 }
+// Функция раскрытия и скрытия формы по клику на синюю точку
+function toggleAddForm() {
+    const formBlock = document.getElementById('wl-add-form-block');
+    if (!formBlock) return;
+    
+    formBlock.classList.toggle('active');
+    
+    // Если форму открыли — автоматически подтягиваем текущие сессионные данные
+    if (formBlock.classList.contains('active')) {
+        autoFillFormDetails();
+    }
+}
+
+// Автоподставление имени и календаря
+function autoFillFormDetails() {
+    // 1. Автоподстановка имени оператора Александровича из интерфейса
+    // Скрипт попробует найти текст в твоем приветственном блоке
+    const welcomeBlock = document.querySelector('.welcome-text, h3, p'); // Ищет блоки с текстом
+    let currentOperator = "Оператор";
+    
+    if (welcomeBlock && welcomeBlock.innerText.includes("Булычев")) {
+        currentOperator = "Александр"; // Берем только имя, без фамилии, как на макете
+    }
+    
+    const opInput = document.getElementById('wl-input-operator');
+    if (opInput) opInput.value = currentOperator;
+
+    // 2. Автоподстановка даты и времени из твоего основного левого блока
+    // Скрипт ищет твое существующее поле 'script-deliv-date' или аналогичное
+    const mainDelivDateInput = document.getElementById('script-deliv-date');
+    const formCallbackInput = document.getElementById('wl-input-callback');
+    
+    if (mainDelivDateInput && mainDelivDateInput.value && formCallbackInput) {
+        // Если в левой части дата уже заполнена оператором — дублируем её в форму
+        formCallbackInput.value = mainDelivDateInput.value;
+    }
+}
+
     </script>
 <div id="scroll-nav" class="scroll-nav">
   <!-- 🔥 НОВАЯ ПЛАШКА: Свернутый заказ (скрыта по умолчанию) -->
@@ -2282,16 +2320,64 @@ function selectStoreFromCityModal(storeCode, cityName) {
   <button id="btn-scroll-to-nearest" onclick="scrollToNearestCity()" title="К ближайшему варианту" style="display: none; background-color: #ea580c;">🏠</button>
   <button onclick="scrollToBottom()" title="Вниз">▼</button>
 </div>
-<!-- Изолированное окно Листа ожидания в самом низу сайта -->
+<!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ С ФОРМОЙ ДОБАВЛЕНИЯ -->
 <div id="modal-waiting-list" class="floating-modal">
     <div class="floating-modal-header">
-        <span>⏳ Лист ожидания</span>
-        <!-- Кнопка закрытия 24x24px справа -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- Синяя точка для раскрытия/скрытия формы -->
+            <button class="modal-btn-blue" onclick="toggleAddForm()" title="Добавить задачу"></button>
+            <span>⏳ Лист ожидания</span>
+        </div>
         <button class="modal-close-right" onclick="closeFloatingModal('modal-waiting-list')"></button>
     </div>
+    
     <div class="floating-modal-body">
-        <p class="modal-placeholder-text">Здесь будет лист ожидания...</p>
+        <!-- БЛОК ФОРМЫ (Изначально скрыт через CSS) -->
+        <div id="wl-add-form-block" class="wl-add-form">
+            <div class="wl-form-grid">
+                <div class="wl-form-group">
+                    <label>ID задачи:</label>
+                    <input type="number" id="wl-input-id" placeholder="Вручную">
+                </div>
+                
+                <div class="wl-form-group">
+                    <label>Классификатор:</label>
+                    <select id="wl-input-classifier">
+                        <option value="1">Категория 1</option>
+                        <option value="2">Категория 2</option>
+                        <option value="3">Категория 3</option>
+                    </select>
+                </div>
+
+                <div class="wl-form-group full-width">
+                    <label>Комментарий:</label>
+                    <input type="text" id="wl-input-comment" placeholder="Сомнения, просил перезвонить...">
+                </div>
+
+                <div class="wl-form-group">
+                    <label>Перезвонить в:</label>
+                    <!-- Календарь с выбором даты и точного времени -->
+                    <input type="datetime-local" id="wl-input-callback">
+                </div>
+
+                <div class="wl-form-group">
+                    <label>Оператор:</label>
+                    <!-- Поле заблокировано для ручного ввода, имя вставит JS автоматически -->
+                    <input type="text" id="wl-input-operator" readonly style="opacity: 0.6; cursor: not-allowed;">
+                </div>
+            </div>
+            
+            <div class="wl-form-actions">
+                <button class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
+            </div>
+        </div>
+
+        <!-- СЮДА В ДАЛЬНЕЙШЕМ ВСТАНЕТ ТАБЛИЦА -->
+        <div id="wl-table-container">
+            <p class="modal-placeholder-text">Здесь будет список активных задач...</p>
+        </div>
     </div>
 </div>
+
 </body>
 </html>

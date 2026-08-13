@@ -1336,3 +1336,94 @@ body.dark-mode .city-modal-select-btn.disabled {
     background-color: #4338ca !important; /* Чуть темнее при наведении */
     border-color: #3730a3 !important;
 }
+/* Синяя кнопка-точка в шапке */
+.modal-btn-blue {
+    width: 14px !important;
+    height: 14px !important;
+    background-color: #3b82f6 !important; /* Насыщенный синий */
+    border: 1px solid #1d4ed8 !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: background-color 0.15s ease !important;
+}
+.modal-btn-blue:hover { background-color: #60a5fa !important; }
+
+/* Контейнер раскрывающейся формы */
+.wl-add-form {
+    display: none; /* Скрыта по умолчанию */
+    background: #0f172a !important; /* Чуть темнее тела модалки */
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Форма в активном состоянии */
+.wl-add-form.active {
+    display: block !important;
+}
+
+/* Сетка полей ввода */
+.wl-form-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+}
+
+.wl-form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+.wl-form-group.full-width {
+    grid-column: span 2 !important; /* Растягивает коммент на всю ширину */
+}
+
+.wl-form-group label {
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+}
+
+/* Стилизация самих инпутов под твою темную тему */
+.wl-form-grid input, .wl-form-grid select {
+    background: #1e293b !important;
+    border: 1px solid #475569 !important;
+    border-radius: 6px !important;
+    padding: 8px 10px !important;
+    color: #f1f5f9 !important;
+    font-size: 13px !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.wl-form-grid input:focus, .wl-form-grid select:focus {
+    border-color: #3b82f6 !important; /* Синяя подсветка фокуса */
+}
+
+/* Кнопка отправки */
+.wl-form-actions {
+    margin-top: 14px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+.wl-btn-save {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+}
+.wl-btn-save:hover { background: #3b82f6 !important; }
+
+/* Поддержка светлой темы */
+.light-theme .wl-add-form { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.light-theme .wl-form-group label { color: #64748b !important; }
+.light-theme .wl-form-grid input, .light-theme .wl-form-grid select { background: #ffffff !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
