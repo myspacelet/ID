@@ -1421,27 +1421,26 @@ function openFloatingModal(modalId) {
         
         // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
         if (!modal.style.left || modal.style.left === "35%") {
-            // 🔥 Заложили 850px под новый размер Листа ожидания
-            const defaultWidth = (modalId === "modal-waiting-list") ? 850 : 450;
-            
-            const modalWidth = modal.offsetWidth || defaultWidth;
+            // ИНЖЕНЕРНЫЙ ХАК: Браузер сам прочитает из CSS ширину (850px или любую другую)
+            // Если окно ещё скрыто, подстрахуемся дефолтными значениями
+            const computedWidth = modal.offsetWidth;
+            const modalWidth = computedWidth > 0 ? computedWidth : (modalId === "modal-waiting-list" ? 850 : 450);
             const modalHeight = modal.offsetHeight || 300;
             
-            // 1. Расчет центра по горизонтали (для всех окон одинаково)
+            // 1. Расчет центра по горизонтали
             const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
             modal.style.left = startLeft + "px";
             
-            // 2. Расчет позиции по вертикали (разделяем окна)
+            // 2. Расчет позиции по вертикали (окно заказа повыше, остальные по центру)
             if (modalId === 'modal-process-order') {
-                modal.style.top = '40px'; // Комфортный стартовый отступ сверху для окна заказа
-                modal.style.width = '';  // Разрешаем адаптивному CSS управлять шириной заказа
+                modal.style.top = '40px'; 
+                modal.style.width = '';  
             } else {
-                // Для Листа ожидания и других окон — высчитываем идеальный вертикальный центр
                 const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
                 modal.style.top = startTop + "px";
             }
         }
-        
+   
         if (typeof focusModal === 'function') {
             focusModal(modal);
         }
