@@ -2362,28 +2362,35 @@ async function saveNewTaskToSupabase() {
     }
 }
 
-// Автоподставление имени и календаря (Исправленная версия)
-function autoFillFormDetails() {
-    // 1. Умная автоподстановка имени оператора прямо из верхнего заголовка сайта
-    let currentOperator = "Оператор";
-    
-    // Ищем на странице заголовок, в котором написано "Добро пожаловать"
-    const allHeaders = document.querySelectorAll('h1, h2, h3, div, span, p');
-    for (let element of allHeaders) {
-        if (element.innerText && element.innerText.includes("Добро пожаловать")) {
-            // Очищаем текст от лишних слов и смайликов, оставляя только само имя
-            currentOperator = element.innerText
-                .replace(/[🚌👋🎯👋✨💻📢]/g, '') // Удаляем смайлики (добавь свои, если нужно)
-                .replace("Добро пожаловать,", "")
-                .replace("Добро пожаловать", "")
-                .replace("!", "")
-                .trim();
-            break;
+// Железное автоподставление данных из активной сессии
+async function autoFillFormDetails() {
+    try {
+        // 1. Берем данные текущего залогиненного пользователя напрямую из Supabase Auth
+        const { data: { user }, error } = await supabaseClient.auth.getUser();
+        
+        let currentOperator = "Оператор"; // Дефолтное имя на случай сбоя
+
+        if (user) {
+            // Проверяем, есть ли имя в профиле пользователя (User Metadata)
+            if (user.user_metadata && user.user_metadata.full_name) {
+                currentOperator = user.user_metadata.full_name;
+            } else if (user.email) {
+                // Если полного имени нет, берем первую часть email до собачки @
+                currentOperator = user.email.split('@')[0];
+            }
         }
+        
+        // Очищаем от возможных смайликов, если они затесались в профиле
+        currentOperator = currentOperator.replace(/[🟢🚌👋🎯✨💻📢×]/g, '').trim();
+
+        const opInput = document.getElementById('wl-input-operator');
+        if (opInput) opInput.value = currentOperator;
+
+    } catch (err) {
+        console.error("Ошибка автоподстановки оператора:", err);
+        const opInput = document.getElementById('wl-input-operator');
+        if (opInput) opInput.value = "Оператор"; // Подстраховка
     }
-    
-    const opInput = document.getElementById('wl-input-operator');
-    if (opInput) opInput.value = currentOperator;
 
     // 2. Автоподстановка даты и времени из твоего основного левого блока
     const mainDelivDateInput = document.getElementById('script-deliv-date');
@@ -2393,6 +2400,7 @@ function autoFillFormDetails() {
         formCallbackInput.value = mainDelivDateInput.value;
     }
 }
+
 // Функция загрузки и вывода Листа ожидания из Supabase
 async function loadWaitingList() {
     const tbody = document.getElementById('wl-table-body');
