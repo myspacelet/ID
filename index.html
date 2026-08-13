@@ -2362,35 +2362,28 @@ async function saveNewTaskToSupabase() {
     }
 }
 
-// Железное автоподставление данных из активной сессии
-async function autoFillFormDetails() {
-    try {
-        // 1. Берем данные текущего залогиненного пользователя напрямую из Supabase Auth
-        const { data: { user }, error } = await supabaseClient.auth.getUser();
-        
-        let currentOperator = "Оператор"; // Дефолтное имя на случай сбоя
+// Финальная автоподстановка имени оператора
+function autoFillFormDetails() {
+    let currentOperator = "Александр"; // Дефолтное имя на случай сбоя
 
-        if (user) {
-            // Проверяем, есть ли имя в профиле пользователя (User Metadata)
-            if (user.user_metadata && user.user_metadata.full_name) {
-                currentOperator = user.user_metadata.full_name;
-            } else if (user.email) {
-                // Если полного имени нет, берем первую часть email до собачки @
-                currentOperator = user.email.split('@')[0];
-            }
+    // Ищем фразу "Добро пожаловать" абсолютно во всех элементах страницы
+    const allElements = document.getElementsByTagName('*');
+    for (let i = 0; i < allElements.length; i++) {
+        const text = allElements[i].innerText;
+        if (text && text.includes("Добро пожаловать")) {
+            // Как только нашли нужную строчку — вытаскиваем из неё только имя
+            currentOperator = text
+                .replace(/[🚌👋🎯✨💻📢×!]/g, '') // Вычищаем смайлики и знаки
+                .replace("Добро пожаловать,", "")
+                .replace("Добро пожаловать", "")
+                .trim();
+            break; // Выходим из цикла, имя найдено
         }
-        
-        // Очищаем от возможных смайликов, если они затесались в профиле
-        currentOperator = currentOperator.replace(/[🟢🚌👋🎯✨💻📢×]/g, '').trim();
-
-        const opInput = document.getElementById('wl-input-operator');
-        if (opInput) opInput.value = currentOperator;
-
-    } catch (err) {
-        console.error("Ошибка автоподстановки оператора:", err);
-        const opInput = document.getElementById('wl-input-operator');
-        if (opInput) opInput.value = "Оператор"; // Подстраховка
     }
+
+    // Записываем чистое имя в поле формы
+    const opInput = document.getElementById('wl-input-operator');
+    if (opInput) opInput.value = currentOperator;
 
     // 2. Автоподстановка даты и времени из твоего основного левого блока
     const mainDelivDateInput = document.getElementById('script-deliv-date');
