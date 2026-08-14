@@ -1410,7 +1410,7 @@ let topModalZIndex = 2000;
 function openFloatingModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        // 🔥 Переключаем отображение с наивысшим инлайн-приоритетом:
+        // Принудительно включаем flex-отображение поверх базового CSS
         modal.style.setProperty('display', 'flex', 'important');
         
         // Автоматический триггер загрузки данных для Листа ожидания
@@ -1420,7 +1420,16 @@ function openFloatingModal(modalId) {
             }
         }
         
-        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые)
+        // 🔥 ДОБАВЛЯЕМ СЮДА: Если разворачивают ОКНО ЗАКАЗА — сбрасываем координаты сворачивания!
+        if (modalId === 'modal-process-order') {
+            // Если окно было свернуто в правый угол, зануляем его стили, чтобы сработал расчет центра ниже
+            if (modal.style.left && modal.style.left !== "35%") {
+                modal.style.left = "";
+                modal.style.top = "";
+            }
+        }
+        
+        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые или были сброшены)
         if (!modal.style.left || modal.style.left === "35%") {
             if (modalId === "modal-waiting-list") {
                 modal.style.width = ""; 
@@ -1433,7 +1442,7 @@ function openFloatingModal(modalId) {
             modal.style.left = startLeft + "px";
             
             if (modalId === 'modal-process-order') {
-                modal.style.top = '40px'; 
+                modal.style.top = '40px'; // Твой комфортный отступ сверху для заказа
                 modal.style.width = '';  
             } else {
                 const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
