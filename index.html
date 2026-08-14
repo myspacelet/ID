@@ -1501,9 +1501,22 @@ function restoreOrderModal() {
     if (minBtn) {
         minBtn.style.display = 'none'; // Убираем плашку из панели навигации
     }
+    
     if (modal) {
-        modal.style.display = 'flex'; // Возвращаем окно на экран
-        focusModal(modal); // Выводим его на передний план z-index
+        // 🔥 1. Пробиваем жесткий CSS-запрет с наивысшим приоритетом
+        modal.style.setProperty('display', 'flex', 'important');
+        
+        // 🔥 2. Стираем координаты "углового космоса", чтобы окно не исчезало
+        modal.style.left = "";
+        modal.style.top = "";
+        
+        // 🔥 3. Запускаем общую функцию, которая правильно рассчитает центр экрана оператора
+        if (typeof openFloatingModal === 'function') {
+            openFloatingModal('modal-process-order');
+        } else {
+            // Подстраховка, если openFloatingModal недоступна
+            focusModal(modal);
+        }
         
         // Принудительно запускаем обновление текста, чтобы подгрузить всё в исходном виде
         if (typeof updateLiveScriptText === 'function') {
