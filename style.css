@@ -676,13 +676,13 @@ body.dark-mode .btn-order-action:hover {
    🪐 РЕЗИНОВЫЕ РАЗМЕРЫ ДЛЯ ШИРОКОГО ОКНА ОБРАБОТКИ ЗАКАЗА
    ======================================================== */
 .floating-modal-wide {
-    width: 98vw !important;             /* Сделали чуть шире к краям экрана */
-    max-width: 1700px !important;       /* Увеличили порог, чтобы окно росло на больших мониторах */
-    min-width: 1000px !important;       /* Подняли минимальный порог для удобства */
+    width: 96vw !important;             /* Почти на всю ширину экрана */
+    max-width: 1600px !important;       /* Лимит для больших мониторов */
+    min-width: 1000px !important;       /* Защита для мелких экранов */
     
-    /* 🔥 ДОБАВИЛИ ВЫСОТУ: Окно станет ощутимо выше */
-    height: 85vh !important;            /* Занимает 85% от высоты экрана оператора */
-    max-height: 900px !important;       /* Ограничение по высоте, чтобы не прижималось вплотную */
+    /* 🔥 Высота по вашим отметкам */
+    height: 85vh !important;            /* Занимает 85% высоты экрана оператора */
+    max-height: 900px !important;       
     display: flex !important;
     flex-direction: column !important;
 }
@@ -692,45 +692,38 @@ body.dark-mode .btn-order-action:hover {
     display: flex;
     gap: 32px;
     width: 100%;
-    height: 100%;                       /* 🔥 Растягиваем контейнер колонок на всю доступную высоту */
+    height: 100%;                       /* Растягиваем контейнер на всю высоту */
     box-sizing: border-box;
     align-items: stretch;
-    flex: 1;                            /* 🔥 Позволяет контенту занять всё свободное пространство */
+    flex: 1;                            
 }
 
-/* 🔥 Чтобы внутренние панели (левая и правая) тоже растянулись по высоте */
-.modal-columns-container > div {
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-/* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ТОВАРЫ) */
+/* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ИНПУТЫ И ТОВАРЫ) */
 .modal-column-left {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 62vh;                   /* Автоматом подстраивается под высоту экрана */
-    max-height: 600px;
+    height: 100% !important;        /* 🔥 Убрали 62vh, теперь растет вместе с окном */
+    max-height: none !important;    /* 🔥 Убрали жесткий лимит в 600px */
     min-height: 380px;
-    overflow-y: auto;               /* Скролл, если товаров будет очень много */
+    overflow-y: auto;               
     padding-right: 12px;
 }
 
 /* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА (ГОТОВЫЙ СКРИПТ) */
 .modal-column-right {
-    flex: 1.5;                      /* Зона скрипта немного шире левой */
+    flex: 1.5;                      /* Зона скрипта остается шире (в 1.5 раза) */
     display: flex;
     flex-direction: column;
-    height: 62vh;                   
-    max-height: 600px;
+    height: 100% !important;        /* 🔥 Убрали 62vh */
+    max-height: none !important;    /* 🔥 Убрали лимит в 600px */
     min-height: 380px;
 }
 
 /* Текстовое поле готового скрипта */
 #script-live-output {
     width: 100% !important;
-    height: 84% !important;        /* Занимает максимум полезного пространства */
+    height: 86% !important;        /* Занимает максимум полезного пространства */
     background: #f8fafc;
     font-weight: 500;
     font-size: 14.5px;
@@ -741,12 +734,13 @@ body.dark-mode .btn-order-action:hover {
     box-sizing: border-box;
     border: 1px solid #cbd5e1;
     border-radius: 10px;
+    overflow-y: auto !important;    
 }
 
 /* Кнопка копирования скрипта */
 .modal-column-right .btn-primary {
-    margin-top: auto !important;    /* Выталкивает кнопку на самый низ правой колонки */
-    height: 48px !important;        /* Фиксированная аккуратная высота */
+    margin-top: auto !important;    /* Выталкивает кнопку на самый низ */
+    height: 48px !important;        
     padding: 0 24px !important;
     font-size: 14px !important;
     font-weight: 600 !important;
@@ -760,6 +754,7 @@ body.dark-mode .btn-order-action:hover {
     align-items: center;
     flex-shrink: 0 !important;      
 }
+
 
 /* ========================================================
    🥷 ТЕМНАЯ ТЕМА ДЛЯ КОМПОНЕНТОВ ШИРОКОЙ МОДАЛКИ
