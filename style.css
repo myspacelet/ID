@@ -676,9 +676,15 @@ body.dark-mode .btn-order-action:hover {
    🪐 РЕЗИНОВЫЕ РАЗМЕРЫ ДЛЯ ШИРОКОГО ОКНА ОБРАБОТКИ ЗАКАЗА
    ======================================================== */
 .floating-modal-wide {
-    width: 97vw !important;             /* Занимает ровно 85% от ширины экрана любого оператора */
-    max-width: 1400px !important;       /* Ограничение, чтобы на огромных мониторах окно не растягивалось бесконечно */
-    min-width: 800px !important;        /* Минимальный порог для мелких ноутбуков */
+    width: 98vw !important;             /* Сделали чуть шире к краям экрана */
+    max-width: 1700px !important;       /* Увеличили порог, чтобы окно росло на больших мониторах */
+    min-width: 1000px !important;       /* Подняли минимальный порог для удобства */
+    
+    /* 🔥 ДОБАВИЛИ ВЫСОТУ: Окно станет ощутимо выше */
+    height: 85vh !important;            /* Занимает 85% от высоты экрана оператора */
+    max-height: 900px !important;       /* Ограничение по высоте, чтобы не прижималось вплотную */
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 /* Сетка для разделения тела модалки на две колонки */
@@ -686,8 +692,17 @@ body.dark-mode .btn-order-action:hover {
     display: flex;
     gap: 32px;
     width: 100%;
+    height: 100%;                       /* 🔥 Растягиваем контейнер колонок на всю доступную высоту */
     box-sizing: border-box;
     align-items: stretch;
+    flex: 1;                            /* 🔥 Позволяет контенту занять всё свободное пространство */
+}
+
+/* 🔥 Чтобы внутренние панели (левая и правая) тоже растянулись по высоте */
+.modal-columns-container > div {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 /* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ТОВАРЫ) */
