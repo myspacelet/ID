@@ -688,13 +688,11 @@ body.dark-mode .btn-order-action:hover {
 
 /* Сетка для разделения тела модалки на две колонки */
 .modal-columns-container {
-    display: flex;
-    gap: 32px;
-    width: 100%;
-    height: 100%;                       /* Растягиваем контейнер на всю высоту */
-    box-sizing: border-box;
-    align-items: stretch;
-    flex: 1;                            
+    display: flex !important;
+    gap: 32px !important;
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1 !important;
 }
 
 /* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ИНПУТЫ И ТОВАРЫ) */
