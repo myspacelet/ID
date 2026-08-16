@@ -615,7 +615,18 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySqISokz6WKl
 
 let currentSearchMode = 'city'; 
 let listCount = 2;              
-let storeDatabase = {};         
+let storeDatabase = {};
+
+let isConvenientToTalk = null;
+
+// Функция переключения состояния кнопок Да/Нет
+function setTalkConvenience(value) {
+    isConvenientToTalk = value;
+    // Принудительно обновляем текст скрипта разговора при клике
+    if (typeof updateLiveScriptText === 'function') {
+        updateLiveScriptText();
+    }
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
     // 1. Запускаем твои стандартные функции загрузки баз
@@ -1467,6 +1478,9 @@ function closeFloatingModal(modalId) {
         
         // Твоя стандартная гигиена интерфейса для окна заказов
         if (modalId === 'modal-process-order') {
+            // СБРАСЫВАЕМ ВЫБОР КНОПОК ДА/НЕТ ДЛЯ НОВОГО КЛИЕНТА
+            isConvenientToTalk = null;
+
             const minBtn = document.getElementById('btn-minimized-order');
             if (minBtn) minBtn.style.display = 'none';
 
@@ -1759,160 +1773,136 @@ function updateLiveScriptText() {
     // ========================================================
     // БЛОК 1: ПРИВЕТСТВИЕ И УТОЧНЕНИЕ ТОВАРОВ
     // ========================================================
-    let scriptText = `Добрый день, ${clientName}! Меня зовут ${opName}, компания ЛЭТУАЛЬ. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n\n`;
-    scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
-
-    const artInputs = document.querySelectorAll('.script-input-art');
-    const qtyInputs = document.querySelectorAll('.script-input-qty');
-    const nameInputs = document.querySelectorAll('.script-input-name');
+    let scriptText = `Добрый день, ${clientName}! Меня зовут ${opName}, company ЛЭТУАЛЬ. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n\n`;
     
-    let productParts = [];
-for (let i = 0; i < artInputs.length; i++) {
-        const art = artInputs[i].value.trim();
-        const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
-        const prodName = nameInputs[i] ? nameInputs[i].value.trim() : "";
-        
-        // 🔥 ВЫТАСКИВАЕМ СКРЫТУЮ ССЫЛКУ НА ТОВАР ИЗ DATA-АТРИБУТА
-        const prodLink = nameInputs[i] ? nameInputs[i].getAttribute('data-link') : "";
-        
-        // 🚥 СВЕТОФОР ДЛЯ НАИМЕНОВАНИЯ И АРТИКУЛА ТОВАРА
-        let displayItem = "";
-        if (prodName) {
-            // Если ссылка найдена, оборачиваем текст в тег ссылки <a>, иначе выводим просто текст
-            const nameHtml = prodLink 
-                ? `<a href="${prodLink}" target="_blank" style="color: #22c55e; font-weight: 700; text-decoration: underline; cursor: pointer;">${prodName}</a>`
-                : `<span style="color: #22c55e; font-weight: 700;">${prodName}</span>`;
-                
-            displayItem = `товар "${nameHtml}"`;
-        } else {
-            if (art) {
-                displayItem = `товар (артикул: <span style="color: #22c55e; font-weight: 700;">${art}</span>)`;
+    // Стили для кнопок Да / Нет
+    const btnBaseStyle = "padding: 6px 18px; font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; margin-right: 8px; transition: all 0.2s;";
+    const btnYesStyle = isConvenientToTalk === 'yes' 
+        ? `${btnBaseStyle} background-color: #22c55e; color: white; box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);` 
+        : `${btnBaseStyle} background-color: #e2e8f0; color: #334155;`;
+    const btnNoStyle = isConvenientToTalk === 'no' 
+        ? `${btnBaseStyle} background-color: #ef4444; color: white; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);` 
+        : `${btnBaseStyle} background-color: #e2e8f0; color: #334155;`;
+
+    // Выводим интерактивные кнопки под первой фразой приветствия
+    scriptText += `<div style="margin-bottom: 15px; display: flex; align-items: center; gap: 4px;">
+        <button onclick="setTalkConvenience('yes')" style="${btnYesStyle}">🟢 Да</button>
+        <button onclick="setTalkConvenience('no')" style="${btnNoStyle}">🔴 Нет</button>
+    </div>`;
+
+    // Включаем проверку выбора
+    if (isConvenientToTalk === 'yes') {
+        scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
+
+            const artInputs = document.querySelectorAll('.script-input-art');
+        const qtyInputs = document.querySelectorAll('.script-input-qty');
+        const nameInputs = document.querySelectorAll('.script-input-name');
+
+        let productParts = [];
+        for (let i = 0; i < artInputs.length; i++) {
+            const art = artInputs[i].value.trim();
+            const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 1;
+            const prodName = nameInputs[i] ? nameInputs[i].value.trim() : "";
+            const prodLink = nameInputs[i] ? nameInputs[i].getAttribute('data-link') : "";
+            
+            let displayItem = "";
+            if (prodName) {
+                const nameHtml = prodLink 
+                    ? `<a href="${prodLink}" target="_blank" style="color: #22c55e; font-weight: 700; text-decoration: underline; cursor: pointer;">${prodName}</a>`
+                    : `<span style="color: #22c55e; font-weight: 700;">${prodName}</span>`;
+                displayItem = `товар "${nameHtml}"`;
             } else {
-                displayItem = `товар №${i+1} <span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+                if (art) {
+                    displayItem = `товар (артикул: <span style="color: #22c55e; font-weight: 700;">${art}</span>)`;
+                } else {
+                    displayItem = `товар №${i+1} <span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+                }
             }
+            productParts.push(`${displayItem} в количестве <span style="color: #22c55e; font-weight: 700;">${qty} шт.</span>`);
         }
 
-        // Количество тоже подсвечиваем зеленым как заполненное
-        productParts.push(`${displayItem} в количестве <span style="color: #22c55e; font-weight: 700;">${qty} шт.</span>`);
-    }
+        if (productParts.length === 1) {
+            scriptText += productParts;
+        } else if (productParts.length > 1) {
+            const lastPart = productParts.pop();
+            scriptText += productParts.join(', ') + ' и ' + lastPart;
+        } else {
+            scriptText += `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+        }
+        scriptText += `, верно?\n\n`;
 
-    if (productParts.length === 1) {
-        scriptText += productParts[0];
-    } else if (productParts.length > 1) {
-        const lastPart = productParts.pop();
-        scriptText += productParts.join(', ') + ' и ' + lastPart;
-    } else {
-        scriptText += `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-    }
-    scriptText += `, верно?\n\n`;
-
-    // ========================================================
-    // БЛОК 3: ИНФОРМИРОВАНИЕ О ДОСТУПНОСТИ И ОТГРУЗКЕ
-    // ========================================================
-    scriptText += `Данный-(ые) товар-(ры) сейчас находятся в наличии магазина `;
-    
-    // Проверяем, зафиксировал ли оператор магазин кнопкой "Выбрать"
-    if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
-        const storeInfo = storeDatabase[selectedStoreCode];
+        // БЛОК 3: ИНФОРМИРОВАНИЕ О ДОСТУПНОСТИ И ОТГРУЗКЕ
+        scriptText += `Данный-(ые) товар-(ры) сейчас находятся в наличии магазина `;
         
-        // 🚥 СВЕТОФОР ДЛЯ ТОЧКИ ОТГРУЗКИ (Зелёный, если данные подтянулись)
-        const storeCityHtml = storeInfo.city 
-            ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.city}</span>` 
-            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-            
-        const storeAddressHtml = storeInfo.address 
-            ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.address}</span>` 
-            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+        if (typeof selectedStoreCode !== 'undefined' && selectedStoreCode && storeDatabase[selectedStoreCode]) {
+            const storeInfo = storeDatabase[selectedStoreCode];
+            const storeCityHtml = storeInfo.city 
+                ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.city}</span>` 
+                : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+                
+            const storeAddressHtml = storeInfo.address 
+                ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.address}</span>` 
+                : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+            scriptText += `в городе ${storeCityHtml} по адресу: ${storeAddressHtml}.\n\n`;
+        } else {
+            scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
+        }
+        
+        scriptText += `На данный момент доступно 2 способа доставки: в пункт выдачи СДЭК и курьером на рабочий или домашний адрес. Уточните, пожалуйста, какой способ Вам удобнее?\n<br>`;
 
-        scriptText += `в городе ${storeCityHtml} по адресу: ${storeAddressHtml}.\n\n`;
-    } else {
-        // Твоё оригинальное предупреждение (Красный цвет)
-        scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
-    }
-    
-    scriptText += `На данный момент доступно 2 способа доставки: в пункт выдачи СДЭК и курьером на рабочий или домашний адрес. Уточните, пожалуйста, какой способ Вам удобнее?\n<br>`;
+        // БЛОК 4: СОГЛАСОВАНИЕ ЛОГИСТИКИ
+        const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
+        let priceText = "";
+        if (delivPriceInput) {
+            const parsedPrice = parseInt(delivPriceInput, 10);
+            const corePriceString = parsedPrice === 0 ? "бесплатно" : `${delivPriceInput} рублей`;
+            priceText = `<span style="color: #22c55e; font-weight: 700;">${corePriceString}</span>`;
+        } else {
+            priceText = `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+        }
 
-    // ========================================================
-    // БЛОК 4: СОГЛАСОВАНИЕ ЛОГИСТИКИ И ДАННЫХ
-    // ========================================================
-    const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
-    
-    // 🚥 СВЕТОФОР ДЛЯ СТОИМОСТИ ДОСТАВКИ
-    let priceText = "";
-    if (delivPriceInput) {
-        const parsedPrice = parseInt(delivPriceInput, 10);
-        const corePriceString = parsedPrice === 0 ? "бесплатно" : `${delivPriceInput} рублей`;
-        priceText = `<span style="color: #22c55e; font-weight: 700;">${corePriceString}</span>`;
-    } else {
-        priceText = `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-    }
-    
-    const delivDaysInput = document.getElementById('script-deliv-days').value.trim();
-    
-    // 🚥 СВЕТОФОР ДЛЯ СРОКОВ ДОСТАВКИ
-    const daysText = delivDaysInput 
-        ? `<span style="color: #22c55e; font-weight: 700;">${delivDaysInput}</span>` 
-        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-
-    // Текст-подсказка, который мы красим в красный и делаем жирным
-    const redNotice = `<span style="color: #ef4444; font-weight: 700;">(если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже)</span>`;
-
-    // Выносим получение адреса наверх, чтобы оно работало и для ПВЗ, и для курьера
-    const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
-
- if (currentDeliveryMode === 'pvz') {
-        // 🚥 СВЕТОФОР ДЛЯ АДРЕСА ПВЗ (Зеленый / Единая красная подсказка)
-        const pvzAddress = deliveryAddressInput 
-            ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
+        const delivDaysInput = document.getElementById('script-deliv-days').value.trim();
+        const daysText = delivDaysInput 
+            ? `<span style="color: #22c55e; font-weight: 700;">${delivDaysInput}</span>` 
             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
-       scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
+        const redNotice = `<span style="color: #ef4444; font-weight: 700;">(если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже)</span>`;
+        const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
+
+        const activeDeliveryMode = typeof currentDeliveryMode !== 'undefined' ? currentDeliveryMode : 'pvz';
+        if (activeDeliveryMode === 'pvz') {
+            const pvzAddress = deliveryAddressInput 
+                ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
+                : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+            scriptText += `Мы можем переместить данный заказ и отправить его в ваш город на пункт выдачи СДЭК по адресу: ${pvzAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
+        } else {
+            const clientAddress = deliveryAddressInput 
+                ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
+                : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+            scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
+        }
+
+        // ДАННЫЕ ПОЛУЧАТЕЛЯ
+        const recFioInput = document.getElementById('script-rec-fio').value.trim();
+        const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
+        
+        const recFio = recFioInput ? `<span style="color: #22c55e; font-weight: 700;">${recFioInput}</span>` : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+        const recPhone = recPhoneInput ? `<span style="color: #22c55e; font-weight: 700;">${recPhoneInput}</span>` : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+
+        scriptText += `Для отправки мне потребуется зафиксировать данные получателя. Уточните, пожалуйста, ФИО получателя: ${recFio}, и контактный номер телефона: ${recPhone}.\n\n`;
+        scriptText += `Хорошо. Уточните, пожалуйста, ориентировочную дату и время оформления заказа в личном кабинете?\n\n`;
+        scriptText += `Отлично! Я зафиксировал(-а) все данные и отправляю заказ в обработку. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
+
+    } else if (isConvenientToTalk === 'no') {
+        // 🔥 ЕСЛИ КЛИЕНТ ЗАНЯТ (ВЫБРАНО "НЕТ")
+        scriptText += `Хорошо. Уточните, пожалуйста, в какое время Вам перезвонить для согласования деталей доставки?`;
     } else {
-        // 🚥 СВЕТОФОР ДЛЯ АДРЕСА КУРЬЕРА (Зеленый / Единая красная подсказка)
-        const clientAddress = deliveryAddressInput 
-            ? `<span style="color: #22c55e; font-weight: 700;">${deliveryAddressInput}</span>` 
-            : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-            
-     scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
+        // 🔥 ЕСЛИ НИЧЕГО НЕ ВЫБРАНО
+        scriptText += `<span style="color: #64748b; font-style: italic;">👉 Выберите ответ клиента (Да / Нет), чтобы продолжить скрипт разговора.</span>`;
     }
 
-    // Собираем ФИО и телефон
-    const recFioInput = document.getElementById('script-rec-fio').value.trim();
-    
-    // 🚥 СВЕТОФОР ДЛЯ ФИО ПОЛУЧАТЕЛЯ
-    const recFio = recFioInput 
-        ? `<span style="color: #22c55e; font-weight: 700;">${recFioInput}</span>` 
-        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-    
-    const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
-    
-    // 🚥 СВЕТОФОР ДЛЯ ТЕЛЕФОНА ПОЛУЧАТЕЛЯ
-    const recPhone = recPhoneInput 
-        ? `<span style="color: #22c55e; font-weight: 700;">${recPhoneInput}</span>` 
-        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-
-    scriptText += `Для отправки мне потребуется зафиксировать данные получателя. Уточните, пожалуйста, ФИО получателя: ${recFio}, и контактный номер телефона: ${recPhone}.\n\n`;
-    scriptText += `Хорошо. Уточните, пожалуйста, ориентировочную дату и время оформления заказа в личном кабинете?\n\n`;
-    // ========================================================
-    // БЛОК 5: ДАТА ОФОРМЛЕНИЯ И ФИНАЛ
-    // ========================================================
-    const delivDateInput = document.getElementById('script-deliv-date').value;
-    
-    // 🚥 СВЕТОФОР ДЛЯ ДАТЫ ОФОРМЛЕНИЯ
-    let dateText = "";
-    if (delivDateInput) {
-        const d = new Date(delivDateInput);
-        // Твоё оригинальное красивое форматирование даты
-        const formattedDate = d.toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(' г.', ' года в');
-        dateText = `<span style="color: #22c55e; font-weight: 700;">${formattedDate}</span>`;
-    } else {
-        dateText = `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-    }
-
-    // 🎯 ИСПРАВЛЕНО: Выделенный текст с датой полностью удален из скрипта разговора
-    scriptText += `Отлично! Я зафиксировал-(ла) все данные и отправляю заказ в обработку. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
-
-    liveOutput.innerHTML = scriptText;
+    // Выводим сгенерированный HTML в правое текстовое поле
+    liveOutput.innerHTML = scriptText.replace(/\n/g, '<br>');
 }
 
 // Функция умного копирования данных в формате одной строки Excel/Google Таблиц
