@@ -682,8 +682,15 @@ body.dark-mode .btn-order-action:hover {
     /* 🔥 Высота по вашим отметкам */
     height: 85vh !important;            /* Занимает 85% высоты экрана оператора */
     max-height: 900px !important;       
-    display: flex !important;
+    
+    /* 🔥 ИЗМЕНЕНИЕ: Убираем принудительный display: flex, заменяя его на адаптивный подход */
     flex-direction: column !important;
+}
+
+/* 🔥 ВКЛЮЧАЕМ СЕТКУ ТОЛЬКО ТОГДА, КОГДА ОКНО ОТКРЫТО JS-СКРИПТОМ */
+/* Если ваш JS просто удаляет style="display:none", это правило сработает идеально */
+.floating-modal-wide:not([style*="display: none"]):not([style*="display:none"]) {
+    display: flex !important;
 }
 
 /* Сетка для разделения тела модалки на две колонки */
