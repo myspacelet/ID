@@ -1635,11 +1635,6 @@ function buildOrderProcessingModal() {
         if (textarea && textarea.value.trim()) {
             activeItemsCount++;
 
-            // 🎯 УМНЫЙ ПРОПУСК СТАРОГО КЭША:
-            if (activeItemsCount <= existingProductRows.length) {
-                continue;
-            }
-
             const lines = textarea.value.split('\n');
             let firstLine = lines[0].trim();
 
