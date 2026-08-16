@@ -144,25 +144,16 @@
                             </div>
                         </div>
 
-<!-- 📅 БЛОК: ДАТА ОФОРМЛЕНИЯ ИЛИ НОМЕР ЗАКАЗА -->
-<div class="input-group" style="margin-bottom: 20px;">
-    <!-- 🔥 Добавляем переключатель режимов заказа (Новый / Уже оформлен) -->
-    <div style="display: flex; gap: 8px; margin-bottom: 12px; background: #f1f5f9; padding: 4px; border-radius: 8px; box-sizing: border-box; width: 100%;">
-        <button id="order-mode-new" onclick="setOrderMode('new')" class="nav-btn active" style="flex: 1; border: none; padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">🆕 Новый заказ</button>
-        <button id="order-mode-created" onclick="setOrderMode('created')" class="nav-btn" style="flex: 1; border: none; padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">🆔 Оформлен в ЛК</button>
-    </div>
+<!-- 📅 БЛОК: ДАТА ОФОРМЛЕНИЯ -->
+                        <div class="input-group" style="margin-bottom: 20px;">
+                            <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700;">📅 ДАТА И ВРЕМЯ ОФОРМЛЕНИЯ ЗАКАЗА</label>
+                            <input type="datetime-local" id="script-deliv-date" class="input-textarea" style="height: 40px; margin-bottom: 0;" oninput="updateLiveScriptText()" autocomplete="off">
+                        </div>
 
-    <!-- Подблок А: Дата оформления (Виден по умолчанию) -->
-    <div id="group-order-date-input" style="width: 100%;">
-        <label class="input-label" style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 6px; display: block;">📅 ДАТА И ВРЕМЯ ОФОРМЛЕНИЯ ЗАКАЗА</label>
-        <input type="datetime-local" id="script-deliv-date" class="input-textarea" style="height: 40px; margin-bottom: 0; width: 100%; box-sizing: border-box;" oninput="updateLiveScriptText()" autocomplete="off">
-    </div>
-
-    <!-- Подблок Б: Номер заказа (Скрыт по умолчанию, появляется при переключении) -->
-    <div id="group-order-number-input" style="display: none; width: 100%;">
-        <label class="input-label" style="font-size: 11px; color: #4338ca; font-weight: 700; margin-bottom: 6px; display: block;">🆔 НОМЕР ОФОРМЛЕННОГО ЗАКАЗА В ЛК</label>
-        <input type="text" id="script-order-number" class="input-textarea" style="height: 40px; margin-bottom: 0; width: 100%; box-sizing: border-box;" placeholder="Например: 104-203-555" oninput="updateLiveScriptText()" autocomplete="off">
-    </div>
+                        <label class="input-label" style="font-size: 11px; color: #3b82f6; font-weight: 700; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-bottom: 10px;">📦 СПИСОК ТОВАРОВ В ЗАКАЗЕ</label>
+                        <!-- Сюда JS по-прежнему динамически рендерит товары -->
+                        <div id="script-products-container"></div>
+    </form>
 </div>
 
                     <!-- 🛠️ ВЕРТИКАЛЬНЫЙ РАЗДЕЛИТЕЛЬ -->
@@ -297,7 +288,6 @@
         let currentDeliveryMode = 'pvz';
         let selectedStoreCode = null;
         let activeLists = [];
-        let currentOrderStatusMode = 'new';
         // Конфигурация Supabase (Адрес собран по твоему ID)
 const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_JinHB8pKvvmIkIkIFRjF4A_BXnnC0rD";
@@ -2003,12 +1993,8 @@ function copyGeneratedScript(btnElement) {
         priceCourier = delivPrice;
     }
 
-// 7. Сборка способа доставки текстом (Столбец K)
+    // 7. Сборка способа доставки текстом (Столбец K)
     const methodText = currentDeliveryMode === 'pvz' ? 'СДЭК ПВЗ' : 'Курьер';
-
-    // 🔥 ДОБАВЛЯЕМ: Безопасно вытаскиваем номер заказа, если поле существует
-    const orderNumberInput = document.getElementById('script-order-number');
-    const orderNumber = orderNumberInput ? orderNumberInput.value.trim() : '';
 
     // 8. Сборка финальной строки по правилам буфера Excel (Разделитель — \t)
     const excelRowParts = [
@@ -2023,10 +2009,8 @@ function copyGeneratedScript(btnElement) {
         delivDays,              // Столбец J: СРОК
         methodText,             // Столбец K: Способ:
         deliveryAddress,        // Столбец L: Адрес доставки:
-        
-        // 🔥 УМНОЕ РАЗДЕЛЕНИЕ СТОЛБЦОВ M И N:
-        (typeof currentOrderStatusMode !== 'undefined' && currentOrderStatusMode === 'new' && delivDate) ? delivDate.replace('T', ' ') : '', // Столбец M: Дата оформления
-        (typeof currentOrderStatusMode !== 'undefined' && currentOrderStatusMode === 'created') ? orderNumber : ''                            // Столбец N: НОМЕР ЗАКАЗА
+        delivDate ? delivDate.replace('T', ' ') : '', // Столбец M: Дата оформления
+        ''                      // Столбец N: НОМЕР ЗАКАЗА (Пусто)
     ];
 
     const finalExcelString = excelRowParts.join('\t');
@@ -2711,46 +2695,6 @@ function copyTaskIdToClipboard(event, idText) {
         document.execCommand("copy");
         document.body.removeChild(textArea);
     });
-}
-// Функция переключения режима заказа
-function setOrderMode(mode) {
-    currentOrderStatusMode = mode;
-
-    const btnNew = document.getElementById('order-mode-new');
-    const btnCreated = document.getElementById('order-mode-created');
-    const groupDate = document.getElementById('group-order-date-input');
-    const groupNumber = document.getElementById('group-order-number-input');
-
-    if (mode === 'new') {
-        // Визуально переключаем вкладки
-        if (btnNew) btnNew.classList.add('active');
-        if (btnCreated) btnCreated.classList.remove('active');
-        
-        // Показываем дату, скрываем номер
-        if (groupDate) groupDate.style.display = 'block';
-        if (groupNumber) groupNumber.style.display = 'none';
-        
-        // Гигиена данных: очищаем поле номера, чтобы оно случайно не скопировалось
-        const numInput = document.getElementById('script-order-number');
-        if (numInput) numInput.value = '';
-    } else {
-        // Визуально переключаем вкладки
-        if (btnNew) btnNew.classList.remove('active');
-        if (btnCreated) btnCreated.classList.add('active');
-        
-        // Скрываем дату, показываем номер
-        if (groupDate) groupDate.style.display = 'none';
-        if (groupNumber) groupNumber.style.display = 'block';
-        
-        // Гигиена данных: очищаем поле даты
-        const dateInput = document.getElementById('script-deliv-date');
-        if (dateInput) dateInput.value = '';
-    }
-
-    // Принудительно обновляем текст скрипта под новый сценарий
-    if (typeof updateLiveScriptText === 'function') {
-        updateLiveScriptText();
-    }
 }
 
     </script>
