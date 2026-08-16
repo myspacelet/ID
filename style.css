@@ -683,7 +683,7 @@ body.dark-mode .btn-order-action:hover {
     height: 85vh !important;            /* Занимает 85% высоты экрана оператора */
     max-height: 900px !important;       
     
-    /* 🔥 ИЗМЕНЕНИЕ: Убираем принудительный display: flex, заменяя его на адаптивный подход */
+    /* Направление внутренних колонок */
     flex-direction: column !important;
 }
 
@@ -704,10 +704,14 @@ body.dark-mode .btn-order-action:hover {
 
 /* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ИНПУТЫ И ТОВАРЫ) */
 .modal-column-left {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;        
+    max-height: none !important;    
+    min-height: 380px;
+    overflow-y: auto;               
+    padding-right: 12px;
 }
 
 .modal-column-left form {
@@ -719,18 +723,20 @@ body.dark-mode .btn-order-action:hover {
 
 /* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА */
 .modal-column-right {
-    flex: 1.5 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
+    flex: 1.5;                      /* Правая колонка со скриптом шире левой */
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;        
+    max-height: none !important;    
+    min-height: 380px;
     box-sizing: border-box !important;
 }
 
 /* Белое поле скрипта забирает ВСЁ свободное место */
 #script-live-output {
     width: 100% !important;
-    flex: 1 !important;           /* 🔥 Вот теперь именно поле скрипта растянется до самого низа */
-    height: auto !important;      
+    flex: 1 !important;             /* Забирает всё свободное место сверху до кнопки */
+    height: auto !important;        
     background: #f8fafc;
     font-weight: 500;
     font-size: 14.5px;
@@ -742,13 +748,13 @@ body.dark-mode .btn-order-action:hover {
     border: 1px solid #cbd5e1;
     border-radius: 10px;
     overflow-y: auto !important;    
-    margin-bottom: 15px !important; /* Отступ между полем и кнопкой */
+    margin-bottom: 15px !important; /* Аккуратный отступ до кнопки */
 }
 
 /* Фиолетовая кнопка копирования (теперь строго фиксированная и аккуратная) */
 .modal-column-right .btn-primary {
     width: 100% !important;
-    height: 46px !important;        /* 🔥 Возвращаем жесткую аккуратную высоту */
+    height: 46px !important;        /* Возвращаем жесткую аккуратную высоту */
     max-height: 46px !important;    
     padding: 0 24px !important;
     font-size: 14px !important;
@@ -761,10 +767,9 @@ body.dark-mode .btn-order-action:hover {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    flex-shrink: 0 !important;      /* Запрещаем кнопке деформироваться */
-    margin-top: 0 !important;       /* Убираем растягивающий маргин */
+    flex-shrink: 0 !important;      /* Защита от деформации флексом */
+    margin-top: 0 !important;       
 }
-
 
 /* ========================================================
    🥷 ТЕМНАЯ ТЕМА ДЛЯ КОМПОНЕНТОВ ШИРОКОЙ МОДАЛКИ
