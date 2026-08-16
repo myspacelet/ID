@@ -1626,99 +1626,75 @@ function buildOrderProcessingModal() {
         existingProductRows = container.querySelectorAll('.script-product-row');
     }
 
-    // 🎯 УМНЫЙ РАЗВОРОТ: Если количество товаров совпадает, просто открываем окно
+        // 🎯 УМНЫЙ РАЗВОРОТ С МГНОВЕННЫМ ОБНОВЛЕНИЕМ ДАННЫХ
     if (minBtn && minBtn.style.display === 'block' && currentActiveLists === existingProductRows.length) {
         restoreOrderModal();
-        return;
-    }
-
-    // 🎯 УМНЫЙ ДОБОР: Если товаров на главном экране больше, разворачиваем и готовимся дописать новые
-    if (minBtn && minBtn.style.display === 'block' && currentActiveLists > existingProductRows.length) {
-        restoreOrderModal(); 
-    } else if (!minBtn || minBtn.style.display !== 'block') {
-        // Если это абсолютно новое открытие окна (не из свернутого состояния), то чистим всё как обычно
-        container.innerHTML = ''; 
-        document.getElementById('script-client-name').value = ''; 
-    }
-
-    let activeItemsCount = 0;
-
-    // 3. Запускаем цикл парсинга и генерации строк товаров
-    for (let i = 1; i <= 100; i++) {
-        const textarea = document.getElementById(`list-${i}`);
-        if (textarea && textarea.value.trim()) {
-            activeItemsCount++;
-
-            // 🔥 НОВЫЙ БЕЗОПАСНЫЙ РАЗБОР СТРОКИ:
-            const lines = textarea.value.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-
-            if (lines.length === 0) continue;
-
-            let firstLine = lines[0];
-
-            // Универсальная очистка мусора Telegram (таймстампы и "Остатки:")
-            if (firstLine.startsWith('[')) {
-                firstLine = firstLine.replace(/^\[[^\]]+\]\s*(Остатки:\s*|Лог:\s*)?/i, '').trim();
-            }
-
-            // Достаем первое слово (артикул)
-            const words = firstLine.split(/\s+/);
-            const firstWord = words[0]; 
-            
-            let detectedArticle = "";
-            let detectedName = "";
-            let detectedLink = "";
-
-            // Заглушка для количества по умолчанию
-            let requiredStock = 1; 
-
-            if (/^[A-Z0-9_-]+$/.test(firstWord)) {
-                detectedArticle = firstWord;
-                let remainingText = firstLine.substring(firstWord.length).trim();
-                
-                const linkMatch = remainingText.match(/\((https?:\/\/[^\)]+)\)/i);
-                if (linkMatch && linkMatch[1]) {
-                    detectedLink = linkMatch[1].trim();
+        
+        // Перебираем существующие строки в модалке и обновляем в них данные на лету
+        let listIndex = 1;
+        for (let i = 0; i < existingProductRows.length; i++) {
+            // Находим текстовое поле на главном экране
+            let textarea = null;
+            while (listIndex <= 100) {
+                const t = document.getElementById(`list-${listIndex}`);
+                listIndex++;
+                if (t && t.value.trim()) {
+                    textarea = t;
+                    break;
                 }
-                
-                remainingText = remainingText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
-                detectedName = remainingText;
             }
-
-            // 🎯 ТОЧНЫЙ СБОР КОЛИЧЕСТВА ДЛЯ ПЕРВОГО ОТКРЫТИЯ ОКНА
-            requiredStock = 1;
-            const stockFilterInput = document.getElementById(`stock-filter-${i}`);
-            if (stockFilterInput && stockFilterInput.value.trim()) {
-                requiredStock = parseInt(stockFilterInput.value.trim(), 10) || 1;
+            
+            if (textarea) {
+                // Разбираем и зачищаем строку от мусора Telegram
+                const lines = textarea.value.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+                if (lines.length > 0) {
+                    let firstLine = lines[0];
+                    if (firstLine.startsWith('[')) {
+                        firstLine = firstLine.replace(/^\[[^\]]+\]\s*(Остатки:\s*|Лог:\s*)?/i, '').trim();
+                    }
+                    
+                    // Выделяем артикул и название
+                    const words = firstLine.split(/\s+/);
+                    const firstWord = words[0];
+                    let detArt = "";
+                    let detName = firstLine;
+                    let detLink = "";
+                    
+                    if (/^[A-Z0-9_-]+$/.test(firstWord)) {
+                        detArt = firstWord;
+                        let remText = firstLine.substring(firstWord.length).trim();
+                        const linkMatch = remText.match(/\((https?:\/\/[^\)]+)\)/i);
+                        if (linkMatch && linkMatch[1]) detLink = linkMatch[1].trim();
+                        remText = remText.replace(/\s*\(https?:\/\/[^\)]+\)/i, '').trim();
+                        detName = remText;
+                    }
+                    
+                    // Вытаскиваем количество
+                    let detQty = 1;
+                    const stockInput = document.getElementById(`stock-filter-${listIndex - 1}`);
+                    if (stockInput && stockInput.value.trim()) {
+                        detQty = parseInt(stockInput.value.trim(), 10) || 1;
+                    }
+                    
+                    // Находим инпуты внутри текущей строки модалки и обновляем их значения напрямую
+                    const artInp = existingProductRows[i].querySelector('.script-input-art');
+                    const nameInp = existingProductRows[i].querySelector('.script-input-name');
+                    const qtyInp = existingProductRows[i].querySelector('.script-input-qty');
+                    
+                    if (artInp) artInp.value = detArt;
+                    if (nameInp) {
+                        nameInp.value = detName;
+                        if (detLink) nameInp.setAttribute('data-link', detLink);
+                        else nameInp.removeAttribute('data-link');
+                    }
+                    if (qtyInp) qtyInp.value = detQty;
+                }
             }
-
-            // Генерируем расширенные поля для этого товара в модалке
-            const prodRow = document.createElement('div');
-            prodRow.className = 'script-product-row';
-            prodRow.style = 'background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 12px;';
-            prodRow.innerHTML = `
-                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-                    <div style="flex: 2;">
-                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА ${activeItemsCount}</span>
-                        <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="${detectedArticle}" placeholder="Вручную..." oninput="updateLiveScriptText()" autocomplete="off">
-                    </div>
-                    <div style="flex: 1; max-width: 100px;">
-                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
-                        <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="${requiredStock}" min="1" oninput="updateLiveScriptText()" autocomplete="off">
-                    </div>
-                </div>
-                <div style="width: 100%;">
-                    <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
-                    <input type="text" class="input-textarea script-input-name" data-link="${detectedLink}" style="height: 36px; margin-bottom:0;" value="${detectedName}" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
-                </div>
-            `;
-            container.appendChild(prodRow);
         }
-    }
-
-    if (activeItemsCount === 0) {
-        alert("❌ Заполните хотя бы один список товаров, чтобы обработать заказ!");
-        return;
+        
+        // Принудительно пересчитываем правый скрипт разговора
+        if (typeof updateLiveScriptText === 'function') updateLiveScriptText();
+        return; // Вот теперь выходим, данные обновлены!
     }
 
     openFloatingModal('modal-process-order');
@@ -1883,6 +1859,7 @@ function updateLiveScriptText() {
         }
 
         // ДАННЫЕ ПОЛУЧАТЕЛЯ
+        // БЛОК С ДАННЫМИ ПОЛУЧАТЕЛЯ
         const recFioInput = document.getElementById('script-rec-fio').value.trim();
         const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
         
@@ -1890,19 +1867,29 @@ function updateLiveScriptText() {
         const recPhone = recPhoneInput ? `<span style="color: #22c55e; font-weight: 700;">${recPhoneInput}</span>` : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
         scriptText += `Для отправки мне потребуется зафиксировать данные получателя. Уточните, пожалуйста, ФИО получателя: ${recFio}, и контактный номер телефона: ${recPhone}.\n\n`;
-        scriptText += `Хорошо. Уточните, пожалуйста, ориентировочную дату и время оформления заказа в личном кабинете?\n\n`;
-        scriptText += `Отлично! Я зафиксировал(-а) все данные и отправляю заказ в обработку. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
+
+        // 🆕 НАШЕ УСЛОВИЕ: Новый заказ ИЛИ Уже оформлен
+        if (currentOrderStatusMode === 'created') {
+            // Если выбран режим "Оформлен в ЛК"
+            const orderNumInput = document.getElementById('script-order-number').value.trim();
+            const orderNumHtml = orderNumInput 
+                ? `<span style="color: #22c55e; font-weight: 700;">${orderNumInput}</span>` 
+                : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+
+            scriptText += `Хорошо. Подскажите, пожалуйста, номер заказа, который отобразился у Вас в личном кабинете ЛЭТУАЛЬ: ${orderNumHtml}?\n\n`;
+            scriptText += `Отлично! Я зафиксировал(-а) номер Вашего заказа, связываю его с нашей логистической системой и запускаю процесс перемещения. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером СДЭК для отслеживания. Спасибо за обращение, хорошего дня!`;
+        } else {
+            // Стандартный режим по умолчанию ("Новый заказ")
+            scriptText += `Хорошо. Уточните, пожалуйста, ориентировочную дату и время оформления заказа в личном кабинете?\n\n`;
+            scriptText += `Отлично! Я зафиксировал(-а) все данные и отправляю заказ в обработку. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
+        }
 
     } else if (isConvenientToTalk === 'no') {
-        // 🔥 ЕСЛИ КЛИЕНТ ЗАНЯТ (ВЫБРАНО "НЕТ")
-        scriptText += `Хорошо. Уточните, пожалуйста, в какое время Вам перезвонить для согласования деталей доставки?\n\n<br>`;
-        scriptText += `Хорошо. Зафиксировал(-а) информацию. Благодарю за уделенное время. Всего доброго, до свидания!`;
+        scriptText += `Хорошо. Уточните, пожалуйста, в какое время Вам перезвонить для согласования деталей доставки?`;
     } else {
-        // 🔥 ЕСЛИ НИЧЕГО НЕ ВЫБРАНО
         scriptText += `<span style="color: #64748b; font-style: italic;">👉 Выберите ответ клиента (Да / Нет), чтобы продолжить скрипт разговора.</span>`;
     }
 
-    // Выводим сгенерированный HTML в правое текстовое поле
     liveOutput.innerHTML = scriptText.replace(/\n/g, '<br>');
 }
 
