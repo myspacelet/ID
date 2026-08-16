@@ -710,38 +710,52 @@ body.dark-mode .btn-order-action:hover {
     width: 100% !important;
 }
 
-/* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА (ГОТОВЫЙ СКРИПТ) */
-/* 5. Подтягиваем правую колонку и текстовое поле */
+/* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА */
 .modal-column-right {
     flex: 1.5 !important;
     display: flex !important;
     flex-direction: column !important;
     height: 100% !important;
+    box-sizing: border-box !important;
 }
 
+/* Белое поле скрипта забирает ВСЁ свободное место */
 #script-live-output {
     width: 100% !important;
-    flex: 1 !important;           /* 🔥 Убираем высоту в % и заставляем поле расти на максимум */
+    flex: 1 !important;           /* 🔥 Вот теперь именно поле скрипта растянется до самого низа */
     height: auto !important;      
-    margin-bottom: 15px !important;
+    background: #f8fafc;
+    font-weight: 500;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #0f172a;
+    resize: none;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow-y: auto !important;    
+    margin-bottom: 15px !important; /* Отступ между полем и кнопкой */
 }
 
-/* Кнопка копирования скрипта */
+/* Фиолетовая кнопка копирования (теперь строго фиксированная и аккуратная) */
 .modal-column-right .btn-primary {
-    margin-top: auto !important;    /* Выталкивает кнопку на самый низ */
-    height: 48px !important;        
+    width: 100% !important;
+    height: 46px !important;        /* 🔥 Возвращаем жесткую аккуратную высоту */
+    max-height: 46px !important;    
     padding: 0 24px !important;
     font-size: 14px !important;
     font-weight: 600 !important;
-    background: #4338ca;
-    border-radius: 8px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0 !important;      
+    background: #4338ca !important;
+    border-radius: 8px !important;
+    border: none !important;
+    color: white !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;      /* Запрещаем кнопке деформироваться */
+    margin-top: 0 !important;       /* Убираем растягивающий маргин */
 }
 
 
