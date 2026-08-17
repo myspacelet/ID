@@ -1436,11 +1436,17 @@ let modalXOffset = 0;
 let modalYOffset = 0;
 let topModalZIndex = 2000;
 
-// Открытие любого окна с автоматическим расчетом геометрии под экран
 function openFloatingModal(modalId) {
+    // 1. Чисто гасим соседние вкладки на главной странице, чтобы они не накладывались друг на друга
+    const mainSections = ['modal-process-order', 'modal-waiting-list']; // если есть форма отправки, добавь её ID сюда
+    mainSections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) section.style.setProperty('display', 'none', 'important');
+    });
+
     const modal = document.getElementById(modalId);
     if (modal) {
-        // Принудительно включаем flex-отображение поверх базового CSS
+        // 2. Включаем нужный блок прямо в потоке главной страницы
         modal.style.setProperty('display', 'flex', 'important');
         
         // Автоматический триггер загрузки данных для Листа ожидания
@@ -1449,19 +1455,18 @@ function openFloatingModal(modalId) {
                 loadWaitingList();
             }
         }
-        
-        
-        // 🔥 ДОБАВЛЯЕМ СЮДА: Если разворачивают ОКНО ЗАКАЗА — сбрасываем координаты сворачивания!
-        if (modalId === 'modal-process-order') {
-            // Если окно было свернуто в правый угол, зануляем его стили, чтобы сработал расчет центра ниже
-            if (modal.style.left && modal.style.left !== "35%") {
-                modal.style.left = "";
-                modal.style.top = "";
-            }
-        }
-        
-        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые или были сброшены)
-        if (!modal.style.left || modal.style.left === "35%") {
+
+        // 3. 🎯 РАЗДЕЛЕНИЕ ЛОГИКИ: Главная страница VS Плавающие окна
+        if (modalId === 'modal-process-order' || modalId === 'modal-waiting-list') {
+            // Сажаем блоки намертво в сетку белой плашки главной страницы
+            modal.style.position = "relative";
+            modal.style.left = "0";
+            modal.style.top = "0";
+            modal.style.width = "100%";
+            modal.style.margin = "20px 0 0 0"; // Красивый отступ сверху от кнопок меню
+        } 
+        // 🪐 ДЛЯ ВСЕХ ОСТАЛЬНЫХ ОКНО ОСТАВЛЯЕМ СТАРУЮ ГЕОМЕТРИЮ ЦЕНТРИРОВАНИЯ:
+        else if (!modal.style.left || modal.style.left === "35%") {
             if (modalId === "modal-waiting-list") {
                 modal.style.width = ""; 
             }
@@ -1471,14 +1476,10 @@ function openFloatingModal(modalId) {
             
             const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
             modal.style.left = startLeft + "px";
-            
-            if (modalId === 'modal-process-order') {
-                modal.style.top = '40px'; // Твой комфортный отступ сверху для заказа
-                modal.style.width = '';  
-            } else {
-                const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
-                modal.style.top = startTop + "px";
-            }
+
+            // Этот кусок отработает, только если какое-то стороннее плавающее окно вызовет проверку
+            const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
+            modal.style.top = startTop + "px";
         }
         
         if (typeof focusModal === 'function') {

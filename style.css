@@ -1625,3 +1625,14 @@ body.dark-mode .city-modal-select-btn.disabled {
     color: #60a5fa !important; /* Яркий голубой */
     text-decoration: underline !important; /* Аккуратное подчеркивание */
 }
+
+/* Новый педантичный класс для секций прямо на главной странице */
+.main-page-section {
+    display: none; /* По умолчанию скрыто, JS включит нужный */
+    width: 100%;
+    background: #ffffff;
+    border-radius: 12px;
+    margin-top: 20px; /* Отступ от верхних кнопок меню */
+    box-sizing: border-box;
+    padding: 0; /* Или твои внутренние отступы */
+}
