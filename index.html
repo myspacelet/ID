@@ -1644,7 +1644,7 @@ function buildOrderProcessingModal() {
         existingProductRows = container.querySelectorAll('.script-product-row');
     }
 
-    // 🎯 УМНЫЙ РАЗВОРОТ: Если количество товаров совпадает, просто открываем окно
+// 🎯 УМНЫЙ РАЗВОРОТ: Если количество товаров совпадает, просто открываем окно
     if (minBtn && minBtn.style.display === 'block' && currentActiveLists === existingProductRows.length) {
         restoreOrderModal();
         return;
@@ -1900,7 +1900,7 @@ function updateLiveScriptText() {
             scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
         }
 
-        // ДАННЫЕ ПОЛУЧАТЕЛЯ
+         // ДАННЫЕ ПОЛУЧАТЕЛЯ
         const recFioInput = document.getElementById('script-rec-fio').value.trim();
         const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
         
