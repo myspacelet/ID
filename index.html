@@ -1449,17 +1449,18 @@ function openFloatingModal(modalId) {
                 loadWaitingList();
             }
         }
-
-        // 🔥 Если разворачивают ОКНО ЗАКАЗА — сбрасываем координаты сворачивания!
+        
+        
+        // 🔥 ДОБАВЛЯЕМ СЮДА: Если разворачивают ОКНО ЗАКАЗА — сбрасываем координаты сворачивания!
         if (modalId === 'modal-process-order') {
+            // Если окно было свернуто в правый угол, зануляем его стили, чтобы сработал расчет центра ниже
             if (modal.style.left && modal.style.left !== "35%") {
                 modal.style.left = "";
                 modal.style.top = "";
             }
-            // 💡 ТУТ ТЕПЕРЬ СБРОСА НЕТ! Положение тумблера сохраняется при разворачивании.
         }
-
-        // Расчет геометрии и позиционирования окна на экране
+        
+        // Автоматический расчет центра для ВСЕХ окон (если они открываются впервые или были сброшены)
         if (!modal.style.left || modal.style.left === "35%") {
             if (modalId === "modal-waiting-list") {
                 modal.style.width = ""; 
@@ -1470,9 +1471,9 @@ function openFloatingModal(modalId) {
             
             const startLeft = Math.max(20, (window.innerWidth - modalWidth) / 2);
             modal.style.left = startLeft + "px";
-
+            
             if (modalId === 'modal-process-order') {
-                modal.style.top = '40px'; 
+                modal.style.top = '40px'; // Твой комфортный отступ сверху для заказа
                 modal.style.width = '';  
             } else {
                 const startTop = Math.max(20, (window.innerHeight - modalHeight) / 2);
