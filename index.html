@@ -398,6 +398,8 @@
         let currentDeliveryMode = 'pvz';
         let selectedStoreCode = null;
         let activeLists = [];
+        let currentOperatorName = 'Оператор';
+        let isConvenientToTalk = null; // 👈 Объявили переменную статуса диалога
         
         // Конфигурация Supabase
         const SUPABASE_URL = "https://rvukyvwgpondpfxvjoju.supabase.co"; 
@@ -405,6 +407,14 @@
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentAuthMode = 'login';
+
+        // Функция обработки ответа клиента (Да / Нет)
+        function setConvenientTalk(choice) {
+            isConvenientToTalk = choice;
+            if (typeof updateLiveScriptText === 'function') {
+                updateLiveScriptText();
+            }
+        }
 
         // Функция переключения вкладок Вход / Регистрация
         function toggleAuthTab(mode) {
@@ -662,14 +672,6 @@
         let currentSearchMode = 'city'; 
         let listCount = 2;              
         let storeDatabase = {};
-        let isConvenientToTalk = null;
-
-        function setTalkConvenience(value) {
-            isConvenientToTalk = value;
-            if (typeof updateLiveScriptText === 'function') {
-                updateLiveScriptText();
-            }
-        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             if (typeof loadDatabase === 'function') loadDatabase();
@@ -711,6 +713,12 @@
                         if (welcomeTitle && profile && profile.full_name) {
                             const firstName = profile.full_name.trim().replace(/^[^\s]+\s+/, '');
                             welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
+
+                            // 🎯 Актуализация имени оператора при авто-входе без ручной авторизации
+                            currentOperatorName = firstName;
+                            if (typeof updateAllOperatorInputs === 'function') {
+                                updateAllOperatorInputs(firstName);
+                            }
                         }
                     } else {
                         await supabaseClient.auth.signOut();
@@ -1820,12 +1828,6 @@
             liveOutput.innerHTML = greetingHtml + buttonsHtml + restText.replace(/\n/g, '<br>');
         }
 
-        // Функция переключения ответа Да / Нет
-        function setConvenientTalk(choice) {
-            isConvenientToTalk = choice;
-            updateLiveScriptText();
-        }
-
         function copyGeneratedScript(btnElement) {
             // Режим работы (Зеленый / Розовый)
             const isPinkMode = document.getElementById('script-mode-toggle')?.checked || false;
@@ -2320,6 +2322,8 @@
                     `;
                     tbody.appendChild(row);
                 });
+
+                if (typeof filterWaitingList === 'function') filterWaitingList();
 
             } catch (err) {
                 console.error('Ошибка загрузки Листа ожидания:', err);
