@@ -1549,3 +1549,37 @@ body.dark-mode .btn-add-modal-product {
 body.dark-mode .btn-add-modal-product:hover {
     background: #334155 !important;
 }
+
+/* Подсказка для оператора (читать только при вопросе) */
+.script-hint-badge {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px dashed #cbd5e1;
+    cursor: help;
+    margin-left: 4px;
+    line-height: 1.4;
+    transition: all 0.2s ease;
+}
+
+.script-hint-badge:hover {
+    background: #e2e8f0;
+    color: #334155;
+    border-color: #94a3b8;
+}
+
+/* Тёмная тема */
+body.dark-mode .script-hint-badge {
+    background: #1e293b;
+    color: #94a3b8;
+    border-color: #475569;
+}
+
+body.dark-mode .script-hint-badge:hover {
+    background: #334155;
+    color: #f1f5f9;
+}
