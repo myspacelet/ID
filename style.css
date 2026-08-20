@@ -1724,3 +1724,10 @@ body:not(.dark-mode) .mac-search-clear {
     background: #cbd5e1;
     color: #475569;
 }
+
+/* Отключение горизонтального скролла в плавающих окнах */
+#modal-process-order,
+#modal-process-order .floating-modal-body,
+.floating-modal {
+    overflow-x: hidden !important;
+}
