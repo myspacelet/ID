@@ -1634,3 +1634,93 @@ body:not(.dark-mode) #quick-wl-classifier {
     padding-bottom: 0 !important;
     vertical-align: middle;
 }
+
+/* Поисковая строка в стиле macOS */
+.mac-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.mac-search-icon {
+    position: absolute;
+    left: 8px;
+    width: 14px;
+    height: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.15s ease;
+}
+
+.mac-search-input {
+    width: 130px;
+    height: 26px;
+    padding: 0 24px 0 26px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mac-search-input::placeholder {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.mac-search-input:focus {
+    width: 170px;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.mac-search-input:focus + .mac-search-clear,
+.mac-search-wrapper:hover .mac-search-clear {
+    opacity: 1;
+}
+
+.mac-search-clear {
+    position: absolute;
+    right: 6px;
+    background: #475569;
+    border: none;
+    color: #cbd5e1;
+    font-size: 9px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.mac-search-clear:hover {
+    background: #64748b;
+    color: #ffffff;
+}
+
+/* Светлая тема */
+body:not(.dark-mode) .mac-search-input {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #0f172a;
+}
+
+body:not(.dark-mode) .mac-search-input:focus {
+    background: #ffffff;
+    border-color: #3b82f6;
+}
+
+body:not(.dark-mode) .mac-search-clear {
+    background: #cbd5e1;
+    color: #475569;
+}

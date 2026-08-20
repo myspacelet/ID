@@ -308,11 +308,19 @@
     </div>
 
     <!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ -->
-   <!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ -->
-    <div id="modal-waiting-list" class="floating-modal">
-        <div class="floating-modal-header">
+    <div class="floating-modal-header">
             <span>⏳ Лист ожидания</span>
+            
             <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- 🔍 Строка поиска ID в стиле macOS -->
+                <div class="mac-search-wrapper">
+                    <svg class="mac-search-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                    <input type="text" id="wl-search-input" class="mac-search-input" placeholder="Поиск по ID..." oninput="filterWaitingList()" autocomplete="off">
+                    <button type="button" class="mac-search-clear" id="wl-search-clear" onclick="clearWaitingListSearch()" title="Очистить">✕</button>
+                </div>
+
                 <button class="modal-btn-blue" onclick="toggleAddForm()" title="Добавить задачу"></button>
                 <button class="modal-close-right" onclick="closeFloatingModal('modal-waiting-list')"></button>
             </div>
@@ -2596,6 +2604,69 @@ async function saveQuickWaitingListTask() {
             saveBtn.disabled = false;
         }
     }
+}
+// Живой фильтр строк таблицы по началу ID задачи
+function filterWaitingList() {
+    const searchInput = document.getElementById('wl-search-input');
+    const clearBtn = document.getElementById('wl-search-clear');
+    if (!searchInput) return;
+
+    const query = searchInput.value.trim();
+    if (clearBtn) {
+        clearBtn.style.opacity = query.length > 0 ? '1' : '0';
+    }
+
+    const tbody = document.getElementById('wl-table-body');
+    if (!tbody) return;
+
+    const rows = tbody.querySelectorAll('tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        // Пропускаем служебные строки (загрузка, пусто и т.д.)
+        if (row.querySelector('.wl-loading-text') || row.querySelector('.wl-empty-text')) {
+            return;
+        }
+
+        const idCell = row.cells[0]; // Первая ячейка с ID
+        if (!idCell) return;
+
+        const taskIdStr = idCell.innerText.trim();
+
+        // 🎯 Проверяем, начинается ли ID задачи с введенного текста
+        if (!query || taskIdStr.startsWith(query)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Обработка случая, когда ничего не найдено
+    let noResultRow = document.getElementById('wl-no-search-results');
+    if (visibleCount === 0 && query) {
+        if (!noResultRow) {
+            noResultRow = document.createElement('tr');
+            noResultRow.id = 'wl-no-search-results';
+            noResultRow.innerHTML = `<td colspan="6" style="text-align: center; padding: 24px; color: #64748b; font-size: 13px;">🔍 Задач, начинающихся на «<b>${query}</b>», не найдено</td>`;
+            tbody.appendChild(noResultRow);
+        } else {
+            noResultRow.style.display = '';
+            noResultRow.querySelector('b').innerText = query;
+        }
+    } else if (noResultRow) {
+        noResultRow.style.display = 'none';
+    }
+}
+
+// Очистка поиска
+function clearWaitingListSearch() {
+    const searchInput = document.getElementById('wl-search-input');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+    }
+    filterWaitingList();
 }
     </script>
     <!-- 🪐 МИКРО-МОДАЛКА: БЫСТРОЕ ДОБАВЛЕНИЕ В ЛИСТ ОЖИДАНИЯ -->
