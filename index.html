@@ -1292,7 +1292,7 @@
 
             if (list1) list1.focus();
         }
-        
+
         let activeDraggedModal = null;
         let modalXOffset = 0;
         let modalYOffset = 0;
@@ -1562,15 +1562,21 @@
             updateLiveScriptText();
         }
 
+        // Полноценный генератор скрипта разговора/текста с поддержкой двух режимов
         function updateLiveScriptText() {
-            const clientNameInput = document.getElementById('script-client-name').value.trim();
+            const clientNameInput = document.getElementById('script-client-name')?.value.trim() || '';
             const liveOutput = document.getElementById('script-live-output');
             if (!liveOutput) return;
 
+            // Считываем режим тумблера (false = Зеленый / Планирует, true = Розовый / Уже оформил)
+            const isPinkMode = document.getElementById('script-mode-toggle')?.checked || false;
+
+            // Подсветка имени клиента
             const clientName = clientNameInput 
                 ? `<span style="color: #22c55e; font-weight: 700;">${clientNameInput}</span>` 
                 : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
+            // Имя оператора
             let opName = "Оператор";
             const welcomeTitle = document.getElementById('app-welcome-title');
             if (welcomeTitle) {
@@ -1578,8 +1584,12 @@
                 if (match && match[1]) opName = match[1].trim();
             }
 
+            // ========================================================
+            // БЛОК 1: ПРИВЕТСТВИЕ
+            // ========================================================
             let scriptText = `Добрый день, ${clientName}! Меня зовут ${opName}, компания ***. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n`;
             
+            // Стили кнопок Да / Нет
             const btnBaseStyle = "padding: 6px 18px; font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; margin-right: 8px; transition: all 0.2s;";
             const btnYesStyle = isConvenientToTalk === 'yes' 
                 ? `${btnBaseStyle} background-color: #22c55e; color: white; box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);` 
@@ -1593,8 +1603,23 @@
                 <button onclick="setTalkConvenience('no')" style="${btnNoStyle}">🔴 Нет</button>
             </div>`;
 
+            // ========================================================
+            // ЕСЛИ ВЫБРАНО "ДА"
+            // ========================================================
             if (isConvenientToTalk === 'yes') {
-                scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
+                // 🔥 ВЕТВЛЕНИЕ ПО ТУМБЛЕРУ: Розовый (уже оформил) / Зеленый (планирует)
+                if (isPinkMode) {
+                    const orderNumInput = document.getElementById('script-order-number')?.value.trim() || '';
+                    const orderNumHtml = orderNumInput 
+                        ? `<span style="color: #22c55e; font-weight: 700;">№${orderNumInput}</span>` 
+                        : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
+                    
+                    scriptText += `Вы уже оформили заказ ${orderNumHtml}. В заказе у вас указан `;
+                } else {
+                    scriptText += `Отлично! Я звоню, чтобы согласовать детали доставки. В заказе у вас указан `;
+                }
+
+                // БЛОК ТОВАРОВ
                 const artInputs = document.querySelectorAll('.script-input-art');
                 const qtyInputs = document.querySelectorAll('.script-input-qty');
                 const nameInputs = document.querySelectorAll('.script-input-name');
@@ -1623,7 +1648,7 @@
                 }
 
                 if (productParts.length === 1) {
-                    scriptText += productParts;
+                    scriptText += productParts[0];
                 } else if (productParts.length > 1) {
                     const lastPart = productParts.pop();
                     scriptText += productParts.join(', ') + ' и ' + lastPart;
@@ -1632,6 +1657,7 @@
                 }
                 scriptText += `, верно?\n\n`;
 
+                // БЛОК МАГАЗИНА
                 scriptText += `Данный-(ые) товар-(ры) сейчас находятся в наличии магазина `;
                 if (typeof selectedStoreCode !== 'undefined' && selectedStoreCode && storeDatabase[selectedStoreCode]) {
                     const storeInfo = storeDatabase[selectedStoreCode];
@@ -1648,7 +1674,8 @@
                 
                 scriptText += `На данный момент доступно 2 способа доставки: в пункт выдачи СДЭК и курьером на рабочий или домашний адрес. Уточните, пожалуйста, какой способ Вам удобнее?\n<br>`;
 
-                const delivPriceInput = document.getElementById('script-deliv-price').value.trim();
+                // БЛОК ЛОГИСТИКИ
+                const delivPriceInput = document.getElementById('script-deliv-price')?.value.trim() || '';
                 let priceText = "";
                 if (delivPriceInput) {
                     const parsedPrice = parseInt(delivPriceInput, 10);
@@ -1658,13 +1685,13 @@
                     priceText = `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
                 }
 
-                const delivDaysInput = document.getElementById('script-deliv-days').value.trim();
+                const delivDaysInput = document.getElementById('script-deliv-days')?.value.trim() || '';
                 const daysText = delivDaysInput 
                     ? `<span style="color: #22c55e; font-weight: 700;">${delivDaysInput}</span>` 
                     : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
                 const redNotice = `<span style="color: #ef4444; font-weight: 700;">(если клиент спросит точную стоимость: Точная стоимость рассчитывается при оформлении отправления, можем сообщить ее позже)</span>`;
-                const deliveryAddressInput = document.getElementById('script-delivery-address').value.trim();
+                const deliveryAddressInput = document.getElementById('script-delivery-address')?.value.trim() || '';
 
                 const activeDeliveryMode = typeof currentDeliveryMode !== 'undefined' ? currentDeliveryMode : 'pvz';
                 if (activeDeliveryMode === 'pvz') {
@@ -1679,15 +1706,24 @@
                     scriptText += `Мы можем оформить доставку курьером до вашей двери по адресу: ${clientAddress}. По срокам это займет примерно ${daysText}, ориентировочная стоимость доставки составит ${priceText} ${redNotice}.\n\n`;
                 }
 
-                const recFioInput = document.getElementById('script-rec-fio').value.trim();
-                const recPhoneInput = document.getElementById('script-rec-phone').value.trim();
+                // БЛОК ПОЛУЧАТЕЛЯ
+                const recFioInput = document.getElementById('script-rec-fio')?.value.trim() || '';
+                const recPhoneInput = document.getElementById('script-rec-phone')?.value.trim() || '';
                 const recFio = recFioInput ? `<span style="color: #22c55e; font-weight: 700;">${recFioInput}</span>` : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
                 const recPhone = recPhoneInput ? `<span style="color: #22c55e; font-weight: 700;">${recPhoneInput}</span>` : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
 
                 scriptText += `Для отправки мне потребуется зафиксировать данные получателя. Уточните, пожалуйста, ФИО получателя: ${recFio}, и контактный номер телефона: ${recPhone}.\n\n`;
-                scriptText += `Хорошо. Уточните, пожалуйста, ориентировочную дату и время оформления заказа в личном кабинете?\n\n`;
+
+                // 🔥 ВОПРОС О ДАТЕ ВЫВОДИТСЯ ТОЛЬКО В ЗЕЛЕНОМ РЕЖИМЕ (когда заказ еще не оформлен)
+                if (!isPinkMode) {
+                    scriptText += `Хорошо. Уточните, пожалуйста, ориентировочную дату и время оформления заказа в личном кабинете?\n\n`;
+                }
+
                 scriptText += `Отлично! Я зафиксировал(-а) все данные и отправляю заказ в обработку. Как только заказ будет полностью подготовлен к отправке, направим SMS-уведомление с трек-номером, для отслеживания заказа в СДЭК. Спасибо за заказ, хорошего дня!`;
 
+            // ========================================================
+            // ЕСЛИ ВЫБРАНО "НЕТ"
+            // ========================================================
             } else if (isConvenientToTalk === 'no') {
                 scriptText += `Хорошо. Уточните, пожалуйста, в какое время Вам перезвонить для согласования деталей доставки?\n\n<br>`;
                 scriptText += `Хорошо. Зафиксировал(-а) информацию. Благодарю за уделенное время. Всего доброго, до свидания!`;
