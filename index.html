@@ -1641,7 +1641,7 @@
             updateLiveScriptText();
         }
 
-        function updateLiveScriptText() {
+       function updateLiveScriptText() {
             const liveOutput = document.getElementById('script-live-output');
             if (!liveOutput) return;
 
@@ -1721,9 +1721,9 @@
                             ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.city}</span>` 
                             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
                         const storeAddressHtml = storeInfo.address 
-                            ? `<span style="color: #22c55e; font-weight: 700;">${storeAddressHtml}</span>` 
+                            ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.address}</span>` 
                             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-                        scriptText += `в городе ${storeCityHtml} по адресу: ${storeInfo.address || '(Укажите данные)'}.\n\n`;
+                        scriptText += `в городе ${storeCityHtml} по адресу: ${storeAddressHtml}.\n\n`;
                     } else {
                         scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
                     }
@@ -1784,7 +1784,6 @@
                 scriptText += `<span style="color: #64748b; font-style: italic;">👉 Выберите ответ клиента (Да / Нет), чтобы продолжить скрипт разговора.</span>`;
             }
 
-            // Собираем текст приветствия, кнопки и тело скрипта
             const greetingHtml = `Добрый день, ${nameHtml}! Меня зовут Александр, компания ***. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?`;
             const restText = scriptText.substring(scriptText.indexOf('\n\n') + 2);
 
