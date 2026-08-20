@@ -222,6 +222,11 @@
                         </div>
                     </div>
 
+                    <div class="input-group" id="group-script-manual-store" style="display: none; margin-bottom: 15px;">
+                        <label class="input-label" style="font-size: 11px; color: #ec4899; font-weight: 700;">🏪 ГОРОД И МАГАЗИН ОТГРУЗКИ (ВРУЧНУЮ)</label>
+                        <input type="text" id="script-manual-store" class="input-textarea" style="height: 40px; margin-bottom: 0;" placeholder="Например: Москва, ТЦ Авиапарк (или код магазина)..." oninput="updateLiveScriptText()" autocomplete="off">
+                    </div>
+
                     <label class="input-label" style="font-size: 11px; color: #3b82f6; font-weight: 700; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-bottom: 10px;">📦 СПИСОК ТОВАРОВ В ЗАКАЗЕ</label>
 
                     <!-- Контейнер для товаров -->
@@ -1282,10 +1287,11 @@
                 badge.classList.remove('selected-active');
             });
 
+            // 🎯 Добавлено 'script-manual-store' для сброса поля ручного ввода склада
             const inputsToClear = [
                 'script-client-name', 'script-delivery-address', 'script-rec-fio',
                 'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 
-                'script-deliv-date', 'script-order-number'
+                'script-deliv-date', 'script-order-number', 'script-manual-store'
             ];
             inputsToClear.forEach(id => {
                 const inputElement = document.getElementById(id);
@@ -1391,10 +1397,11 @@
                     const minBtn = document.getElementById('btn-minimized-order');
                     if (minBtn) minBtn.style.display = 'none';
 
+                    // 🎯 Добавлено 'script-manual-store' для полной очистки поля ручного магазина
                     const inputsToClear = [
                         'script-client-name', 'script-delivery-address', 'script-rec-fio',
                         'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 
-                        'script-deliv-date', 'script-order-number'
+                        'script-deliv-date', 'script-order-number', 'script-manual-store'
                     ];
                     inputsToClear.forEach(id => {
                         const inputElement = document.getElementById(id);
@@ -1729,9 +1736,17 @@
                 }
                 scriptText += `, верно?\n\n`;
 
-                // БЛОК МАГАЗИНА
+                // БЛОК 3: ИНФОРМИРОВАНИЕ О ДОСТУПНОСТИ И ОТГРУЗКЕ
                 scriptText += `Данный-(ые) товар-(ры) сейчас находятся в наличии магазина `;
-                if (typeof selectedStoreCode !== 'undefined' && selectedStoreCode && storeDatabase[selectedStoreCode]) {
+                
+                const manualStoreInput = document.getElementById('script-manual-store')?.value.trim() || '';
+
+                // Если оператор ввел магазин вручную (в розовом режиме)
+                if (isPinkMode && manualStoreInput) {
+                    scriptText += `<span style="color: #22c55e; font-weight: 700;">${manualStoreInput}</span>.\n\n`;
+                } 
+                // Иначе берем магазин, выбранный кликом на главном экране
+                else if (typeof selectedStoreCode !== 'undefined' && selectedStoreCode && storeDatabase[selectedStoreCode]) {
                     const storeInfo = storeDatabase[selectedStoreCode];
                     const storeCityHtml = storeInfo.city 
                         ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.city}</span>` 
@@ -1741,7 +1756,7 @@
                         : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
                     scriptText += `в городе ${storeCityHtml} по адресу: ${storeAddressHtml}.\n\n`;
                 } else {
-                    scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
+                    scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА ИЛИ НЕ ВВЕДЕНА ВРУЧНУЮ]</span>.\n\n`;
                 }
                 
                 scriptText += `На данный момент доступно 2 способа доставки: в пункт выдачи СДЭК и курьером на рабочий или домашний адрес. Уточните, пожалуйста, какой способ Вам удобнее?\n<br>`;
@@ -1852,9 +1867,13 @@
             clientCity = cleanAddr.split(/[, ]/)[0];
         }
 
-        // 5. Магазин отгрузки
+        // 5. Магазин отгрузки (Столбец G)
         let storeInfoString = '';
-        if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
+        const manualStore = document.getElementById('script-manual-store')?.value.trim() || '';
+
+        if (isPinkMode && manualStore) {
+            storeInfoString = manualStore;
+        } else if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
             const store = storeDatabase[selectedStoreCode];
             const rawCity = (store.city || '').trim();
             let rawAddress = (store.address || '').trim();
@@ -2476,17 +2495,20 @@
             const isPinkMode = document.getElementById('script-mode-toggle')?.checked || false;
             const groupDate = document.getElementById('group-script-date');
             const groupOrder = document.getElementById('group-script-order-number');
+            const groupManualStore = document.getElementById('group-script-manual-store');
             
             if (isPinkMode) {
-                groupDate.classList.add('field-muted');
-                groupDate.classList.remove('field-active');
-                groupOrder.classList.remove('field-muted');
-                groupOrder.classList.add('field-active');
+                groupDate?.classList.add('field-muted');
+                groupDate?.classList.remove('field-active');
+                groupOrder?.classList.remove('field-muted');
+                groupOrder?.classList.add('field-active');
+                if (groupManualStore) groupManualStore.style.display = 'block';
             } else {
-                groupDate.classList.remove('field-muted');
-                groupDate.classList.add('field-active');
-                groupOrder.classList.add('field-muted');
-                groupOrder.classList.remove('field-active');
+                groupDate?.classList.remove('field-muted');
+                groupDate?.classList.add('field-active');
+                groupOrder?.classList.add('field-muted');
+                groupOrder?.classList.remove('field-active');
+                if (groupManualStore) groupManualStore.style.display = 'none';
             }
             
             if (typeof updateLiveScriptText === 'function') {
