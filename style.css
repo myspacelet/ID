@@ -1507,3 +1507,14 @@ body.dark-mode .results-group-title.soft-group-title {
     color: #60a5fa;
     border-bottom-color: #1e3a8a;
 }
+
+.static-code-title {
+    font-weight: 700;
+    color: #1e293b;
+    cursor: default;
+    user-select: text;
+}
+
+body.dark-mode .static-code-title {
+    color: #f8fafc !important;
+}

@@ -924,101 +924,105 @@
             scrollToBottom();
         }
 
-       function renderResults(storesArray, matchType) {
-            const container = document.getElementById('results-rows-container');
-            container.innerHTML = ''; 
+      function renderResults(storesArray, matchType) {
+        const container = document.getElementById('results-rows-container');
+        container.innerHTML = ''; 
 
-            if (storesArray.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:20px; color:#64748b; font-size:13px;">Совпадений не найдено 🤷‍♂️</div>`;
-                document.getElementById('results-section').style.display = 'block';
-                return;
-            }
-
-            const exactGroups = {};
-            const cityGroups = {};
-
-            storesArray.forEach(item => {
-                const dbItem = storeDatabase[item.code];
-                let cityName = "Неизвестный код";
-                
-                if (dbItem) {
-                    cityName = (currentSearchMode === 'city') ? dbItem.city : item.code;
-                } else if (item.softCityKey) {
-                    cityName = item.softCityKey;
-                }
-
-                const targetGroupMap = item.isExact ? exactGroups : cityGroups;
-
-                if (!targetGroupMap[cityName]) {
-                    targetGroupMap[cityName] = {
-                        cityName: cityName,
-                        isExact: item.isExact,
-                        stores: []
-                    };
-                }
-                targetGroupMap[cityName].stores.push(item);
-            });
-
-            function buildCityRowsHTML(groupMap) {
-                let html = '';
-                Object.keys(groupMap).forEach(cityName => {
-                    const group = groupMap[cityName];
-                    const cleanCityAttr = group.cityName.trim().toLowerCase();
-                    const cityNameEscaped = group.cityName.replace(/'/g, "\\'");
-
-                    const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
-                    const top3Stores = sortedStores.slice(0, 3);
-
-                    let badgesHtml = '';
-                    top3Stores.forEach(store => {
-                        const exactClass = store.isExact ? ' exact-badge' : '';
-                        const isSelectedClass = (selectedStoreCode === store.code) ? ' active-selected-store' : '';
-                        badgesHtml += `<button class="store-badge${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
-                    });
-
-                    html += `
-                        <div class="result-row" data-city="${cleanCityAttr}">
-                            <div class="result-city">
-                                <span class="clickable-city-title" onclick="openCityShopsModal('${cityNameEscaped}')">
-                                    ${group.cityName}
-                                </span>
-                            </div>
-                            <div class="badges-container">${badgesHtml}</div>
-                        </div>
-                    `;
-                });
-                return html;
-            }
-
-            let finalHTML = '';
-
-            const exactKeys = Object.keys(exactGroups);
-            if (exactKeys.length > 0) {
-                finalHTML += `
-                    <div class="results-group-block">
-                        <div class="results-group-title exact-group-title">🎯 Точные магазины (${exactKeys.length})</div>
-                        <div class="results-group-list">
-                            ${buildCityRowsHTML(exactGroups)}
-                        </div>
-                    </div>
-                `;
-            }
-
-            const cityKeys = Object.keys(cityGroups);
-            if (cityKeys.length > 0) {
-                finalHTML += `
-                    <div class="results-group-block">
-                        <div class="results-group-title soft-group-title">🏙️ Совпадения по городу (${cityKeys.length})</div>
-                        <div class="results-group-list">
-                            ${buildCityRowsHTML(cityGroups)}
-                        </div>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = finalHTML;
+        if (storesArray.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding:20px; color:#64748b; font-size:13px;">Совпадений не найдено 🤷‍♂️</div>`;
             document.getElementById('results-section').style.display = 'block';
+            return;
         }
+
+        const exactGroups = {};
+        const cityGroups = {};
+
+        storesArray.forEach(item => {
+            const dbItem = storeDatabase[item.code];
+            let cityName = "Неизвестный код";
+            
+            if (dbItem) {
+                cityName = (currentSearchMode === 'city') ? dbItem.city : item.code;
+            } else if (item.softCityKey) {
+                cityName = item.softCityKey;
+            }
+
+            const targetGroupMap = item.isExact ? exactGroups : cityGroups;
+
+            if (!targetGroupMap[cityName]) {
+                targetGroupMap[cityName] = {
+                    cityName: cityName,
+                    isExact: item.isExact,
+                    stores: []
+                };
+            }
+            targetGroupMap[cityName].stores.push(item);
+        });
+
+        function buildCityRowsHTML(groupMap) {
+            let html = '';
+            Object.keys(groupMap).forEach(cityName => {
+                const group = groupMap[cityName];
+                const cleanCityAttr = group.cityName.trim().toLowerCase();
+                const cityNameEscaped = group.cityName.replace(/'/g, "\\'");
+
+                const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
+                const top3Stores = sortedStores.slice(0, 3);
+
+                let badgesHtml = '';
+                top3Stores.forEach(store => {
+                    const exactClass = store.isExact ? ' exact-badge' : '';
+                    const isSelectedClass = (selectedStoreCode === store.code) ? ' active-selected-store' : '';
+                    badgesHtml += `<button class="store-badge${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
+                });
+
+                // 🎯 Проверка режима поиска: открывать модалку только при поиске по городам
+                const isCityMode = (currentSearchMode === 'city');
+                const titleHtml = isCityMode
+                    ? `<span class="clickable-city-title" onclick="openCityShopsModal('${cityNameEscaped}')">${group.cityName}</span>`
+                    : `<span class="static-code-title" style="font-weight: 700; color: #1e293b;">${group.cityName}</span>`;
+
+                html += `
+                    <div class="result-row" data-city="${cleanCityAttr}">
+                        <div class="result-city">
+                            ${titleHtml}
+                        </div>
+                        <div class="badges-container">${badgesHtml}</div>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        let finalHTML = '';
+
+        const exactKeys = Object.keys(exactGroups);
+        if (exactKeys.length > 0) {
+            finalHTML += `
+                <div class="results-group-block">
+                    <div class="results-group-title exact-group-title">🎯 Точные магазины (${exactKeys.length})</div>
+                    <div class="results-group-list">
+                        ${buildCityRowsHTML(exactGroups)}
+                    </div>
+                </div>
+            `;
+        }
+
+        const cityKeys = Object.keys(cityGroups);
+        if (cityKeys.length > 0) {
+            finalHTML += `
+                <div class="results-group-block">
+                    <div class="results-group-title soft-group-title">🏙️ Совпадения по городу (${cityKeys.length})</div>
+                    <div class="results-group-list">
+                        ${buildCityRowsHTML(cityGroups)}
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = finalHTML;
+        document.getElementById('results-section').style.display = 'block';
+    }
 
         function openStoreCard(storeCode) {
             const modal = document.getElementById('store-modal'); 
