@@ -1808,7 +1808,13 @@
                 scriptText += `<span style="color: #64748b; font-style: italic;">👉 Выберите ответ клиента (Да / Нет), чтобы продолжить скрипт разговора.</span>`;
             }
 
-            const greetingHtml = `Добрый день, ${nameHtml}! Меня зовут Александр, компания ***. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?`;
+            // 🎯 Динамически получаем имя текущего авторизованного оператора
+            const activeOperator = (typeof currentOperatorName !== 'undefined' && currentOperatorName) 
+                ? currentOperatorName 
+                : (localStorage.getItem('auth_operator_name') || 'Оператор');
+
+            // Подставляем реальное имя вместо статичного текста
+            const greetingHtml = `Добрый день, ${nameHtml}! Меня зовут ${activeOperator}, компания ***. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?`;
             const restText = scriptText.substring(scriptText.indexOf('\n\n') + 2);
 
             liveOutput.innerHTML = greetingHtml + buttonsHtml + restText.replace(/\n/g, '<br>');
