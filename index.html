@@ -326,6 +326,12 @@
                     <input type="text" id="wl-input-operator" readonly style="opacity: 0.6; cursor: not-allowed;">
                 </div>
             </div>
+            <!-- 🔥 КНОПКИ ДЕЙСТВИЙ (Добавлена красная кнопка удаления) -->
+            <div class="wl-form-actions" style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="button" id="wl-btn-delete" class="wl-btn-delete" onclick="deleteCurrentEditingTask()" style="display: none;">Удалить задачу</button>
+                <button type="button" class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
+            </div>
+        </div>
             <div class="wl-form-actions">
                 <button class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
             </div>
@@ -2293,6 +2299,12 @@
                 saveBtn.setAttribute('onclick', 'updateTaskInSupabase()');
                 saveBtn.style.background = '#10b981';
             }
+
+            // 🎯 Показываем красную кнопку "Удалить задачу"
+            const deleteBtn = document.getElementById('wl-btn-delete');
+            if (deleteBtn) {
+                deleteBtn.style.display = 'inline-block';
+            }
         }
 
         async function updateTaskInSupabase() {
@@ -2332,12 +2344,22 @@
         }
 
         function resetWlFormToDefault() {
-            document.getElementById('wl-input-id').value = '';
-            document.getElementById('wl-input-id').readOnly = false;
-            document.getElementById('wl-input-id').style.opacity = '1';
-            document.getElementById('wl-input-comment').value = '';
-            document.getElementById('wl-input-callback').value = '';
+            const idInput = document.getElementById('wl-input-id');
+            if (idInput) {
+                idInput.value = '';
+                idInput.readOnly = false;
+                idInput.style.opacity = '1';
+            }
+            const commentInput = document.getElementById('wl-input-comment');
+            if (commentInput) commentInput.value = '';
+            const callbackInput = document.getElementById('wl-input-callback');
+            if (callbackInput) callbackInput.value = '';
             
+            // Прячем красную кнопку удаления
+            const deleteBtn = document.getElementById('wl-btn-delete');
+            if (deleteBtn) deleteBtn.style.display = 'none';
+
+            // Закрываем панель формы
             const formBlock = document.getElementById('wl-add-form-block');
             if (formBlock) formBlock.classList.remove('active');
 
@@ -2349,6 +2371,30 @@
             }
 
             if (typeof loadWaitingList === 'function') loadWaitingList();
+        }
+
+        // Удаление задачи напрямую из открытой формы
+        async function deleteCurrentEditingTask() {
+            const taskId = document.getElementById('wl-input-id')?.value;
+            if (!taskId) return;
+
+            const isConfirmed = confirm(`Завершить и удалить задачу №${taskId}?`);
+            if (!isConfirmed) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('waiting_list')
+                    .delete()
+                    .eq('id', parseInt(taskId, 10));
+
+                if (error) throw error;
+
+                // Закрываем и сбрасываем форму
+                resetWlFormToDefault();
+            } catch (err) {
+                console.error('Ошибка при удалении задачи:', err);
+                alert('❌ Не удалось удалить задачу: ' + err.message);
+            }
         }
 
         async function confirmAndDeleteTask(event, taskId) {
@@ -2366,7 +2412,14 @@
                     .eq('id', taskId);
 
                 if (error) throw error;
-                if (typeof loadWaitingList === 'function') await loadWaitingList();
+
+                // 🎯 Если удаленная задача сейчас была открыта в форме — сбрасываем и закрываем форму
+                const currentEditingId = document.getElementById('wl-input-id')?.value;
+                if (currentEditingId && parseInt(currentEditingId, 10) === taskId) {
+                    resetWlFormToDefault();
+                } else {
+                    if (typeof loadWaitingList === 'function') await loadWaitingList();
+                }
 
             } catch (err) {
                 console.error('Ошибка при удалении задачи:', err);

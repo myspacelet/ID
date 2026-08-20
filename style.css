@@ -1518,3 +1518,19 @@ body.dark-mode .results-group-title.soft-group-title {
 body.dark-mode .static-code-title {
     color: #f8fafc !important;
 }
+
+.wl-btn-delete {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.wl-btn-delete:hover {
+    background: #dc2626;
+}
