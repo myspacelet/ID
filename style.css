@@ -722,7 +722,7 @@ body {
 
 #script-live-output {
     width: 100%;
-    flex: 1;
+    flex: 1; /* Заставляет поле скрипта занять все свободное место */
     background: #f8fafc;
     font-weight: 500;
     font-size: 14px;
@@ -738,13 +738,16 @@ body {
 }
 
 .modal-column-right .btn-primary {
-    height: 46px;
+    height: 46px !important; /* Фиксированная высота кнопки */
+    min-height: 46px !important;
+    max-height: 46px !important;
     font-size: 14px;
     font-weight: 600;
     background: #4338ca;
     border-radius: 8px;
     color: white;
-    flex-shrink: 0;
+    flex: 0 0 auto !important; /* Запрещает кнопке растягиваться */
+    width: 100%;
 }
 
 /* Переключатели режимов полей (Розовый/Зеленый режим) */
