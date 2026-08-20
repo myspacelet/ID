@@ -1,45 +1,7 @@
-/* Стили для плавающей панели кнопок */
 html {
-  scroll-behavior: smooth;
-}
-.scroll-nav {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 1000;
-  opacity: 0; /* Изначально скрыты */
-  transition: opacity 0.3s ease;
-  pointer-events: none; /* Чтобы не кликались, пока скрыты */
+    scroll-behavior: smooth;
 }
 
-/* Класс, который мы будем добавлять через JS, когда появятся результаты */
-.scroll-nav.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.scroll-nav button {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: none;
-  background-color: #007bff; /* Синий цвет под стиль ваших кнопок */
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-.scroll-nav button:hover {
-  background-color: #0056b3;
-  transform: scale(1.1);
-}
-
-/* Глобальные настройки и фон */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -49,16 +11,16 @@ html {
 
 body {
     background: linear-gradient(135deg, #bfe3f7 0%, #a1cbe7 50%, #83b3d8 100%);
-    min-height: 100vh; /* Исправлено некорректное значение screen */
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     padding: 40px 20px;
     color: #333333;
-    transition: background 0.3s;
+    transition: background 0.3s ease;
 }
 
-/* Белая центральная карточка-контейнер */
+/* Центральная карточка-контейнер */
 .app-card {
     background: rgba(255, 255, 255, 0.95);
     width: 100%;
@@ -68,7 +30,6 @@ body {
     padding: 30px;
 }
 
-/* Заголовок с иконкой */
 .app-title {
     text-align: center;
     font-size: 20px;
@@ -81,7 +42,41 @@ body {
     gap: 8px;
 }
 
-/* Верхняя панель переключателей режима */
+/* ========================================================
+   🎛️ ВЕРХНЯЯ ПАНЕЛЬ НАВИГАЦИИ И СТАТУС-БАРЫ
+   ======================================================== */
+.status-bar-top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: -16px;
+    margin-bottom: 16px;
+    padding-right: 4px;
+}
+
+.status-active {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #16a34a;
+    font-weight: 500;
+}
+
+.status-refresh-btn {
+    color: #3b82f6;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+
+.status-refresh-btn:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
 .top-navbar {
     display: flex;
     justify-content: center;
@@ -110,14 +105,82 @@ body {
     gap: 6px;
 }
 
-/* Активная кнопка синего цвета */
 .nav-btn.active {
     background: #3b82f6;
     color: #ffffff;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-/* Блок полей ввода списков */
+.btn-logout {
+    border: none;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fee2e2;
+    color: #ef4444;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* ========================================================
+   🛠️ ПАНЕЛЬ УПРАВЛЕНИЯ ЗАКАЗОМ
+   ======================================================== */
+.order-management-panel {
+    display: flex;
+    gap: 12px;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    width: 100%;
+}
+
+.btn-order-action {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #ffffff;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-order-action:hover {
+    background: #6366f1;
+    color: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-order-action:active {
+    transform: translateY(1px);
+}
+
+/* ========================================================
+   📝 ПОЛЯ ВВОДА И ТОВАРНЫЕ СПИСКИ
+   ======================================================== */
 .input-group {
     margin-bottom: 20px;
 }
@@ -140,14 +203,76 @@ body {
     color: #334155;
     resize: vertical;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease;
 }
 
 .input-textarea:focus {
     border-color: #3b82f6;
 }
 
-/* Кнопка "Добавить список" во всю ширину */
+.flex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.product-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.input-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Точка быстрой очистки (стиль macOS) */
+.mac-clear-btn {
+    width: 14px;
+    height: 14px;
+    background-color: #ff5f56;
+    border: 1px solid #e0443e;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.mac-clear-btn:hover {
+    background-color: #ff4a3d;
+    color: #4c0000;
+    box-shadow: 0 0 4px rgba(255, 95, 86, 0.5);
+}
+
+.product-list-wrapper:not(:has(textarea:placeholder-shown)) .mac-clear-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
 .btn-add {
     width: 100%;
     background: #22c55e;
@@ -166,7 +291,6 @@ body {
     box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
 }
 
-/* Нижние основные кнопки */
 .actions-panel {
     display: flex;
     gap: 12px;
@@ -195,70 +319,22 @@ body {
     color: white;
 }
 
-/* Нижняя панель статуса базы */
-.status-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: #64748b;
-    border-top: 1px solid #f1f5f9;
-    padding-top: 16px;
-}
-
-.status-active {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #16a34a;
-    font-weight: 500;
-}
-
-/* Стили для темной темы */
-body.dark-mode { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
-body.dark-mode .app-card { background: #1e293b; color: #f8fafc; }
-body.dark-mode .app-title { color: #3b82f6; }
-body.dark-mode .input-label { color: #cbd5e1; }
-body.dark-mode .input-textarea { background: #334155; border-color: #475569; color: #f8fafc; }
-body.dark-mode .top-navbar { background: #334155; }
-body.dark-mode .nav-btn { color: #94a3b8; }
-
-body.dark-mode .nav-btn.active {
-    color: #ffffff !important; 
-    background: #3b82f6;
-}
-
-/* Кнопка удаления для динамических списков */
-.btn-delete {
-    background: none;
-    border: none;
-    color: #ef4444;
-    font-size: 12px;
-    cursor: pointer;
-    font-weight: 500;
-}
-.flex-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-/* Контейнер результатов */
+/* ========================================================
+   📊 РЕЗУЛЬТАТЫ ПОИСКА И ГЕО-ПОИСК
+   ======================================================== */
 .results-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 20px;
     margin-top: 24px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-}
-body.dark-mode .results-card {
-    background: #334155;
-    border-color: #475569;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
-/* Строка результата (Город слева — Кнопки справа) */
+.results-title {
+    color: #1e3a5f;
+}
+
 .result-row {
     display: flex;
     justify-content: space-between;
@@ -266,16 +342,30 @@ body.dark-mode .results-card {
     padding: 12px 0;
     border-bottom: 1px solid #f1f5f9;
     gap: 16px;
+    transition: all 0.2s ease;
 }
-body.dark-mode .result-row { border-bottom-color: #475569; }
-.result-row:last-child { border-bottom: none; }
+
+.result-row:last-child {
+    border-bottom: none;
+}
 
 .result-city {
     font-weight: 600;
     font-size: 14px;
     color: #1e293b;
 }
-body.dark-mode .result-city { color: #f8fafc; }
+
+.clickable-city-title {
+    color: #2563eb;
+    text-decoration: underline;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.clickable-city-title:hover {
+    color: #1d4ed8;
+}
 
 .badges-container {
     display: flex;
@@ -283,7 +373,6 @@ body.dark-mode .result-city { color: #f8fafc; }
     flex-wrap: wrap;
 }
 
-/* Интерактивные кнопки-бейджи магазинов ТОП-3 */
 .store-badge {
     background: #eff6ff;
     color: #2563eb;
@@ -295,24 +384,83 @@ body.dark-mode .result-city { color: #f8fafc; }
     cursor: pointer;
     transition: all 0.15s ease;
 }
+
 .store-badge:hover {
     background: #3b82f6;
     color: white;
     transform: translateY(-1px);
 }
-body.dark-mode .store-badge {
-    background: #1e293b;
-    color: #60a5fa;
-    border-color: #3b82f6;
+
+.store-badge.exact-badge {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
 }
 
-/* Блок Гео-поиска (Шаг 3) */
+.store-badge.selected-active {
+    background-color: #4f46e5;
+    color: #ffffff;
+    border: 2px solid #4338ca;
+    box-shadow: 0 0 12px rgba(79, 70, 229, 0.2);
+}
+
+.store-badge.selected-active:hover {
+    background-color: #4338ca;
+    border-color: #3730a3;
+}
+
+.search-match-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-left: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.search-match-badge.exact-match-badge {
+    color: #15803d;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+.search-match-badge.city-match-badge {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+/* Подсветка строки найденного города */
+.highlight-city {
+    animation: pulse-highlight 2s ease-in-out;
+    border: 2px solid #ff4b91;
+    background-color: rgba(255, 75, 145, 0.08);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+@keyframes pulse-highlight {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 75, 145, 0.7);
+    }
+    50% {
+        transform: scale(1.015);
+        box-shadow: 0 0 15px 5px rgba(255, 75, 145, 0.4);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 75, 145, 0);
+    }
+}
+
 .geo-block {
     margin-top: 20px;
     padding-top: 20px;
     border-top: 2px dashed #e2e8f0;
 }
-body.dark-mode .geo-block { border-top-color: #475569; }
 
 .geo-input-wrapper {
     display: flex;
@@ -329,22 +477,307 @@ body.dark-mode .geo-block { border-top-color: #475569; }
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
+    transition: background 0.15s ease;
 }
-.btn-orange:hover { background: #c2410c; }
 
-/* Всплывающее окно (Модалка карточки магазина Шаг 2.1) */
+.btn-orange:hover {
+    background: #c2410c;
+}
+
+/* ========================================================
+   🧭 ПЛАВАЮЩАЯ НАВИГАЦИЯ (SCROLL-NAV)
+   ======================================================== */
+.scroll-nav {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.scroll-nav.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.scroll-nav button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.scroll-nav button:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+}
+
+@keyframes pulse-indigo {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 56, 202, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(67, 56, 202, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 56, 202, 0); }
+}
+
+/* ========================================================
+   🪐 ПЛАВАЮЩИЕ И МОДАЛЬНЫЕ ОКНА (DRAGGABLE & FLOATING)
+   ======================================================== */
+.floating-modal {
+    position: fixed;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid #cbd5e1;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.floating-modal-header {
+    padding: 14px 16px;
+    background: #f1f5f9;
+    border-bottom: 1px solid #cbd5e1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    cursor: move;
+}
+
+.floating-modal-header span {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.floating-modal-body {
+    height: calc(100% - 50px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Кнопки управления окнами macOS */
+.modal-control-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: transparent;
+}
+
+.floating-modal-header:hover .modal-control-btn {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-btn-minimize {
+    background-color: #f59e0b;
+}
+
+.modal-btn-minimize:hover {
+    background-color: #d97706;
+}
+
+.modal-btn-close {
+    background-color: #ef4444;
+}
+
+.modal-btn-close:hover {
+    background-color: #dc2626;
+}
+
+.modal-btn-refresh {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.modal-btn-refresh:hover {
+    background-color: #2563eb;
+    transform: rotate(180deg);
+}
+
+.modal-close-right, .modal-btn-blue {
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.modal-close-right::after, .modal-btn-blue::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transition: background-color 0.15s ease;
+    display: block;
+}
+
+.modal-btn-blue::after {
+    background-color: #3b82f6;
+    border: 1px solid #1d4ed8;
+}
+
+.modal-close-right::after {
+    background-color: #ff5f56;
+    border: 1px solid #e0443e;
+}
+
+.modal-btn-blue:hover::after { background-color: #60a5fa; }
+.modal-close-right:hover::after { background-color: #ff7c75; }
+
+.modal-close-right:hover::before {
+    content: '×';
+    position: absolute;
+    z-index: 2;
+    font-size: 11px;
+    line-height: 1;
+    color: #4c0000;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -51%);
+}
+
+.modal-btn-blue:hover::before {
+    content: '+';
+    position: absolute;
+    z-index: 2;
+    font-size: 11px;
+    line-height: 1;
+    color: #001c4c;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+}
+
+/* ========================================================
+   🛒 ОКНО ОБРАБОТКИ ЗАКАЗА (FLOATING WIDE)
+   ======================================================== */
+.floating-modal-wide {
+    width: 96vw;
+    max-width: 1600px;
+    min-width: 950px;
+    height: 85vh;
+    max-height: 900px;
+}
+
+.modal-columns-container {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-column-divider {
+    width: 1px;
+    background: #e2e8f0;
+    flex-shrink: 0;
+}
+
+.modal-column-left {
+    flex: 1.1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.modal-column-right {
+    flex: 1.4;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+#script-live-output {
+    width: 100%;
+    flex: 1;
+    background: #f8fafc;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #0f172a;
+    padding: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    min-height: 0;
+}
+
+.modal-column-right .btn-primary {
+    height: 46px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #4338ca;
+    border-radius: 8px;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* Переключатели режимов полей (Розовый/Зеленый режим) */
+.field-muted {
+    opacity: 0.35;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.field-active {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.2s ease;
+}
+
+/* Карточки магазинов и модалка */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    opacity: 0; pointer-events: none;
+    z-index: 3000;
+    opacity: 0;
+    pointer-events: none;
     transition: opacity 0.2s ease;
 }
-.modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+.modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 .modal-content {
     background: white;
@@ -352,16 +785,18 @@ body.dark-mode .geo-block { border-top-color: #475569; }
     border-radius: 14px;
     width: 100%;
     max-width: 450px;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     position: relative;
 }
-body.dark-mode .modal-content { background: #1e293b; color: white; }
 
 .modal-close {
     position: absolute;
     top: 12px; right: 14px;
-    background: none; border: none;
-    font-size: 20px; cursor: pointer; color: #94a3b8;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #94a3b8;
 }
 
 .modal-row {
@@ -374,100 +809,377 @@ body.dark-mode .modal-content { background: #1e293b; color: white; }
     margin-top: 8px;
     font-size: 13px;
 }
-body.dark-mode .modal-row { background: #334155; }
 
 .btn-copy {
-    background: none; border: none; cursor: pointer; font-size: 14px;
-}
-/* Стили для нового верхнего статус-бара */
-.status-bar-top {
-    display: flex;
-    justify-content: flex-end; 
-    align-items: center;
-    gap: 14px;
-    font-size: 11px;
-    color: #64748b;
-    margin-top: -16px; 
-    margin-bottom: 16px; 
-    padding-right: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
 }
 
-.status-refresh-btn {
+.btn-select-store-modal {
+    width: 100%;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+}
+
+.btn-select-store-modal.not-selected {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.btn-select-store-modal.not-selected:hover {
+    background: #cbd5e1;
+}
+
+.btn-select-store-modal.is-selected {
+    background: #16a34a;
+    color: white;
+}
+
+/* ========================================================
+   ⏳ ЛИСТ ОЖИДАНИЯ (WL MODAL & TABLE)
+   ======================================================== */
+#modal-waiting-list {
+    width: 850px;
+    max-width: 95vw;
+    height: 75vh;
+    max-height: 800px;
+}
+
+.wl-add-form {
+    display: none;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 16px 0 16px;
+}
+
+.wl-add-form.active {
+    display: block;
+}
+
+.wl-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.wl-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wl-form-group.full-width {
+    grid-column: span 2;
+}
+
+.wl-form-group label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.wl-form-grid input, .wl-form-grid select {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #0f172a;
+    font-size: 13px;
+    outline: none;
+}
+
+.wl-form-grid input:focus, .wl-form-grid select:focus {
+    border-color: #3b82f6;
+}
+
+.wl-form-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wl-btn-save {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.wl-btn-save:hover {
+    background: #3b82f6;
+}
+
+#wl-table-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.wl-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.wl-data-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid #cbd5e1;
+    white-space: nowrap;
+}
+
+.wl-data-table td {
+    padding: 12px 10px;
+    color: #1e293b;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.wl-data-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.wl-data-table th:nth-child(1) { width: 80px; }
+.wl-data-table th:nth-child(2) { width: 130px; }
+.wl-data-table th:nth-child(4) { width: 140px; }
+.wl-data-table th:nth-child(5) { width: 90px; }
+.wl-data-table th:nth-child(6) { width: 100px; }
+
+.wl-data-table td:nth-child(3) {
+    max-width: 250px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.wl-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.wl-id-cell {
+    font-weight: bold;
     color: #3b82f6;
     cursor: pointer;
-    font-weight: 500;
-    transition: color 0.15s;
+    user-select: all;
+    transition: color 0.15s ease;
 }
 
-.status-refresh-btn:hover {
+.wl-id-cell:hover {
     color: #1d4ed8;
     text-decoration: underline;
 }
 
-/* Поддержка темной темы для верхнего статуса */
+.wl-status-cell {
+    text-align: left;
+    cursor: pointer;
+}
+
+.wl-status-btn {
+    color: #10b981;
+    font-weight: 600;
+    transition: color 0.15s ease;
+}
+
+.wl-status-cell:hover .wl-status-btn {
+    color: #ef4444;
+}
+
+/* ========================================================
+   🏙️ МОДАЛКА МАГАЗИНОВ ГОРОДА (CITY SHOPS MODAL)
+   ======================================================== */
+.city-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: fadeInModal 0.2s ease-out;
+}
+
+.city-modal-container {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.city-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+.city-modal-header h3 {
+    margin: 0;
+    color: #1d4ed8;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.city-modal-close-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 24px;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.city-modal-close-btn:hover { color: #0f172a; }
+
+.city-modal-body {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 4px;
+}
+
+.city-modal-store-card {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #334155;
+}
+
+.city-modal-store-card .store-title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.city-modal-store-card .store-address {
+    font-size: 12px;
+    color: #475569;
+}
+
+.city-modal-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.city-modal-badge.available-badge {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+.city-modal-badge.selected-badge {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.city-modal-badge.empty-badge {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+
+.city-modal-select-btn {
+    margin-top: 6px;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.15s ease;
+}
+
+.city-modal-select-btn.available {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.city-modal-select-btn.available:hover {
+    background-color: #2563eb;
+}
+
+.city-modal-select-btn.selected {
+    background-color: #16a34a;
+    color: #ffffff;
+}
+
+.city-modal-select-btn.disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ========================================================
+   🌌 ТЁМНАЯ ТЕМА (body.dark-mode)
+   ======================================================== */
+body.dark-mode {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #f8fafc;
+}
+
+body.dark-mode .app-card {
+    background: #1e293b;
+    color: #f8fafc;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .app-title { color: #3b82f6; }
 body.dark-mode .status-bar-top { color: #94a3b8; }
 body.dark-mode .status-refresh-btn { color: #60a5fa; }
-/* Цвет заголовка результатов по умолчанию для светлой темы */
-.results-title {
-    color: #1e3a5f !important;
-}
+body.dark-mode .top-navbar { background: #334155; }
+body.dark-mode .nav-btn { color: #94a3b8; }
+body.dark-mode .nav-btn.active { color: #ffffff; background: #3b82f6; }
 
-/* Цвет заголовка для тёмной темы (светло-голубой, контрастный) */
-body.dark-mode .results-title {
-    color: #60a5fa !important;
-}
-/* Красивое отображение точных магазинов в темной теме */
-body.dark-mode .store-badge.exact-badge {
-    background: #064e3b !important;
-    color: #34d399 !important;
-    border-color: #059669 !important;
-}
-/* Класс для плавной и красивой подсветки строки */
-.highlight-city {
-  animation: pulse-highlight 2s ease-in-out;
-  border: 2px solid #ff4b91 !important; /* Приятный розовый цвет */
-  background-color: rgba(255, 75, 145, 0.08) !important; /* Легкий розовый фон */
-  border-radius: 12px !important; /* Закругленные углы */
-}
-
-@keyframes pulse-highlight {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 75, 145, 0.7);
-  }
-  50% {
-    transform: scale(1.015); /* Мягкое увеличение, чтобы строка не перекрывала соседние элементы */
-    box-shadow: 0 0 15px 5px rgba(255, 75, 145, 0.4);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 75, 145, 0);
-  }
-}
-/* Кнопка Логаута (Выйти) */
-.btn-logout {
-    border: none;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #fee2e2;
-    color: #ef4444;
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-}
-
-.btn-logout:hover {
-    background: #ef4444;
-    color: #ffffff;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-}
-
-/* Адаптация кнопки под тёмную тему */
 body.dark-mode .btn-logout {
     background: #451a03;
     color: #fca5a5;
@@ -477,184 +1189,7 @@ body.dark-mode .btn-logout:hover {
     background: #ef4444;
     color: #ffffff;
 }
-/* Обновленный и расширенный стиль для окна Листа ожидания */
-.floating-modal {
-    position: fixed !important;
-    background: #1e293b !important; /* Тёмный фон */
-    border-radius: 12px !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid #334155 !important;
-    z-index: 99999 !important; /* Поверх всего интерфейса */
-    
-    /* 🔥 ЖЕСТКО СКРЫВАЕМ ОКНО ДО НАЖАТИЯ НА КНОПКУ: */
-    display: none !important; 
-    
-    flex-direction: column !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
 
-/* ======================================================== */
-/* ⏳ ИЗОЛИРОВАННЫЙ СТИЛЬ ДЛЯ МОДАЛЬНОГО ОКНА ЛИСТА ОЖИДАНИЯ */
-/* ======================================================== */
-
-.floating-modal {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: #1e293b !important; /* Дефолтный тёмный фон */
-    border-radius: 12px !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid #334155 !important;
-    z-index: 99999 !important;
-    display: none; /* Управляется через JS (flex / none) */
-    flex-direction: column !important;
-    width: 450px !important;
-    max-width: 90% !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-
-/* Шапка модалки */
-.floating-modal-header {
-    padding: 14px 16px !important;
-    background: #0f172a !important;
-    border-bottom: 1px solid #334155 !important;
-    display: flex !important;
-    justify-content: space-between !important; /* Расталкивает заголовок влево, кнопку вправо */
-    align-items: center !important;
-    user-select: none !important;
-    box-sizing: border-box !important;
-}
-
-.floating-modal-header span {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #f1f5f9 !important;
-    font-family: sans-serif !important;
-}
-
-/* Кнопка закрытия справа: область 24x24px, внутри кружок macOS 14px */
-.modal-close-right {
-    width: 24px !important;
-    height: 24px !important;
-    background: none !important;
-    border: none !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-}
-
-/* Красный кружок macOS внутри области 24px */
-.modal-close-right::after {
-    content: '' !important;
-    width: 14px !important;
-    height: 14px !important;
-    background-color: #ff5f56 !important;
-    border: 1px solid #e0443e !important;
-    border-radius: 50% !important;
-    transition: background-color 0.15s ease !important;
-    display: block !important;
-}
-
-/* Высветление кружка при наведении */
-.modal-close-right:hover::after {
-    background-color: #ff7c75 !important;
-}
-
-/* Появление крестика внутри кружка при наведении (как на Mac) */
-.modal-close-right:hover::before {
-    content: '×' !important;
-    position: absolute !important;
-    z-index: 2 !important;
-    font-size: 11px !important;
-    line-height: 1 !important;
-    color: #4c0000 !important;
-    font-weight: bold !important;
-    font-family: sans-serif !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -51%) !important;
-}
-
-/* Тело модалки */
-.floating-modal-body {
-    height: calc(100% - 50px) !important; /* 50px — примерная высота шапки "Обработать заказ" */
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 20px !important;
-    box-sizing: border-box !important;
-}
-
-.modal-placeholder-text {
-    color: #94a3b8 !important;
-    font-size: 14px !important;
-    text-align: center !important;
-    margin: 0 !important;
-}
-
-/* ☀️ ПОДДЕРЖКА СВЕТЛОЙ ТЕМЫ */
-.light-theme .floating-modal { background: #ffffff !important; border-color: #e2e8f0 !important; }
-.light-theme .floating-modal-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
-.light-theme .floating-modal-header span { color: #0f172a !important; }
-.light-theme .floating-modal-body { background: #ffffff !important; }
-.light-theme .modal-placeholder-text { color: #64748b !important; }
-
-/* Новая панель управления сложной логикой заказа */
-.order-management-panel {
-    display: flex;
-    gap: 12px;                      /* Увеличили зазор между кнопками */
-    background: #f8fafc;            /* Светлый пастельный фон */
-    padding: 10px;                  /* Внутренние отступы панели */
-    border-radius: 12px;
-    margin-bottom: 24px;
-    border: 1px solid #e2e8f0;
-    width: 100%;                    /* Жестко растягиваем на всю ширину карточки */
-    box-sizing: border-box;         /* Чтобы паддинги не ломали ширину */
-}
-
-/* Кнопки управления заказом */
-.btn-order-action {
-    flex: 1;                        /* Заставляем кнопки делиться поровну и занимать все место */
-    border: none;
-    padding: 12px 16px;             /* Сделали кнопки повыше и просторнее для клика */
-    font-size: 13px;
-    font-weight: 600;               /* Сделали текст более плотным и читаемым */
-    border-radius: 8px;
-    cursor: pointer;
-    background: #ffffff;
-    color: #334155;                 /* Приятный графитовый цвет текста */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;                       /* Отступ между эмодзи и текстом */
-    border: 1px solid #cbd5e1;
-    white-space: nowrap;            /* Запрещаем тексту переноситься на новую строку */
-}
-
-/* Эффект наведения (стильный индиго-эффект) */
-.btn-order-action:hover {
-    background: #6366f1;
-    color: #ffffff;
-    border-color: #6366f1;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-    transform: translateY(-1px);    /* Кнопка слегка приподнимается */
-}
-
-/* Активное зажатие кнопки */
-.btn-order-action:active {
-    transform: translateY(1px);
-}
-
-/* ПОДДЕРЖКА ТЁМНОЙ ТЕМЫ */
 body.dark-mode .order-management-panel {
     background: #334155;
     border-color: #475569;
@@ -671,957 +1206,203 @@ body.dark-mode .btn-order-action:hover {
     border-color: #6366f1;
     color: #ffffff;
 }
-/* ========================================================
-   🪐 РЕЗИНОВЫЕ РАЗМЕРЫ ДЛЯ ШИРОКОГО ОКНА ОБРАБОТКИ ЗАКАЗА
-   ======================================================== */
-.floating-modal-wide {
-    width: 96vw !important;             /* Почти на всю ширину экрана */
-    max-width: 1600px !important;       /* Лимит для больших мониторов */
-    min-width: 1000px !important;       /* Защита для мелких экранов */
-    
-    /* 🔥 Высота по вашим отметкам */
-    height: 85vh !important;            /* Занимает 85% высоты экрана оператора */
-    max-height: 900px !important;       
-    
-    /* Направление внутренних колонок */
-    flex-direction: column !important;
+
+body.dark-mode .input-label { color: #cbd5e1; }
+
+body.dark-mode .input-textarea {
+    background: #334155;
+    border-color: #475569;
+    color: #f8fafc;
 }
 
-/* 🔥 ВКЛЮЧАЕМ СЕТКУ ТОЛЬКО ТОГДА, КОГДА ОКНО ОТКРЫТО JS-СКРИПТОМ */
-/* Если ваш JS просто удаляет style="display:none", это правило сработает идеально */
-.floating-modal-wide:not([style*="display: none"]):not([style*="display:none"]) {
-    display: flex !important;
+body.dark-mode .results-card {
+    background: #334155;
+    border-color: #475569;
 }
 
-/* Сетка для разделения тела модалки на две колонки */
-.modal-columns-container {
-    display: flex !important;
-    gap: 32px !important;
-    width: 100% !important;
-    height: 100% !important;
-    flex: 1 !important;
+body.dark-mode .results-title { color: #60a5fa; }
+body.dark-mode .result-row { border-bottom-color: #475569; }
+body.dark-mode .result-city { color: #f8fafc; }
+body.dark-mode .clickable-city-title { color: #60a5fa; }
+body.dark-mode .clickable-city-title:hover { color: #93c5fd; }
+
+body.dark-mode .store-badge {
+    background: #1e293b;
+    color: #94a3b8;
+    border-color: #334155;
 }
 
-/* 💻 АДАПТИВНАЯ ЛЕВАЯ КОЛОНКА (ИНПУТЫ И ТОВАРЫ) */
-.modal-column-left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100% !important;        
-    max-height: none !important;    
-    min-height: 380px;
-    overflow-y: auto;               
-    padding-right: 12px;
+body.dark-mode .store-badge.exact-badge {
+    background: #064e3b;
+    color: #34d399;
+    border-color: #059669;
 }
 
-.modal-column-left form {
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-    width: 100% !important;
+body.dark-mode .store-badge.selected-active {
+    background-color: #6366f1;
+    color: #ffffff;
+    border-color: #818cf8;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
 }
 
-/* 💻 АДАПТИВНАЯ ПРАВАЯ КОЛОНКА */
-.modal-column-right {
-    flex: 1.5;                      /* Правая колонка со скриптом шире левой */
-    display: flex;
-    flex-direction: column;
-    height: 100% !important;        
-    max-height: none !important;    
-    min-height: 380px;
-    box-sizing: border-box !important;
+body.dark-mode .search-match-badge.exact-match-badge {
+    color: #34d399;
+    background-color: #064e3b;
+    border-color: #047857;
 }
 
-/* Белое поле скрипта забирает ВСЁ свободное место */
-#script-live-output {
-    width: 100% !important;
-    flex: 1 !important;             /* Забирает всё свободное место сверху до кнопки */
-    height: auto !important;        
-    background: #f8fafc;
-    font-weight: 500;
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: #0f172a;
-    resize: none;
-    padding: 20px;
-    box-sizing: border-box;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    overflow-y: auto !important;    
-    margin-bottom: 15px !important; /* Аккуратный отступ до кнопки */
+body.dark-mode .search-match-badge.city-match-badge {
+    color: #60a5fa;
+    background-color: #1e3a8a;
+    border-color: #3b82f6;
 }
 
-/* Фиолетовая кнопка копирования (теперь строго фиксированная и аккуратная) */
-.modal-column-right .btn-primary {
-    width: 100% !important;
-    height: 46px !important;        /* Возвращаем жесткую аккуратную высоту */
-    max-height: 46px !important;    
-    padding: 0 24px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    background: #4338ca !important;
-    border-radius: 8px !important;
-    border: none !important;
-    color: white !important;
-    cursor: pointer !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    flex-shrink: 0 !important;      /* Защита от деформации флексом */
-    margin-top: 0 !important;       
-}
+body.dark-mode .geo-block { border-top-color: #475569; }
 
-/* ========================================================
-   🥷 ТЕМНАЯ ТЕМА ДЛЯ КОМПОНЕНТОВ ШИРОКОЙ МОДАЛКИ
-   ======================================================== */
-body.dark-mode .floating-modal-wide { 
-    background: #1e293b !important; 
-}
-body.dark-mode #script-live-output { 
-    background: #0f172a !important; 
-    color: #f1f5f9 !important; 
-    border-color: #475569 !important; 
-}
-body.dark-mode .script-product-row { 
-    background: #334155 !important; 
-    border-color: #475569 !important; 
-}
-body.dark-mode .script-product-row input { 
-    background: #1e293b !important; 
-    border-color: #475569 !important; 
-    color: #f8fafc !important; 
-}
-body.dark-mode .script-product-row span { 
-    color: #94a3b8 !important; 
-}
-body.dark-mode .modal-column-right label { 
-    color: #818cf8 !important; 
-}
-
-
-/* Стилизация новой кнопки выбора внутри карточки магазина */
-.btn-select-store-modal {
-    width: 100%;
-    padding: 12px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: all 0.2s ease;
-}
-.btn-select-store-modal.not-selected {
-    background: #e2e8f0;
-    color: #334155;
-}
-.btn-select-store-modal.not-selected:hover {
-    background: #cbd5e1;
-}
-.btn-select-store-modal.is-selected {
-    background: #16a34a;
+body.dark-mode .modal-content {
+    background: #1e293b;
     color: white;
 }
 
-/* Поддержка тёмной темы для кнопки выбора */
+body.dark-mode .modal-row { background: #334155; }
+
 body.dark-mode .btn-select-store-modal.not-selected {
     background: #334155;
     color: #f1f5f9;
 }
+
 body.dark-mode .btn-select-store-modal.not-selected:hover {
     background: #475569;
 }
-body.dark-mode #delivery-type-toggle {
-    background: #334155 !important;
+
+/* Плавающие окна в темной теме */
+body.dark-mode .floating-modal {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.6);
 }
+
+body.dark-mode .floating-modal-header {
+    background: #0f172a;
+    border-bottom-color: #334155;
+}
+
+body.dark-mode .floating-modal-header span { color: #f1f5f9; }
+
+body.dark-mode .modal-column-divider {
+    background: #334155;
+}
+
 body.dark-mode #script-live-output {
-    background: #0f172a !important;
-    color: #f1f5f9 !important;
+    background: #0f172a;
+    color: #f1f5f9;
+    border-color: #475569;
+}
+
+body.dark-mode .script-product-row {
+    background: #334155 !important;
     border-color: #475569 !important;
 }
-@keyframes pulse-indigo {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 56, 202, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(67, 56, 202, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 56, 202, 0); }
-}
-/* Базовые одинаковые стили для кнопок управления окном */
-.modal-control-btn {
-    width: 24px;
-    height: 24px;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: transparent; /* Скрываем значки по умолчанию в стиле macOS */
+
+body.dark-mode .script-product-row input {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
 }
 
-/* При наведении курсора на блок шапки — значки плавно проявляются */
-.floating-modal-header:hover .modal-control-btn {
-    color: rgba(0, 0, 0, 0.5);
+body.dark-mode .script-product-row span { color: #94a3b8 !important; }
+body.dark-mode .modal-column-right label { color: #818cf8 !important; }
+
+/* Лист ожидания в темной теме */
+body.dark-mode .wl-add-form {
+    background: #0f172a;
+    border-color: #334155;
 }
 
-/* 🟡 КНОПКА СВЕРНУТЬ: Жёлтая */
-.modal-btn-minimize {
-    background-color: #f59e0b; /* Сочный жёлтый цвет */
-}
-.modal-btn-minimize:hover {
-    background-color: #d97706; /* Темнеет при наведении */
-}
+body.dark-mode .wl-form-group label { color: #94a3b8; }
 
-/* 🔴 КНОПКА ЗАКРЫТЬ: Красная */
-.modal-btn-close {
-    background-color: #ef4444; /* Сочный красный цвет */
-}
-.modal-btn-close:hover {
-    background-color: #dc2626; /* Темнеет при наведении */
-}
-/* 🔵 КНОПКА РЕФРЕША: Синяя */
-.modal-btn-refresh {
-    background-color: #3b82f6;
-    color: #ffffff !important;
-}
-.modal-btn-refresh:hover {
-    background-color: #2563eb;
-    transform: rotate(180deg); /* Красивый эффект вращения при наведении */
-}
-/* Контейнер для каждого товара, чтобы CSS видел связь между textarea и точкой */
-.product-list-wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-bottom: 15px;
-    position: relative;
-}
-
-/* Шапка группы ввода */
-.input-group-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 5px;
-}
-
-/* Красная точка быстрой очистки в стиле macOS */
-.mac-clear-btn {
-    width: 12px;
-    height: 12px;
-    background-color: #ff5f56;
-    border: 1px solid #e0443e;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8px;
-    font-weight: bold;
-    color: transparent;
-    
-    /* 🔥 ЭФФЕКТ СВЕТОФОРА: по умолчанию точка полностью прозрачна и скрыта от кликов */
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease, color 0.2s ease, background-color 0.2s ease;
-}
-
-/* При наведении на саму точку проявляется крестик */
-.mac-clear-btn:hover {
-    background-color: #ff4a3d;
-    color: #4c0000;
-    box-shadow: 0 0 4px rgba(255, 95, 86, 0.5);
-}
-
-/* 🎯 МАГИЯ CSS: Если textarea НЕ пустая (плейсхолдер скрыт), плавно зажигаем точку в её шапке! */
-.product-list-wrapper:not(:has(textarea:placeholder-shown)) .mac-clear-btn {
-    opacity: 1;
-    pointer-events: auto;
-}
-/* ========================================================
-   🏙️ СТИЛИ РЕЗУЛЬТАТОВ ПОИСКА И НАЗВАНИЙ ГОРОДОВ
-   ======================================================== */
-
-/* Светлая тема (по умолчанию) — сочный синий цвет города */
-#results-rows-container .result-row .result-city .clickable-city-title {
-    color: #2563eb !important;
-    text-decoration: underline !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    transition: color 0.2s ease !important;
-}
-
-#results-rows-container .result-row .result-city .clickable-city-title:hover {
-    color: #1d4ed8 !important;
-}
-
-/* Базовый стиль кнопок-бейджей на главной */
-.badges-container .store-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-/* Фиолетовый выбранный магазин на главной странице */
-.badges-container .store-badge.active-selected-store {
-    background: #4f46e5 !important;
-    color: #ffffff !important;
-    border-color: #4f46e5 !important;
-}
-
-
-/* ========================================================
-   🌌 АДАПТАЦИЯ ИНТЕРФЕЙСА ДЛЯ ТЁМНОЙ ТЕМЫ (body.dark-mode)
-   ======================================================== */
-
-/* Контрастный небесно-голубой цвет для названий городов в темноте */
-body.dark-mode #results-rows-container .result-row .result-city .clickable-city-title {
-    color: #60a5fa !important;
-    text-decoration: underline !important;
-    font-weight: 700 !important;
-}
-
-body.dark-mode #results-rows-container .result-row .result-city .clickable-city-title:hover {
-    color: #93c5fd !important;
-}
-
-/* Тёмные кнопки-бейджи на главной по умолчанию */
-body.dark-mode .badges-container .store-badge {
+body.dark-mode .wl-form-grid input,
+body.dark-mode .wl-form-grid select {
     background: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+body.dark-mode .wl-data-table th {
+    background: #0f172a;
     color: #94a3b8;
-    border: 2px solid #334155;
+    border-bottom-color: #334155;
 }
 
-/* Тёмный точный магазин на главной (адаптированный зелёный) */
-body.dark-mode .badges-container .store-badge.exact-badge {
-    background: #064e3b !important;
-    color: #34d399 !important;
-    border: 2px solid #047857 !important;
+body.dark-mode .wl-data-table td {
+    color: #f1f5f9;
+    border-bottom-color: #334155;
 }
 
-/* Фиолетовый выбранный магазин в тёмной теме */
-body.dark-mode .badges-container .store-badge.active-selected-store {
-    background: #6366f1 !important;
-    color: #ffffff !important;
-    border-color: #6366f1 !important;
+body.dark-mode .wl-data-table tbody tr:hover {
+    background: rgba(51, 65, 85, 0.4);
 }
 
-
-/* ========================================================
-   📦 ИЗОЛИРОВАННЫЕ СТИЛИ ДЛЯ НАШЕЙ НОВОЙ ГОРОДСКОЙ МОДАЛКИ
-   ======================================================== */
-
-/* Фон модального окна (Overlay) */
-.city-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(4px);
-    animation: fadeInModal 0.2s ease-out;
+body.dark-mode .wl-badge {
+    background: #1e3a8a;
+    color: #93c5fd;
 }
 
-body.dark-mode .city-modal-overlay {
-    background: rgba(15, 23, 42, 0.8);
-}
+body.dark-mode .wl-id-cell { color: #60a5fa; }
+body.dark-mode .wl-id-cell:hover { color: #93c5fd; }
 
-/* Контейнер модального окна */
-.city-modal-container {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-    position: relative;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-}
-
+/* Городская модалка в темной теме */
 body.dark-mode .city-modal-container {
     background: #0f172a;
-    border: 1px solid #1e293b;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    border-color: #1e293b;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-/* Шапка модального окна */
-.city-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 10px;
-}
-
-body.dark-mode .city-modal-header {
-    border-bottom: 1px solid #1e293b;
-}
-
-.city-modal-header h3 {
-    margin: 0;
-    color: #1d4ed8;
-    font-size: 16px;
-    font-weight: 700;
-}
-
-body.dark-mode .city-modal-header h3 {
-    color: #3b82f6;
-}
-
-.city-modal-close-btn {
-    background: transparent;
-    border: none;
-    color: #64748b;
-    font-size: 24px;
-    cursor: pointer;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.city-modal-close-btn:hover {
-    color: #0f172a;
-}
-
-body.dark-mode .city-modal-close-btn:hover {
-    color: #f8fafc;
-}
-
-/* Тело со скроллом */
-.city-modal-body {
-    overflow-y: auto;
-    flex-grow: 1;
-    padding-right: 4px;
-}
-
-/* Карточки складов внутри модалки */
-.city-modal-store-card {
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    padding: 14px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    color: #334155;
-}
+body.dark-mode .city-modal-header { border-bottom-color: #1e293b; }
+body.dark-mode .city-modal-header h3 { color: #3b82f6; }
+body.dark-mode .city-modal-close-btn:hover { color: #f8fafc; }
 
 body.dark-mode .city-modal-store-card {
     background: #1e293b;
-    border: 1px solid #334155;
+    border-color: #334155;
     color: #94a3b8;
 }
 
-.city-modal-store-card .store-title {
-    font-weight: 700;
-    color: #0f172a;
-    font-size: 14px;
-}
+body.dark-mode .city-modal-store-card .store-title { color: #f8fafc; }
+body.dark-mode .city-modal-store-card .store-address { color: #94a3b8; }
 
-body.dark-mode .city-modal-store-card .store-title {
-    color: #f8fafc;
-}
-
-.city-modal-store-card .store-address {
-    font-size: 12px;
-    color: #475569;
-}
-
-body.dark-mode .city-modal-store-card .store-address {
-    color: #94a3b8;
-}
-
-/* Кнопки внутри модалки */
-.city-modal-select-btn {
-    margin-top: 6px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    width: 100%;
-    transition: background 0.15s ease;
-}
-
-.city-modal-select-btn:hover {
-    background: #2563eb;
-}
-
-@keyframes fadeInModal {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-/* ========================================================
-   🏷️ КРАСИВЫЕ И СТИЛЬНЫЕ ПЛАШКИ СТАТУСОВ ПОИСКА
-   ======================================================== */
-
-/* Базовый каркас плашки (СВЕТЛАЯ ТЕМА по умолчанию) */
-.search-match-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-left: 12px; /* Гарантированный отступ от названия города, чтобы ничего не слипалось */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
-}
-
-/* Бейджи статусов (СВЕТЛАЯ ТЕМА) */
-.city-modal-badge.selected-badge { background-color: #a31616; }
-.city-modal-badge.available-badge { background-color: #3b82f6; }
-
-/* Кнопки в модалке (СВЕТЛАЯ ТЕМА) */
-.city-modal-select-btn.selected { background-color: #16a34a; color: #ffffff; }
-.city-modal-select-btn.available { background-color: #3b82f6; color: #ffffff; }
-
-/* 🟢 Точный магазин в светлой теме */
-.search-match-badge.exact-match-badge {
-    color: #15803d; /* Насыщенный зеленый текст */
-    background-color: #f0fdf4; /* Нежно-зеленый фон */
-    border: 1px solid #bbf7d0; /* Тонкая аккуратная рамка */
-}
-
-/* 🔵 Совпадение по городу в светлой теме */
-.search-match-badge.city-match-badge {
-    color: #1d4ed8; /* Насыщенный синий текст */
-    background-color: #eff6ff; /* Нежно-синий фон */
-    border: 1px solid #bfdbfe; /* Тонкая аккуратная рамка */
-}
-
-/* ========================================================
-   🌗 АДАПТАЦИЯ ПЛАШЕК ДЛЯ ТЁМНОЙ ТЕМЫ (body.dark-mode)
-   ======================================================== */
-
-/* 🟢 Финальный красивый точный магазин в тёмной теме */
-body.dark-mode .search-match-badge.exact-match-badge {
-    color: #34d399 !important; /* Приятный неоново-зеленый текст */
-    background-color: #064e3b !important; /* Глубокий темно-зеленый фон */
-    border: 1px solid #047857 !important; /* Аккуратная темно-зеленая рамка */
-}
-
-/* 🔵 Финальное красивое совпадение по городу в тёмной теме */
-body.dark-mode .search-match-badge.city-match-badge {
-    color: #60a5fa !important; /* Аккуратный небесно-синий текст */
-    background-color: #ccf02d !important; /* Глубокий темно-синий фон */
-    border: 1px solid #dfc90a !important; /* Темно-синяя рамка */
-}
-
-/* Меняем цвет ТОЧНЫХ магазинов справа (Абакан4, Анапа3) в темноте */
-body.dark-mode #results-rows-container .result-row .badges-container .store-badge.exact-badge {
-    background-color: #1e293b !important; /* Сделай, например, благородный темно-серый фон */
-    color: #38bdf8 !important;            /* Красивый ярко-голубой текст */
-    border: 2px solid #0284c7 !important;  /* Насыщенная синяя рамка */
-}
-
-/* Эффект при наведении на эти кнопки в темноте */
-body.dark-mode #results-rows-container .result-row .badges-container .store-badge.exact-badge:hover {
-    background-color: #0f172a !important; /* Меняет цвет на более глубокий при наведении */
-    color: #f8fafc !important;
-}
-/* Включаем сочный неоново-фиолетовый цвет для выбранной точки на черном фоне */
-body.dark-mode #results-rows-container .result-row .badges-container .store-badge.selected-active {
-    background-color: #6366f1 !important; /* Яркий индиго/фиолетовый */
-    color: #ffffff !important;            /* Белый текст */
-    border: 2px solid #818cf8 !important;  /* Светло-фиолетовая рамка */
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4) !important; /* Легкое неоновое свечение */
-}
-
-/* Эффект наведения на выбранный магазин в темноте */
-body.dark-mode #results-rows-container .result-row .badges-container .store-badge.selected-active:hover {
-    background-color: #4f46e5 !important; /* Чуть темнее при наведении */
-    border-color: #6366f1 !important;
-}
-/* ========================================================
-   🎨 ФИКС ЦВЕТОВ И БЕЙДЖЕЙ В ГОРОДСКОЙ МОДАЛКЕ
-   ======================================================== */
-
-/* Общие базовые стили для бейджей статуса (Доступен / Выбран / Товара нет) */
-.city-modal-badge {
-    font-size: 11px !important;
-    padding: 3px 10px !important;
-    border-radius: 12px !important;
-    font-weight: 600 !important;
-    display: inline-block !important;
-}
-
-/* 🔵 Настройка бейджа ДОСТУПЕН в темной теме */
 body.dark-mode .city-modal-badge.available-badge {
-    background-color: #1e3a8a !important; /* Глубокий темно-синий фон подложки */
-    color: #60a5fa !important;            /* Яркий, читаемый небесно-голубой текст */
-    border: 1px solid #3b82f6 !important;  /* Аккуратная синяя рамка */
+    background-color: #1e3a8a;
+    color: #60a5fa;
+    border-color: #3b82f6;
 }
 
-/* 🟢 Настройка бейджа ВЫБРАН в темной теме */
 body.dark-mode .city-modal-badge.selected-badge {
-    background-color: #064e3b !important; /* Темно-зеленый фон */
-    color: #34d399 !important;            /* Неоново-зеленый текст */
-    border: 1px solid #059669 !important;  /* Зеленая рамка */
+    background-color: #064e3b;
+    color: #34d399;
+    border-color: #059669;
 }
 
-/* 🔴 Настройка бейджа ТОВАРA НЕТ в темной теме (Возвращаем красивую обводку!) */
 body.dark-mode .city-modal-badge.empty-badge {
-    background-color: #451a03 !important; /* Глубокий бордово-коричневый фон */
-    color: #f87171 !important;            /* Красивый пастельно-красный текст */
-    border: 1px solid #ef4444 !important;  /* Четкая красная рамка */
+    background-color: #451a03;
+    color: #f87171;
+    border-color: #ef4444;
 }
 
-/* ========================================================
-   ☀️ СТИЛИЗАЦИЯ ЭЛЕМЕНТОВ МОДАЛКИ ДЛЯ СВЕТЛОЙ ТЕМЫ
-   ======================================================== */
-
-/* Красивый контрастный бейдж ДОСТУПЕН в светлой теме */
-.city-modal-badge.available-badge {
-    background-color: #eff6ff !important; /* Мягкий нежно-синий фон */
-    color: #2563eb !important;            /* Яркий синий текст */
-    border: 1px solid #bfdbfe !important;  /* Аккуратная синяя рамка */
-}
-
-/* Красивый бейдж ВЫБРАН в светлой теме */
-.city-modal-badge.selected-badge {
-    background-color: #f0fdf4 !important; /* Мягкий нежно-зеленый фон */
-    color: #16a34a !important;            /* Зеленый текст */
-    border: 1px solid #bbf7d0 !important;  /* Зеленая рамка */
-}
-
-/* Красивая обводка ТОВАРA НЕТ в светлой теме */
-.city-modal-badge.empty-badge {
-    background-color: #fef2f2 !important; /* Мягкий нежно-красный фон */
-    color: #dc2626 !important;            /* Красный текст */
-    border: 1px solid #fca5a5 !important;  /* Красная рамка */
-}
-
-/* 🛑 СЕРАЯ КНОПКА ДЛЯ ПУСТОГО МАГАЗИНА В СВЕТЛОЙ ТЕМЕ */
-.city-modal-select-btn.disabled {
-    background-color: #f1f5f9 !important;  /* Светло-серый фон */
-    color: #94a3b8 !important;             /* Приглушенный серый текст */
-    border: 1px solid #cbd5e1 !important;   /* Серая рамка */
-    cursor: not-allowed !important;         /* Запрещающий курсор */
-    opacity: 0.8 !important;
-}
-
-/* ========================================================
-   🎛️ ИСПРАВЛЕНИЕ КНОПОК ДЕЙСТВИЯ В МОДАЛКЕ В ТЕМНОТЕ
-   ======================================================== */
-
-/* Активная кнопка ДОСТУПЕН */
 body.dark-mode .city-modal-select-btn.available {
-    background-color: #3b82f6 !important;
-    color: #ffffff !important;
-}
-body.dark-mode .city-modal-select-btn.available:hover {
-    background-color: #2563eb !important;
+    background-color: #3b82f6;
+    color: #ffffff;
 }
 
-/* Активная кнопка ВЫБРАН */
 body.dark-mode .city-modal-select-btn.selected {
-    background-color: #16a34a !important;
-    color: #ffffff !important;
+    background-color: #16a34a;
+    color: #ffffff;
 }
 
-/* 🛑 КНОПКА ДЛЯ ПУСТОГО МАГАЗИНА (Возвращаем серый неактивный цвет!) */
 body.dark-mode .city-modal-select-btn.disabled {
-    background-color: #334155 !important;  /* Серый приглушенный фон */
-    color: #64748b !important;             /* Темно-серый текст */
-    border: 1px solid #475569 !important;   /* Серая рамка */
-    cursor: not-allowed !important;         /* Запрещающий курсор мыши */
-    opacity: 0.6 !important;                /* Легкая прозрачность */
-}
-#results-rows-container .result-row .badges-container .store-badge.selected-active {
-    background-color: #4f46e5 !important; /* Насыщенный фиолетовый */
-    color: #ffffff !important;            /* Белый текст */
-    border: 2px solid #4338ca !important;  /* Темно-фиолетовая рамка */
-    box-shadow: 0 0 12px rgba(79, 70, 229, 0.2) !important; /* Мягкая тень */
+    background-color: #334155;
+    color: #64748b;
+    border-color: #475569;
+    opacity: 0.6;
 }
 
-/* Эффект наведения на выбранную точку в светлой теме */
-#results-rows-container .result-row .badges-container .store-badge.selected-active:hover {
-    background-color: #4338ca !important; /* Чуть темнее при наведении */
-    border-color: #3730a3 !important;
-}
-/* Синяя кнопка-точка в шапке */
-.modal-btn-blue {
-    width: 14px !important;
-    height: 14px !important;
-    background-color: #3b82f6 !important; /* Насыщенный синий */
-    border: 1px solid #1d4ed8 !important;
-    border-radius: 50% !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important; /* Запрещаем сжатие круга */
-    margin: 0 !important;
-    transition: background-color 0.15s ease !important;
-}
-.modal-btn-blue:hover { 
-    background-color: #60a5fa !important; 
-}
-/* Контейнер раскрывающейся формы */
-.wl-add-form {
-    display: none; /* Скрыта по умолчанию */
-    background: #0f172a !important; /* Чуть темнее тела модалки */
-    border: 1px solid #334155 !important;
-    border-radius: 8px !important;
-    padding: 16px !important;
-    margin-bottom: 20px !important;
-}
-
-/* Форма в активном состоянии */
-.wl-add-form.active {
-    display: block !important;
-}
-
-/* Сетка полей ввода */
-.wl-form-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-}
-
-.wl-form-group {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 4px !important;
-}
-
-.wl-form-group.full-width {
-    grid-column: span 2 !important; /* Растягивает коммент на всю ширину */
-}
-
-.wl-form-group label {
-    font-size: 12px !important;
-    color: #94a3b8 !important;
-    font-weight: 500 !important;
-}
-
-/* Стилизация самих инпутов под твою темную тему */
-.wl-form-grid input, .wl-form-grid select {
-    background: #1e293b !important;
-    border: 1px solid #475569 !important;
-    border-radius: 6px !important;
-    padding: 8px 10px !important;
-    color: #f1f5f9 !important;
-    font-size: 13px !important;
-    outline: none !important;
-    box-sizing: border-box !important;
-}
-
-.wl-form-grid input:focus, .wl-form-grid select:focus {
-    border-color: #3b82f6 !important; /* Синяя подсветка фокуса */
-}
-
-/* Кнопка отправки */
-.wl-form-actions {
-    margin-top: 14px !important;
-    display: flex !important;
-    justify-content: flex-end !important;
-}
-
-.wl-btn-save {
-    background: #2563eb !important;
-    color: #ffffff !important;
-    border: none !important;
-    padding: 8px 16px !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    cursor: pointer !important;
-    transition: background 0.15s ease !important;
-}
-.wl-btn-save:hover { background: #3b82f6 !important; }
-
-/* Поддержка светлой темы */
-.light-theme .wl-add-form { background: #f8fafc !important; border-color: #e2e8f0 !important; }
-.light-theme .wl-form-group label { color: #64748b !important; }
-.light-theme .wl-form-grid input, .light-theme .wl-form-grid select { background: #ffffff !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
-
-/* Принудительно заставляем таблицу занимать 100% ширины окна */
-.wl-data-table {
-    width: 100% !important;
-    table-layout: auto !important;
-    border-collapse: collapse !important;
-    margin-top: 0 !important;
-}
-
-.wl-data-table th {
-    /* 🔥 ДЕЛАЕМ ШАПКУ ЛИПКОЙ: */
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 10 !important; /* Чтобы строки таблицы уходили строго ПОД шапку, а не поверх неё */
-    
-    background: #0f172a !important; /* Насыщенный темный фон, чтобы сквозь него не просвечивал текст при скролле */
-    color: #94a3b8 !important;
-    padding: 12px 10px !important;
-    text-align: left !important;
-    font-weight: 600 !important;
-    border-bottom: 2px solid #334155 !important;
-    white-space: nowrap !important;
-}
-
-.wl-data-table td {
-    padding: 12px 10px !important;
-    color: #f1f5f9 !important;
-    border-bottom: 1px solid #334155 !important;
-    vertical-align: middle !important;
-}
-
-/* Подсветка строки при наведении мыши */
-.wl-data-table tbody tr:hover {
-    background: rgba(51, 65, 85, 0.3) !important;
-}
-
-.wl-loading-text {
-    text-align: center !important;
-    color: #64748b !important;
-    padding: 20px !important;
-}
-
-/* Разрешаем ячейке комментария переносить длинный текст на новые строки */
-.wl-data-table td:nth-child(3) {
-    max-width: 250px !important;    /* Комфортная максимальная ширина для текста */
-    white-space: normal !important;  /* Принудительно разрешаем перенос строк */
-    word-wrap: break-word !important; /* Переносит длинные слова (типа ммммм) */
-    word-break: break-word !important; /* Подстраховка для старых браузеров */
-    line-height: 1.4 !important;    /* Делаем текст читаемым, если он станет многострочным */
-}
-
-/* Принудительно выравниваем все остальные колонки, чтобы они не сжимались */
-.wl-data-table th:nth-child(3) {
-    text-align: left !important;
-}
-
-#modal-waiting-list {
-    width: 850px !important;
-    max-width: 95vw !important;
-}
-
-/* Универсальный базовый стиль для круглых кнопок управления шапки */
-.modal-close-right, .modal-btn-blue {
-    width: 24px !important;
-    height: 24px !important;
-    background: none !important;
-    border: none !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-}
-
-/* Одинаковые кружочки macOS внутри области 24px */
-.modal-close-right::after, .modal-btn-blue::after {
-    content: '' !important;
-    width: 14px !important;
-    height: 14px !important;
-    border-radius: 50% !important;
-    transition: background-color 0.15s ease !important;
-    display: block !important;
-}
-
-/* Родные цвета кружков (Синий для добавления, Красный для закрытия) */
-.modal-btn-blue::after {
-    background-color: #3b82f6 !important;
-    border: 1px solid #1d4ed8 !important;
-}
-.modal-close-right::after {
-    background-color: #ff5f56 !important;
-    border: 1px solid #e0443e !important;
-}
-
-/* Эффект высветления при наведении */
-.modal-btn-blue:hover::after { background-color: #60a5fa !important; }
-.modal-close-right:hover::after { background-color: #ff7c75 !important; }
-
-/* Текстовый крестик "×" внутри красного кружка при наведении */
-.modal-close-right:hover::before {
-    content: '×' !important;
-    position: absolute !important;
-    z-index: 2 !important;
-    font-size: 11px !important;
-    line-height: 1 !important;
-    color: #4c0000 !important;
-    font-weight: bold !important;
-    font-family: sans-serif !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -51%) !important;
-}
-
-/* Символ плюса "+" внутри синего кружка при наведении */
-.modal-btn-blue:hover::before {
-    content: '+' !important;
-    position: absolute !important;
-    z-index: 2 !important;
-    font-size: 11px !important;
-    line-height: 1 !important;
-    color: #001c4c !important;
-    font-weight: bold !important;
-    font-family: sans-serif !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -52%) !important;
-}
-
-/* Небольшие подсказки для браузера по минимальной ширине колонок */
-.wl-data-table th:nth-child(1) { width: 80px !important; }  /* ID задачи */
-.wl-data-table th:nth-child(2) { width: 130px !important; } /* Классификатор */
-.wl-data-table th:nth-child(4) { width: 140px !important; } /* Перезвонить */
-.wl-data-table th:nth-child(5) { width: 90px !important; }  /* Оператор */
-.wl-data-table th:nth-child(6) { width: 100px !important; } /* Статус */
-
-/* Адаптация под светлую тему */
-.light-theme .wl-data-table th { background: #f1f5f9 !important; color: #64748b !important; border-color: #cbd5e1 !important; }
-.light-theme .wl-data-table td { color: #0f172a !important; border-color: #e2e8f0 !important; }
-.light-theme .wl-data-table tbody tr:hover { background: rgba(241, 245, 249, 0.8) !important; }
-
-/* Выделяем ячейку статуса как интерактивную кнопку */
-.wl-status-cell {
-    text-align: left !important;
-}
-
-.wl-status-btn {
-    color: #10b981 !important; /* Зелёный цвет */
-    font-weight: 600 !important;
-    transition: color 0.15s ease !important;
-    display: inline-block !important;
-}
-
-/* При наведении на "В работе" красим в ярко-зелёный или красный, намекая на закрытие */
-.wl-status-cell:hover .wl-status-btn {
-    color: #34d399 !important; /* Более яркий зелёный подсвет */
-    text-shadow: 0 0 8px rgba(16, 185, 129, 0.4) !important;
-}
-/* Эффекты для ячейки с ID */
-.wl-id-cell {
-    font-weight: bold !important;
-    color: #3b82f6 !important; /* Твой фирменный синий */
-    transition: all 0.15s ease !important;
-    user-select: all !important; /* Разрешаем оператору легко выделять цифры, если нужно */
-}
-
-/* При наведении подсвечиваем и слегка увеличиваем визуальный акцент */
-.wl-id-cell:hover {
-    color: #60a5fa !important; /* Яркий голубой */
-    text-decoration: underline !important; /* Аккуратное подчеркивание */
-}
