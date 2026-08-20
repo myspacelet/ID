@@ -256,9 +256,15 @@
                     
                     <div id="script-live-output" style="width: 100%; background: #f8fafc; font-weight: 500; font-size: 14.5px; line-height: 1.6; color: #0f172a; overflow-y: auto; padding: 20px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 10px; white-space: pre-wrap;"></div>
 
-                    <button onclick="copyGeneratedScript(this)" class="btn-main btn-primary" style="flex-shrink: 0; width: 100%;">
-                        📋 Скопировать в таблицу
-                    </button>
+                    <!-- 🔥 БЛОК КНОПОК ДЕЙСТВИЙ -->
+                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 12px; flex-shrink: 0;">
+                        <button type="button" onclick="openQuickWaitingListModal()" class="btn-main" style="flex: 1; background: #f59e0b; color: #ffffff; font-weight: 700; border: none; border-radius: 8px; height: 42px; cursor: pointer; white-space: nowrap;">
+                            ⏳ В лист ожидания
+                        </button>
+                        <button type="button" onclick="copyGeneratedScript(this)" class="btn-main btn-primary" style="flex: 2; height: 42px; white-space: nowrap;">
+                            📋 Скопировать в таблицу
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2495,6 +2501,136 @@
                 updateLiveScriptText();
             }
         }
+        // Открытие быстрого окна добавления в лист ожидания
+function openQuickWaitingListModal() {
+    const modal = document.getElementById('modal-quick-wl');
+    if (!modal) return;
+
+    // Сброс и предзаполнение полей
+    document.getElementById('quick-wl-id').value = '';
+    document.getElementById('quick-wl-comment').value = '';
+    
+    // 1. Подтягиваем дату оформления заказа
+    const delivDateVal = document.getElementById('script-deliv-date')?.value || '';
+    const callbackInput = document.getElementById('quick-wl-callback');
+    if (callbackInput) {
+        callbackInput.value = delivDateVal;
+    }
+
+    // 2. Подтягиваем имя оператора
+    const operatorName = (typeof currentOperatorName !== 'undefined' && currentOperatorName) 
+        ? currentOperatorName 
+        : (document.getElementById('wl-input-operator')?.value || 'Оператор');
+    document.getElementById('quick-wl-operator').value = operatorName;
+
+    modal.style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('quick-wl-id')?.focus();
+    }, 50);
+}
+
+// Закрытие быстрого окна
+function closeQuickWaitingListModal() {
+    const modal = document.getElementById('modal-quick-wl');
+    if (modal) modal.style.display = 'none';
+}
+
+// Сохранение в Supabase
+async function saveQuickWaitingListTask() {
+    const taskIdRaw = document.getElementById('quick-wl-id')?.value.trim();
+    if (!taskIdRaw) {
+        alert('❌ Пожалуйста, введите ID задачи!');
+        document.getElementById('quick-wl-id')?.focus();
+        return;
+    }
+
+    const taskId = parseInt(taskIdRaw, 10);
+    const classifier = document.getElementById('quick-wl-classifier')?.value || 'класс 1';
+    const comment = document.getElementById('quick-wl-comment')?.value.trim() || '';
+    const callbackVal = document.getElementById('quick-wl-callback')?.value || null;
+    const operator = document.getElementById('quick-wl-operator')?.value || 'Оператор';
+
+    const saveBtn = document.getElementById('btn-save-quick-wl');
+    if (saveBtn) {
+        saveBtn.innerText = 'Сохранение...';
+        saveBtn.disabled = true;
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('waiting_list')
+            .insert([{
+                id: taskId,
+                classifier: classifier,
+                comment: comment,
+                callback_at: callbackVal ? new Date(callbackVal).toISOString() : null,
+                operator: operator
+            }]);
+
+        if (error) throw error;
+
+        closeQuickWaitingListModal();
+        alert('🎉 Задача успешно сохранена в Лист ожидания!');
+
+        // Фоновое обновление таблицы листа ожидания, если она загружена
+        if (typeof loadWaitingList === 'function') {
+            loadWaitingList();
+        }
+
+    } catch (err) {
+        console.error('Ошибка сохранения в лист ожидания:', err);
+        alert('❌ Не удалось сохранить задачу: ' + (err.message || 'Проверьте соединение'));
+    } finally {
+        if (saveBtn) {
+            saveBtn.innerText = 'Сохранить задачу';
+            saveBtn.disabled = false;
+        }
+    }
+}
     </script>
+    <!-- 🪐 МИКРО-МОДАЛКА: БЫСТРОЕ ДОБАВЛЕНИЕ В ЛИСТ ОЖИДАНИЯ -->
+<div id="modal-quick-wl" class="floating-modal" style="display: none; width: 440px; z-index: 2500; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);">
+    <div class="floating-modal-header" style="background: #1e293b; border-bottom: 1px solid #334155;">
+        <span>⏳ Добавить в Лист ожидания</span>
+        <button class="modal-close-right" onclick="closeQuickWaitingListModal()"></button>
+    </div>
+    <div class="floating-modal-body" style="padding: 18px; background: #0f172a;">
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <div style="flex: 1;">
+                <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 4px;">ID ЗАДАЧИ *</label>
+                <input type="number" id="quick-wl-id" class="input-textarea" style="height: 38px; margin: 0;" placeholder="Например: 1245">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 4px;">КЛАССИФИКАТОР</label>
+                <select id="quick-wl-classifier" class="input-textarea" style="height: 38px; margin: 0; background: #1e293b; color: #fff;">
+                    <option value="класс 1">класс 1</option>
+                    <option value="класс 2">класс 2</option>
+                    <option value="класс 3">класс 3</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 4px;">КОММЕНТАРИЙ (НЕОБЯЗАТЕЛЬНО)</label>
+            <input type="text" id="quick-wl-comment" class="input-textarea" style="height: 38px; margin: 0;" placeholder="Сомнения, просил перезвонить...">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 18px;">
+            <div style="flex: 1;">
+                <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 4px;">ПЕРЕЗВОНИТЬ В</label>
+                <input type="datetime-local" id="quick-wl-callback" class="input-textarea" style="height: 38px; margin: 0;">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 4px;">ОПЕРАТОР</label>
+                <input type="text" id="quick-wl-operator" class="input-textarea" style="height: 38px; margin: 0; opacity: 0.7;" readonly>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" onclick="closeQuickWaitingListModal()" style="background: #334155; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">Отмена</button>
+            <button type="button" id="btn-save-quick-wl" onclick="saveQuickWaitingListTask()" style="background: #10b981; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">Сохранить задачу</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

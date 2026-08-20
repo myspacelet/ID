@@ -1583,3 +1583,48 @@ body.dark-mode .script-hint-badge:hover {
     background: #334155;
     color: #f1f5f9;
 }
+
+/* Оранжевая кнопка "В лист ожидания" */
+button[onclick="openQuickWaitingListModal()"] {
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+button[onclick="openQuickWaitingListModal()"]:hover {
+    background: #d97706 !important;
+}
+
+button[onclick="openQuickWaitingListModal()"]:active {
+    transform: translateY(1px);
+}
+
+/* Микро-модалка Листа ожидания */
+#modal-quick-wl {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #334155;
+}
+
+/* Поддержка светлой темы для микро-модалки */
+body:not(.dark-mode) #modal-quick-wl {
+    border-color: #cbd5e1;
+}
+
+body:not(.dark-mode) #modal-quick-wl .floating-modal-header {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+body:not(.dark-mode) #modal-quick-wl .floating-modal-body {
+    background: #ffffff !important;
+}
+
+body:not(.dark-mode) #modal-quick-wl label {
+    color: #475569 !important;
+}
+
+body:not(.dark-mode) #quick-wl-classifier {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+}
