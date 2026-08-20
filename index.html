@@ -1240,12 +1240,22 @@
 
             const inputsToClear = [
                 'script-client-name', 'script-delivery-address', 'script-rec-fio',
-                'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 'script-deliv-date'
+                'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 
+                'script-deliv-date', 'script-order-number'
             ];
             inputsToClear.forEach(id => {
                 const inputElement = document.getElementById(id);
                 if (inputElement) inputElement.value = '';
             });
+
+            // 🎯 СБРОС ТУМБЛЕРА В ИСХОДНОЕ ПОЛОЖЕНИЕ
+            const toggle = document.getElementById('script-mode-toggle');
+            if (toggle) {
+                toggle.checked = false;
+            }
+            if (typeof handleScriptToggleChange === 'function') {
+                handleScriptToggleChange();
+            }
 
             const container = document.getElementById('lists-container');
             const dynamicLists = container.querySelectorAll('.input-group');
@@ -1282,7 +1292,7 @@
 
             if (list1) list1.focus();
         }
-
+        
         let activeDraggedModal = null;
         let modalXOffset = 0;
         let modalYOffset = 0;
@@ -1325,23 +1335,36 @@
             }
         }
 
+        // Закрытие окна с полной очисткой данных
         function closeFloatingModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.style.setProperty('display', 'none', 'important');
+                
                 if (modalId === 'modal-process-order') {
                     isConvenientToTalk = null;
+
                     const minBtn = document.getElementById('btn-minimized-order');
                     if (minBtn) minBtn.style.display = 'none';
 
                     const inputsToClear = [
                         'script-client-name', 'script-delivery-address', 'script-rec-fio',
-                        'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 'script-deliv-date'
+                        'script-rec-phone', 'script-deliv-price', 'script-deliv-days', 
+                        'script-deliv-date', 'script-order-number'
                     ];
                     inputsToClear.forEach(id => {
                         const inputElement = document.getElementById(id);
                         if (inputElement) inputElement.value = '';
                     });
+
+                    // 🎯 СБРОС ТУМБЛЕРА В ИСХОДНОЕ ПОЛОЖЕНИЕ (Зеленое, влево)
+                    const toggle = document.getElementById('script-mode-toggle');
+                    if (toggle) {
+                        toggle.checked = false;
+                    }
+                    if (typeof handleScriptToggleChange === 'function') {
+                        handleScriptToggleChange();
+                    }
                 }
             }
         }
