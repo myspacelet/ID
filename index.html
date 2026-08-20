@@ -523,6 +523,12 @@
                     if (welcomeTitle && profile && profile.full_name) {
                         const firstName = profile.full_name.trim().replace(/^[^\s]+\s+/, '');
                         welcomeTitle.innerText = `🚌 Добро пожаловать, ${firstName}!`;
+                        
+                        // 🎯 Обновляем глобальную переменную и все поля "Оператор" без перезагрузки
+                        currentOperatorName = firstName;
+                        if (typeof updateAllOperatorInputs === 'function') {
+                            updateAllOperatorInputs(firstName);
+                        }
                     }
 
                     setTimeout(() => { 
@@ -2157,6 +2163,15 @@
                     resetWlFormInputsOnly();
                 }
                 autoFillFormDetails();
+
+                // 🎯 Актуализируем имя текущего оператора сразу при открытии формы
+                const currentName = (typeof currentOperatorName !== 'undefined' && currentOperatorName) 
+                    ? currentOperatorName 
+                    : (localStorage.getItem('auth_operator_name') || 'Оператор');
+
+                if (typeof updateAllOperatorInputs === 'function') {
+                    updateAllOperatorInputs(currentName);
+                }
             } else {
                 resetWlFormInputsOnly();
                 if (saveBtn && saveBtn.innerText === 'Обновить задачу') {
@@ -2668,6 +2683,19 @@ function clearWaitingListSearch() {
         searchInput.focus();
     }
     filterWaitingList();
+}
+function updateAllOperatorInputs(operatorName) {
+    // 1. Поле в основном листе ожидания
+    const mainOperatorInput = document.getElementById('wl-input-operator');
+    if (mainOperatorInput) {
+        mainOperatorInput.value = operatorName;
+    }
+
+    // 2. Поле в быстром микро-окне добавления
+    const quickOperatorInput = document.getElementById('quick-wl-operator');
+    if (quickOperatorInput) {
+        quickOperatorInput.value = operatorName;
+    }
 }
     </script>
     <!-- 🪐 МИКРО-МОДАЛКА: БЫСТРОЕ ДОБАВЛЕНИЕ В ЛИСТ ОЖИДАНИЯ -->
