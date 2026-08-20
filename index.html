@@ -1641,9 +1641,8 @@
             updateLiveScriptText();
         }
 
-        // Полноценный генератор скрипта разговора/текста с поддержкой двух режимов
         function updateLiveScriptText() {
-            const liveOutput = document.getElementById('script-live-text');
+            const liveOutput = document.getElementById('script-live-output');
             if (!liveOutput) return;
 
             const isPinkMode = document.getElementById('script-mode-toggle')?.checked || false;
@@ -1654,6 +1653,21 @@
 
             // 1. Приветствие
             let scriptText = `Добрый день, ${nameHtml}! Меня зовут Оператор, компания ***. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?\n\n`;
+
+            // Интерактивные кнопки выбора (Да / Нет)
+            const btnYesStyle = (isConvenientToTalk === 'yes') 
+                ? 'background: #16a34a; color: #fff; border: 2px solid #15803d; font-weight: 700;' 
+                : 'background: #22c55e; color: #fff; border: none; opacity: 0.85;';
+            const btnNoStyle = (isConvenientToTalk === 'no') 
+                ? 'background: #dc2626; color: #fff; border: 2px solid #b91c1c; font-weight: 700;' 
+                : 'background: #ef4444; color: #fff; border: none; opacity: 0.85;';
+
+            const buttonsHtml = `
+                <div style="display: flex; gap: 10px; margin: 10px 0 16px 0;">
+                    <button type="button" onclick="setConvenientTalk('yes')" style="${btnYesStyle} padding: 6px 18px; border-radius: 6px; cursor: pointer;">🟢 Да</button>
+                    <button type="button" onclick="setConvenientTalk('no')" style="${btnNoStyle} padding: 6px 18px; border-radius: 6px; cursor: pointer;">🔴 Нет</button>
+                </div>
+            `;
 
             // ========================================================
             // ЕСЛИ ВЫБРАНО "ДА"
@@ -1707,9 +1721,9 @@
                             ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.city}</span>` 
                             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
                         const storeAddressHtml = storeInfo.address 
-                            ? `<span style="color: #22c55e; font-weight: 700;">${storeInfo.address}</span>` 
+                            ? `<span style="color: #22c55e; font-weight: 700;">${storeAddressHtml}</span>` 
                             : `<span style="color: #ef4444; font-weight: 700;">(Укажите данные)</span>`;
-                        scriptText += `в городе ${storeCityHtml} по адресу: ${storeAddressHtml}.\n\n`;
+                        scriptText += `в городе ${storeCityHtml} по адресу: ${storeInfo.address || '(Укажите данные)'}.\n\n`;
                     } else {
                         scriptText += `<span style="color: #ef4444; font-weight: 700;">[⚠️ ВНИМАНИЕ: ТОЧКА ОТГРУЗКИ НЕ ВЫБРАНА В КАРТОЧКЕ МАГАЗИНА НА ГЛАВНОМ ЭКРАНЕ]</span>.\n\n`;
                     }
@@ -1770,7 +1784,17 @@
                 scriptText += `<span style="color: #64748b; font-style: italic;">👉 Выберите ответ клиента (Да / Нет), чтобы продолжить скрипт разговора.</span>`;
             }
 
-            liveOutput.innerHTML = scriptText.replace(/\n/g, '<br>');
+            // Собираем текст приветствия, кнопки и тело скрипта
+            const greetingHtml = `Добрый день, ${nameHtml}! Меня зовут Александр, компания ***. Вы интересовались покупкой с индивидуальной доставкой. Вам удобно сейчас говорить?`;
+            const restText = scriptText.substring(scriptText.indexOf('\n\n') + 2);
+
+            liveOutput.innerHTML = greetingHtml + buttonsHtml + restText.replace(/\n/g, '<br>');
+        }
+
+        // Функция переключения ответа Да / Нет
+        function setConvenientTalk(choice) {
+            isConvenientToTalk = choice;
+            updateLiveScriptText();
         }
 
         function copyGeneratedScript(btnElement) {
