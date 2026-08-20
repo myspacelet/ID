@@ -1822,121 +1822,123 @@
         }
 
         function copyGeneratedScript(btnElement) {
-        // 1. Парсер телефона (Строго 11 цифр, формат 79XXXXXXXXX)
-        const rawPhone = document.getElementById('script-rec-phone')?.value.trim() || '';
-        let cleanPhone = rawPhone.replace(/\D/g, '');
-        if (cleanPhone.length > 0) {
-            if (cleanPhone.startsWith('8')) {
-                cleanPhone = '7' + cleanPhone.substring(1);
-            } else if (cleanPhone.length === 10) {
-                cleanPhone = '7' + cleanPhone;
-            }
-            if (cleanPhone.length > 11) {
-                cleanPhone = cleanPhone.substring(0, 11);
-            }
-        }
-        if (!cleanPhone) cleanPhone = '';
+            // Режим работы (Зеленый / Розовый)
+            const isPinkMode = document.getElementById('script-mode-toggle')?.checked || false;
 
-        // 2. Базовые данные
-        const recFio = document.getElementById('script-rec-fio')?.value.trim() || '';
-        const deliveryAddress = document.getElementById('script-delivery-address')?.value.trim() || '';
-        const delivPrice = document.getElementById('script-deliv-price')?.value.trim() || '0';
-        const delivDays = document.getElementById('script-deliv-days')?.value.trim() || '';
-        const delivDate = document.getElementById('script-deliv-date')?.value || '';
-
-        // 3. Корзина товаров
-        const artInputs = document.querySelectorAll('.script-input-art');
-        const qtyInputs = document.querySelectorAll('.script-input-qty');
-        let articlesArray = [];
-        let totalQty = 0;
-
-        for (let i = 0; i < artInputs.length; i++) {
-            const art = artInputs[i].value.trim();
-            const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 0;
-            if (art) articlesArray.push(art);
-            if (!isNaN(qty)) totalQty += qty;
-        }
-
-        const finalArticlesString = articlesArray.join(', '); 
-        const finalQtyString = totalQty > 0 ? totalQty.toString() : ''; 
-
-        // 4. Город клиента
-        let clientCity = '';
-        if (deliveryAddress) {
-            const cleanAddr = deliveryAddress.replace(/^(г\.|город\s+|обл\.|область\s+)/i, '').trim();
-            clientCity = cleanAddr.split(/[, ]/)[0];
-        }
-
-        // 5. Магазин отгрузки (Столбец G)
-        let storeInfoString = '';
-        const manualStore = document.getElementById('script-manual-store')?.value.trim() || '';
-
-        if (isPinkMode && manualStore) {
-            storeInfoString = manualStore;
-        } else if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
-            const store = storeDatabase[selectedStoreCode];
-            const rawCity = (store.city || '').trim();
-            let rawAddress = (store.address || '').trim();
-
-            if (rawAddress) {
-                rawAddress = rawAddress.split(';')[0].trim();
-                if (rawCity && rawAddress.startsWith(rawCity)) {
-                    rawAddress = rawAddress.substring(rawCity.length).replace(/^[\s,;.-]+/, '').trim();
+            // 1. Парсер телефона (Строго 11 цифр, формат 79XXXXXXXXX)
+            const rawPhone = document.getElementById('script-rec-phone')?.value.trim() || '';
+            let cleanPhone = rawPhone.replace(/\D/g, '');
+            if (cleanPhone.length > 0) {
+                if (cleanPhone.startsWith('8')) {
+                    cleanPhone = '7' + cleanPhone.substring(1);
+                } else if (cleanPhone.length === 10) {
+                    cleanPhone = '7' + cleanPhone;
+                }
+                if (cleanPhone.length > 11) {
+                    cleanPhone = cleanPhone.substring(0, 11);
                 }
             }
-            storeInfoString = rawCity ? `${rawCity}, ${rawAddress}` : rawAddress;
+            if (!cleanPhone) cleanPhone = '';
+
+            // 2. Базовые данные
+            const recFio = document.getElementById('script-rec-fio')?.value.trim() || '';
+            const deliveryAddress = document.getElementById('script-delivery-address')?.value.trim() || '';
+            const delivPrice = document.getElementById('script-deliv-price')?.value.trim() || '0';
+            const delivDays = document.getElementById('script-deliv-days')?.value.trim() || '';
+            const delivDate = document.getElementById('script-deliv-date')?.value || '';
+
+            // 3. Корзина товаров
+            const artInputs = document.querySelectorAll('.script-input-art');
+            const qtyInputs = document.querySelectorAll('.script-input-qty');
+            let articlesArray = [];
+            let totalQty = 0;
+
+            for (let i = 0; i < artInputs.length; i++) {
+                const art = artInputs[i].value.trim();
+                const qty = qtyInputs[i].value.trim() ? parseInt(qtyInputs[i].value.trim(), 10) : 0;
+                if (art) articlesArray.push(art);
+                if (!isNaN(qty)) totalQty += qty;
+            }
+
+            const finalArticlesString = articlesArray.join(', '); 
+            const finalQtyString = totalQty > 0 ? totalQty.toString() : ''; 
+
+            // 4. Город клиента
+            let clientCity = '';
+            if (deliveryAddress) {
+                const cleanAddr = deliveryAddress.replace(/^(г\.|город\s+|обл\.|область\s+)/i, '').trim();
+                clientCity = cleanAddr.split(/[, ]/)[0];
+            }
+
+            // 5. Магазин отгрузки (Столбец G)
+            let storeInfoString = '';
+            const manualStore = document.getElementById('script-manual-store')?.value.trim() || '';
+
+            if (isPinkMode && manualStore) {
+                storeInfoString = manualStore;
+            } else if (selectedStoreCode && storeDatabase[selectedStoreCode]) {
+                const store = storeDatabase[selectedStoreCode];
+                const rawCity = (store.city || '').trim();
+                let rawAddress = (store.address || '').trim();
+
+                if (rawAddress) {
+                    rawAddress = rawAddress.split(';')[0].trim();
+                    if (rawCity && rawAddress.startsWith(rawCity)) {
+                        rawAddress = rawAddress.substring(rawCity.length).replace(/^[\s,;.-]+/, '').trim();
+                    }
+                }
+                storeInfoString = rawCity ? `${rawCity}, ${rawAddress}` : rawAddress;
+            }
+
+            // 6. Цены
+            let pricePvz = '';
+            let priceCourier = '';
+            if (currentDeliveryMode === 'pvz') {
+                pricePvz = delivPrice;
+            } else {
+                priceCourier = delivPrice;
+            }
+
+            // 7. Способ доставки и номер заказа
+            const methodText = currentDeliveryMode === 'pvz' ? 'СДЭК ПВЗ' : 'Курьер'; 
+            const orderNumberRaw = document.getElementById('script-order-number')?.value || '';
+            const cleanOrderNumber = orderNumberRaw.trim();
+
+            const finalDateCell = isPinkMode ? '' : (delivDate ? delivDate.replace('T', ' ') : '');
+            const finalOrderCell = isPinkMode ? cleanOrderNumber : '';
+
+            // 8. Сборка строки: первый элемент — сразу Телефон
+            const excelRowParts = [
+                cleanPhone,             // 1-я колонка: ТЕЛЕФОН КЛИЕНТА
+                recFio,                 // 2-я колонка: ФИО ПОЛУЧАТЕЛЯ
+                finalArticlesString,    // 3-я колонка: АРТИКУЛ ТОВАРА
+                finalQtyString,         // 4-я колонка: КОЛ-ВО ТОВАРА
+                clientCity,             // 5-я колонка: ГОРОД КЛИЕНТА
+                storeInfoString,        // 6-я колонка: ГОРОД И МАГАЗИН
+                pricePvz,               // 7-я колонка: ПВЗ - ЦЕНА ДОСТАВКИ
+                priceCourier,           // 8-я колонка: КК - ЦЕНА ДОСТАВКИ
+                delivDays,              // 9-я колонка: СРОК
+                methodText,             // 10-я колонка: СПОСОБ ДОСТАВКИ
+                deliveryAddress,        // 11-я колонка: АДРЕС ДОСТАВКИ
+                finalDateCell,          // 12-я колонка: ДАТА ОФОРМЛЕНИЯ
+                finalOrderCell          // 13-я колонка: НОМЕР ЗАКАЗА
+            ];
+
+            const finalExcelString = excelRowParts.join('\t');
+
+            navigator.clipboard.writeText(finalExcelString).then(() => {
+                const oldText = btnElement.innerHTML;
+                btnElement.innerHTML = '✅ Строка Excel скопирована!';
+                btnElement.style.background = '#16a34a';
+                setTimeout(() => {
+                    btnElement.innerHTML = oldText;
+                    btnElement.style.background = '#4338ca'; 
+                }, 1500);
+            }).catch(err => {
+                console.error('Ошибка буфера Excel:', err);
+                alert('❌ Ошибка доступа к буферу.');
+            });
         }
-
-        // 6. Цены
-        let pricePvz = '';
-        let priceCourier = '';
-        if (currentDeliveryMode === 'pvz') {
-            pricePvz = delivPrice;
-        } else {
-            priceCourier = delivPrice;
-        }
-
-        // 7. Способ доставки и номер заказа
-        const methodText = currentDeliveryMode === 'pvz' ? 'СДЭК ПВЗ' : 'Курьер'; 
-        const isPinkMode = document.getElementById('script-mode-toggle')?.checked || false;
-        const orderNumberRaw = document.getElementById('script-order-number')?.value || '';
-        const cleanOrderNumber = orderNumberRaw.trim();
-
-        const finalDateCell = isPinkMode ? '' : (delivDate ? delivDate.replace('T', ' ') : '');
-        const finalOrderCell = isPinkMode ? cleanOrderNumber : '';
-
-        // 8. Сборка строки: первый элемент — сразу Телефон
-        const excelRowParts = [
-            cleanPhone,             // 1-я колонка: ТЕЛЕФОН КЛИЕНТА
-            recFio,                 // 2-я колонка: ФИО ПОЛУЧАТЕЛЯ
-            finalArticlesString,    // 3-я колонка: АРТИКУЛ ТОВАРА
-            finalQtyString,         // 4-я колонка: КОЛ-ВО ТОВАРА
-            clientCity,             // 5-я колонка: ГОРОД КЛИЕНТА
-            storeInfoString,        // 6-я колонка: ГОРОД И МАГАЗИН
-            pricePvz,               // 7-я колонка: ПВЗ - ЦЕНА ДОСТАВКИ
-            priceCourier,           // 8-я колонка: КК - ЦЕНА ДОСТАВКИ
-            delivDays,              // 9-я колонка: СРОК
-            methodText,             // 10-я колонка: СПОСОБ ДОСТАВКИ
-            deliveryAddress,        // 11-я колонка: АДРЕС ДОСТАВКИ
-            finalDateCell,          // 12-я колонка: ДАТА ОФОРМЛЕНИЯ
-            finalOrderCell          // 13-я колонка: НОМЕР ЗАКАЗА
-        ];
-
-        const finalExcelString = excelRowParts.join('\t');
-
-        navigator.clipboard.writeText(finalExcelString).then(() => {
-            const oldText = btnElement.innerHTML;
-            btnElement.innerHTML = '✅ Строка Excel скопирована!';
-            btnElement.style.background = '#16a34a';
-            setTimeout(() => {
-                btnElement.innerHTML = oldText;
-                btnElement.style.background = '#4338ca'; 
-            }, 1500);
-        }).catch(err => {
-            console.error('Ошибка буфера Excel:', err);
-            alert('❌ Ошибка доступа к буферу.');
-        });
-    }
 
         function refreshProductContainerOnly() {
             const container = document.getElementById('script-products-container');
