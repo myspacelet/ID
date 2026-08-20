@@ -1475,7 +1475,7 @@
             m.addEventListener('mousedown', () => focusModal(m));
         });
 
-        function buildOrderProcessingModal() {
+       function buildOrderProcessingModal() {
             const container = document.getElementById('script-products-container');
             if (!container) return;
 
@@ -1576,9 +1576,28 @@
                 }
             }
 
-            if (activeItemsCount === 0) {
-                alert("❌ Заполните хотя бы один список товаров, чтобы обработать заказ!");
-                return;
+            // 🎯 Если списков на главном экране нет — создаем 1 пустую строку для ручного ввода
+            if (activeItemsCount === 0 && container.children.length === 0) {
+                const prodRow = document.createElement('div');
+                prodRow.className = 'script-product-row';
+                prodRow.style = 'background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 12px;';
+                prodRow.innerHTML = `
+                    <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                        <div style="flex: 2;">
+                            <span style="font-size: 11px; font-weight: 600; color: #64748b;">АРТИКУЛ ТОВАРА 1</span>
+                            <input type="text" class="input-textarea script-input-art" style="height: 36px; margin-bottom:0;" value="" placeholder="Вручную..." oninput="updateLiveScriptText()" autocomplete="off">
+                        </div>
+                        <div style="flex: 1; max-width: 100px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #64748b;">КОЛ-ВО (ШТ)</span>
+                            <input type="number" class="input-textarea script-input-qty" style="height: 36px; margin-bottom:0;" value="1" min="1" oninput="updateLiveScriptText()" autocomplete="off">
+                        </div>
+                    </div>
+                    <div style="width: 100%;">
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">НАИМЕНОВАНИЕ ТОВАРА (ДЛЯ КЛИЕНТА)</span>
+                        <input type="text" class="input-textarea script-input-name" data-link="" style="height: 36px; margin-bottom:0;" value="" placeholder="Например: Блеск для губ Pupa..." oninput="updateLiveScriptText()" autocomplete="off">
+                    </div>
+                `;
+                container.appendChild(prodRow);
             }
 
             openFloatingModal('modal-process-order');
