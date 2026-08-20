@@ -271,14 +271,18 @@
     </div>
 
 <!-- 🪐 ПЛАВАЮЩЕЕ ОКНО 2: ФОРМА ОТПРАВКИ (ШАБЛОНЫ) -->
-    <div id="modal-send-form" class="floating-modal" style="display: none; width: 420px;">
+    <div id="modal-send-form" class="floating-modal shablon-modal-window" style="display: none; width: 440px;">
         <div class="floating-modal-header" onmousedown="initModalDrag(event, 'modal-send-form')">
-            <span>✉️ Форма отправки (Шаблоны)</span>
-            <button class="floating-modal-close" onclick="closeFloatingModal('modal-send-form')">×</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>✉️ Форма отправки (Шаблоны)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="modal-close-right" onclick="closeFloatingModal('modal-send-form')" title="Закрыть"></button>
+            </div>
         </div>
         <div class="floating-modal-body" style="padding: 16px;">
-            <div id="shablon-list-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
-                <div style="text-align: center; color: #64748b; font-size: 13px;">⏳ Загрузка шаблонов...</div>
+            <div id="shablon-list-container" class="shablon-items-wrapper">
+                <div style="text-align: center; color: #64748b; font-size: 13px; padding: 20px;">⏳ Загрузка шаблонов...</div>
             </div>
         </div>
     </div>
@@ -2744,7 +2748,8 @@ function updateAllOperatorInputs(operatorName) {
         quickOperatorInput.value = operatorName;
     }
 }
-// Загрузка шаблонов из Supabase
+
+// Загрузка и рендеринг карточек шаблонов
         async function loadShablons() {
             const container = document.getElementById('shablon-list-container');
             if (!container) return;
@@ -2759,7 +2764,7 @@ function updateAllOperatorInputs(operatorName) {
                 shablonDataList = data || [];
 
                 if (shablonDataList.length === 0) {
-                    container.innerHTML = `<div style="text-align: center; color: #64748b; font-size: 13px;">Шаблоны не найдены</div>`;
+                    container.innerHTML = `<div style="text-align: center; color: #64748b; font-size: 13px; padding: 20px;">Шаблоны не найдены</div>`;
                     return;
                 }
 
@@ -2767,65 +2772,57 @@ function updateAllOperatorInputs(operatorName) {
                 shablonDataList.forEach((item, index) => {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'shablon-btn-item';
-                    btn.style = `
-                        width: 100%;
-                        padding: 12px 16px;
-                        background: #f8fafc;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 10px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        color: #1e293b;
-                        text-align: left;
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        transition: all 0.2s ease;
-                    `;
-                    btn.innerHTML = `<span>📋 ${item.name}</span><span style="font-size: 11px; color: #94a3b8; font-weight: normal;">Нажмите, чтобы скопировать</span>`;
+                    btn.className = 'shablon-card-btn';
                     
-                    // Эффекты при наведении
-                    btn.onmouseenter = () => { btn.style.background = '#f1f5f9'; btn.style.borderColor = '#cbd5e1'; };
-                    btn.onmouseleave = () => { btn.style.background = '#f8fafc'; btn.style.borderColor = '#e2e8f0'; };
-
-                    // Клик для копирования
+                    btn.innerHTML = `
+                        <div class="shablon-left-content">
+                            <div class="shablon-icon-box">📄</div>
+                            <span class="shablon-title-text">${item.name}</span>
+                        </div>
+                        <span class="shablon-hint-tag">Скопировать</span>
+                    `;
+                    
                     btn.onclick = () => copyShablonByIndex(index, btn);
-
                     container.appendChild(btn);
                 });
 
             } catch (err) {
                 console.error('Ошибка загрузки шаблонов:', err);
-                container.innerHTML = `<div style="text-align: center; color: #ef4444; font-size: 13px;">❌ Ошибка загрузки шаблонов</div>`;
+                container.innerHTML = `<div style="text-align: center; color: #ef4444; font-size: 13px; padding: 20px;">❌ Ошибка загрузки шаблонов</div>`;
             }
         }
 
-        // Копирование с полным сохранением структуры, отступов и переносов строк
+        // Копирование с плавной индикацией
         function copyShablonByIndex(index, btnElement) {
             const shablon = shablonDataList[index];
             if (!shablon || typeof shablon.text !== 'string') return;
 
             navigator.clipboard.writeText(shablon.text).then(() => {
-                const originalContent = btnElement.innerHTML;
-                const originalBg = btnElement.style.background;
-                const originalColor = btnElement.style.color;
+                const iconBox = btnElement.querySelector('.shablon-icon-box');
+                const titleText = btnElement.querySelector('.shablon-title-text');
+                const hintTag = btnElement.querySelector('.shablon-hint-tag');
 
-                btnElement.innerHTML = `<span>✅ Скопировано!</span><span style="font-size: 11px; color: #ffffff;">В буфере</span>`;
-                btnElement.style.background = '#16a34a';
-                btnElement.style.color = '#ffffff';
+                const origIcon = iconBox.innerText;
+                const origTitle = titleText.innerText;
+                const origHint = hintTag.innerText;
+
+                btnElement.classList.add('copied');
+                iconBox.innerText = '✅';
+                titleText.innerText = 'Скопировано в буфер!';
+                hintTag.innerText = 'Готово';
 
                 setTimeout(() => {
-                    btnElement.innerHTML = originalContent;
-                    btnElement.style.background = originalBg;
-                    btnElement.style.color = originalColor;
-                }, 1200);
+                    btnElement.classList.remove('copied');
+                    iconBox.innerText = origIcon;
+                    titleText.innerText = origTitle;
+                    hintTag.innerText = origHint;
+                }, 1100);
             }).catch(err => {
                 console.error('Ошибка копирования текста шаблона:', err);
                 alert('Не удалось скопировать текст в буфер');
             });
         }
+        
     </script>
     <!-- 🪐 МИКРО-МОДАЛКА: БЫСТРОЕ ДОБАВЛЕНИЕ В ЛИСТ ОЖИДАНИЯ -->
 <div id="modal-quick-wl" class="floating-modal" style="display: none; width: 440px; z-index: 2500; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);">
