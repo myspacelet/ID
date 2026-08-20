@@ -290,6 +290,7 @@
     </div>
 
     <!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ -->
+   <!-- 🪐 ОКНО: ЛИСТ ОЖИДАНИЯ -->
     <div id="modal-waiting-list" class="floating-modal">
         <div class="floating-modal-header">
             <span>⏳ Лист ожидания</span>
@@ -326,14 +327,11 @@
                     <input type="text" id="wl-input-operator" readonly style="opacity: 0.6; cursor: not-allowed;">
                 </div>
             </div>
+
             <!-- 🔥 КНОПКИ ДЕЙСТВИЙ (Добавлена красная кнопка удаления) -->
             <div class="wl-form-actions" style="display: flex; justify-content: flex-end; gap: 8px;">
                 <button type="button" id="wl-btn-delete" class="wl-btn-delete" onclick="deleteCurrentEditingTask()" style="display: none;">Удалить задачу</button>
                 <button type="button" class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
-            </div>
-        </div>
-            <div class="wl-form-actions">
-                <button class="wl-btn-save" onclick="saveNewTaskToSupabase()">Сохранить задачу</button>
             </div>
         </div>
 
