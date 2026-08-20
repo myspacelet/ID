@@ -2535,8 +2535,12 @@ function closeQuickWaitingListModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// Сохранение в Supabase
+// Сохранение в Supabase из быстрого модального окна
 async function saveQuickWaitingListTask() {
+    const supabaseClient = (typeof supabase !== 'undefined' && typeof supabase.from === 'function') 
+        ? supabase 
+        : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const taskIdRaw = document.getElementById('quick-wl-id')?.value.trim();
     if (!taskIdRaw) {
         alert('❌ Пожалуйста, введите ID задачи!');
@@ -2546,12 +2550,14 @@ async function saveQuickWaitingListTask() {
 
     const taskId = parseInt(taskIdRaw, 10);
     const classifier = document.getElementById('quick-wl-classifier')?.value || 'класс 1';
-    const comment = document.getElementById('quick-wl-comment')?.value.trim() || '';
-    const callbackVal = document.getElementById('quick-wl-callback')?.value || null;
-    const operator = document.getElementById('quick-wl-operator')?.value || 'Оператор';
+    const comment = document.getElementById('quick-wl-comment')?.value.trim() || null;
+    const callbackAt = document.getElementById('quick-wl-callback')?.value || null;
+    const operatorName = document.getElementById('quick-wl-operator')?.value || 'Оператор';
 
     const saveBtn = document.getElementById('btn-save-quick-wl');
+    let originalText = 'Сохранить задачу';
     if (saveBtn) {
+        originalText = saveBtn.innerText;
         saveBtn.innerText = 'Сохранение...';
         saveBtn.disabled = true;
     }
@@ -2563,26 +2569,30 @@ async function saveQuickWaitingListTask() {
                 id: taskId,
                 classifier: classifier,
                 comment: comment,
-                callback_at: callbackVal ? new Date(callbackVal).toISOString() : null,
-                operator: operator
+                callback_at: callbackAt,
+                operator_name: operatorName,
+                status: 'В работе'
             }]);
 
-        if (error) throw error;
+        if (error) {
+            if (error.code === '23505') throw new Error('Задача с таким ID уже существует в Листе ожидания!');
+            throw error;
+        }
 
         closeQuickWaitingListModal();
         alert('🎉 Задача успешно сохранена в Лист ожидания!');
 
-        // Фоновое обновление таблицы листа ожидания, если она загружена
+        // Обновляем список, если открыта таблица листа ожидания
         if (typeof loadWaitingList === 'function') {
-            loadWaitingList();
+            await loadWaitingList();
         }
 
     } catch (err) {
-        console.error('Ошибка сохранения в лист ожидания:', err);
-        alert('❌ Не удалось сохранить задачу: ' + (err.message || 'Проверьте соединение'));
+        console.error('Ошибка Supabase:', err);
+        alert('❌ Ошибка при сохранении: ' + (err.message || 'Неизвестная ошибка'));
     } finally {
         if (saveBtn) {
-            saveBtn.innerText = 'Сохранить задачу';
+            saveBtn.innerText = originalText;
             saveBtn.disabled = false;
         }
     }
