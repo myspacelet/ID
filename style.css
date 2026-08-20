@@ -1464,3 +1464,46 @@ body.dark-mode .city-modal-select-btn.disabled {
 .script-toggle input:checked + .script-toggle-slider::before {
     transform: translateX(20px);
 }
+
+/* Раздельные блоки результатов */
+.results-group-block {
+    margin-bottom: 20px;
+}
+
+.results-group-block:last-child {
+    margin-bottom: 0;
+}
+
+.results-group-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Заголовок точных магазинов (Зеленый) */
+.results-group-title.exact-group-title {
+    color: #16a34a;
+    border-bottom-color: #bbf7d0;
+}
+
+/* Заголовок совпадений по городу (Синий) */
+.results-group-title.soft-group-title {
+    color: #2563eb;
+    border-bottom-color: #bfdbfe;
+    margin-top: 14px;
+}
+
+/* Адаптация под тёмную тему */
+body.dark-mode .results-group-title.exact-group-title {
+    color: #34d399;
+    border-bottom-color: #047857;
+}
+
+body.dark-mode .results-group-title.soft-group-title {
+    color: #60a5fa;
+    border-bottom-color: #1e3a8a;
+}

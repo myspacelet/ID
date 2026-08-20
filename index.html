@@ -924,7 +924,7 @@
             scrollToBottom();
         }
 
-        function renderResults(storesArray, matchType) {
+       function renderResults(storesArray, matchType) {
             const container = document.getElementById('results-rows-container');
             container.innerHTML = ''; 
 
@@ -934,63 +934,89 @@
                 return;
             }
 
-            const groupedRows = {};
+            const exactGroups = {};
+            const cityGroups = {};
 
             storesArray.forEach(item => {
                 const dbItem = storeDatabase[item.code];
                 let cityName = "Неизвестный код";
+                
                 if (dbItem) {
                     cityName = (currentSearchMode === 'city') ? dbItem.city : item.code;
                 } else if (item.softCityKey) {
                     cityName = item.softCityKey;
                 }
 
-                const typeLabel = item.isExact ? "exact" : "soft";
-                const groupKey = `${cityName}__${typeLabel}`;
+                const targetGroupMap = item.isExact ? exactGroups : cityGroups;
 
-                if (!groupedRows[groupKey]) {
-                    groupedRows[groupKey] = {
+                if (!targetGroupMap[cityName]) {
+                    targetGroupMap[cityName] = {
                         cityName: cityName,
                         isExact: item.isExact,
                         stores: []
                     };
                 }
-                groupedRows[groupKey].stores.push(item);
+                targetGroupMap[cityName].stores.push(item);
             });
 
-            Object.keys(groupedRows).forEach(key => {
-                const group = groupedRows[key];
-                const row = document.createElement('div');
-                row.className = 'result-row';
-                row.setAttribute('data-city', group.cityName.trim().toLowerCase());
+            function buildCityRowsHTML(groupMap) {
+                let html = '';
+                Object.keys(groupMap).forEach(cityName => {
+                    const group = groupMap[cityName];
+                    const cleanCityAttr = group.cityName.trim().toLowerCase();
+                    const cityNameEscaped = group.cityName.replace(/'/g, "\\'");
 
-                const cityNameEscaped = group.cityName.replace(/'/g, "\\'");
-                const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
-                const top3Stores = sortedStores.slice(0, 3);
+                    const sortedStores = group.stores.sort((a, b) => b.stock - a.stock);
+                    const top3Stores = sortedStores.slice(0, 3);
 
-                let badgesHtml = '';
-                top3Stores.forEach(store => {
-                    const exactClass = store.isExact ? ' exact-badge' : '';
-                    const isSelectedClass = (selectedStoreCode === store.code) ? ' active-selected-store' : '';
-                    badgesHtml += `<button class="store-badge${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
+                    let badgesHtml = '';
+                    top3Stores.forEach(store => {
+                        const exactClass = store.isExact ? ' exact-badge' : '';
+                        const isSelectedClass = (selectedStoreCode === store.code) ? ' active-selected-store' : '';
+                        badgesHtml += `<button class="store-badge${exactClass}${isSelectedClass}" onclick="openStoreCard('${store.code}')">${store.code} (${store.stock} шт)</button>`;
+                    });
+
+                    html += `
+                        <div class="result-row" data-city="${cleanCityAttr}">
+                            <div class="result-city">
+                                <span class="clickable-city-title" onclick="openCityShopsModal('${cityNameEscaped}')">
+                                    ${group.cityName}
+                                </span>
+                            </div>
+                            <div class="badges-container">${badgesHtml}</div>
+                        </div>
+                    `;
                 });
+                return html;
+            }
 
-                const matchLabel = group.isExact 
-                    ? `<span class="search-match-badge exact-match-badge">ТОЧНЫЙ МАГАЗИН</span>` 
-                    : `<span class="search-match-badge city-match-badge">СОВПАДЕНИЕ ПО ГОРОДУ</span>`;
+            let finalHTML = '';
 
-                row.innerHTML = `
-                    <div class="result-city" style="display:flex; align-items:center;">
-                        <span class="clickable-city-title" onclick="openCityShopsModal('${cityNameEscaped}')">
-                            ${group.cityName}
-                        </span>
-                        ${matchLabel}
+            const exactKeys = Object.keys(exactGroups);
+            if (exactKeys.length > 0) {
+                finalHTML += `
+                    <div class="results-group-block">
+                        <div class="results-group-title exact-group-title">🎯 Точные магазины (${exactKeys.length})</div>
+                        <div class="results-group-list">
+                            ${buildCityRowsHTML(exactGroups)}
+                        </div>
                     </div>
-                    <div class="badges-container">${badgesHtml}</div>
                 `;
-                container.appendChild(row);
-            });
+            }
 
+            const cityKeys = Object.keys(cityGroups);
+            if (cityKeys.length > 0) {
+                finalHTML += `
+                    <div class="results-group-block">
+                        <div class="results-group-title soft-group-title">🏙️ Совпадения по городу (${cityKeys.length})</div>
+                        <div class="results-group-list">
+                            ${buildCityRowsHTML(cityGroups)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = finalHTML;
             document.getElementById('results-section').style.display = 'block';
         }
 
